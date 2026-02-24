@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.5.2">
   <diagram name="Página-1" id="Nfy-wfMCMLZGm0c_uQxU">
-    <mxGraphModel dx="814" dy="784" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="841" dy="929" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="VMKRw8TRvkwMgEsex0hI-0" />
         <mxCell id="VMKRw8TRvkwMgEsex0hI-1" parent="VMKRw8TRvkwMgEsex0hI-0" />
@@ -179,6 +179,12 @@
           <mxGeometry height="50" relative="1" width="50" as="geometry">
             <mxPoint x="160" y="340" as="sourcePoint" />
             <mxPoint x="210" y="290" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="Hync_5PrB7GSLFJGz-BD-0" edge="1" parent="RS249bRlHWvl1HDxMg3g-7" source="RS249bRlHWvl1HDxMg3g-12" style="endArrow=none;html=1;rounded=0;fontSize=12;startSize=8;endSize=8;curved=1;entryX=0;entryY=0;entryDx=0;entryDy=0;exitX=1;exitY=0;exitDx=0;exitDy=0;" target="RS249bRlHWvl1HDxMg3g-50" value="">
+          <mxGeometry height="50" relative="1" width="50" as="geometry">
+            <mxPoint x="120" y="390" as="sourcePoint" />
+            <mxPoint x="170" y="340" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="RS249bRlHWvl1HDxMg3g-8" parent="VMKRw8TRvkwMgEsex0hI-1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Dispositivo Externo (ip = 3)" vertex="1">
