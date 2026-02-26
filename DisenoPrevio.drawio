@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.5.3">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.5.4">
   <diagram name="Página-1" id="mYcFTMdLhrVBS2J_pB7D">
-    <mxGraphModel dx="2385" dy="2090" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="713" dy="880" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -488,7 +488,7 @@
           <mxGeometry height="80" width="200" x="1120" y="1600" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-9" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Mensaje" vertex="1">
-          <mxGeometry height="80" width="120" x="39" y="830" as="geometry" />
+          <mxGeometry height="40" width="120" x="39" y="820" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-10" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
           <mxGeometry height="400" width="200" y="1160" as="geometry" />
@@ -591,13 +591,13 @@
         <mxCell id="Cyf2clMtlYJryDkSrl4x-77" edge="1" parent="1" source="Cyf2clMtlYJryDkSrl4x-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="Cyf2clMtlYJryDkSrl4x-64">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="Cyf2clMtlYJryDkSrl4x-62" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Source" vertex="1">
+        <mxCell id="Cyf2clMtlYJryDkSrl4x-62" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Local" vertex="1">
           <mxGeometry height="30" width="60" x="740" y="1720" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-64" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
           <mxGeometry height="400" width="200" x="840" y="1680" as="geometry" />
         </mxCell>
-        <mxCell id="Cyf2clMtlYJryDkSrl4x-65" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Source Name&lt;div&gt;(default: NewSource)&lt;/div&gt;" vertex="1">
+        <mxCell id="Cyf2clMtlYJryDkSrl4x-65" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Local Name&lt;div&gt;(default: NewLocal)&lt;/div&gt;" vertex="1">
           <mxGeometry height="36" width="160" x="860" y="1700" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-66" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Password" vertex="1">
@@ -609,10 +609,10 @@
         <mxCell id="Cyf2clMtlYJryDkSrl4x-68" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Port (cb)" vertex="1">
           <mxGeometry height="20" width="120" x="860" y="1791.75" as="geometry" />
         </mxCell>
-        <mxCell id="Cyf2clMtlYJryDkSrl4x-69" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Source" vertex="1">
+        <mxCell id="Cyf2clMtlYJryDkSrl4x-69" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Local" vertex="1">
           <mxGeometry height="40" width="160" x="860" y="2020" as="geometry" />
         </mxCell>
-        <mxCell id="Cyf2clMtlYJryDkSrl4x-70" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Crear Source&lt;/h1&gt;" vertex="1">
+        <mxCell id="Cyf2clMtlYJryDkSrl4x-70" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Crear Local&lt;/h1&gt;" vertex="1">
           <mxGeometry height="80" width="200" x="840" y="1600" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-71" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="PasswordRequired" vertex="1">
@@ -1192,7 +1192,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="Cyf2clMtlYJryDkSrl4x-274" edge="1" parent="1" source="Cyf2clMtlYJryDkSrl4x-256" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="Cyf2clMtlYJryDkSrl4x-265">
+        <mxCell id="Cyf2clMtlYJryDkSrl4x-274" edge="1" parent="1" source="Cyf2clMtlYJryDkSrl4x-256" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="Cyf2clMtlYJryDkSrl4x-265">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-256" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
@@ -1219,7 +1219,10 @@
         <mxCell id="Cyf2clMtlYJryDkSrl4x-263" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline2&lt;/h1&gt;" vertex="1">
           <mxGeometry height="80" width="200" x="360" y="2120" as="geometry" />
         </mxCell>
-        <mxCell id="Cyf2clMtlYJryDkSrl4x-265" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="UserTable" vertex="1">
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-21" edge="1" parent="1" source="Cyf2clMtlYJryDkSrl4x-265" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Cyf2clMtlYJryDkSrl4x-265" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
           <mxGeometry height="400" width="200" x="600" y="2200" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-267" parent="1" style="swimlane;whiteSpace=wrap;html=1;direction=north;startSize=60;" value="UserName" vertex="1">
@@ -1236,11 +1239,233 @@
         <mxCell id="Cyf2clMtlYJryDkSrl4x-270" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Añadir External" vertex="1">
           <mxGeometry height="30" width="60" x="740" y="2270" as="geometry" />
         </mxCell>
-        <mxCell id="Cyf2clMtlYJryDkSrl4x-271" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Source" vertex="1">
+        <mxCell id="Cyf2clMtlYJryDkSrl4x-271" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Local" vertex="1">
           <mxGeometry height="30" width="60" x="740" y="2240" as="geometry" />
         </mxCell>
         <mxCell id="Cyf2clMtlYJryDkSrl4x-273" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline3&lt;/h1&gt;" vertex="1">
           <mxGeometry height="80" width="200" x="600" y="2120" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-1" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Esto es la lista con usuarios cuyos datos están en este dispositivo. Hay tres tipos de usuarios. User, este es un usuario normal como tu. Local es un usuario a cual puedes asignar un grupo de tareas y otras personas desde fuero pueden conectar a el para ver este grupo de tareas. Y ultimo tipo es External. Este tipo es cuando pasa lo contrario y tu conectas a alguien para tener acceso a sus tareas." vertex="1">
+          <mxGeometry height="300" width="180" x="610" y="2300" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-2" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Vamos a crear un usuario de tipo Local" vertex="1">
+          <mxGeometry height="60" width="80" x="640" y="2240" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-31" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-11" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="400" width="200" x="840" y="2200" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-12" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Local Name&lt;div&gt;(default: NewLocal)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="36" width="160" x="860" y="2220" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Password" vertex="1">
+          <mxGeometry height="20" width="120" x="860" y="2368.25" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-14" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="ConfirmRequired" vertex="1">
+          <mxGeometry height="20" width="120" x="860" y="2448.25" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Port (cb)" vertex="1">
+          <mxGeometry height="20" width="120" x="860" y="2311.75" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Local" vertex="1">
+          <mxGeometry height="40" width="160" x="860" y="2540" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="PasswordRequired" vertex="1">
+          <mxGeometry height="20" width="120" x="860" y="2408.25" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-18" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Task Group (cb)" vertex="1">
+          <mxGeometry height="20" width="120" x="860" y="2275" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-19" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline4&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="840" y="2120" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-20" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Pulsa a cada campo para saber que hace y luego pulsa botón &quot;Crear Local&quot;." vertex="1">
+          <mxGeometry height="260" width="60" x="980" y="2275" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-41" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-34">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1600" y="2400" />
+              <mxPoint x="1600" y="2920" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-22" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="400" width="200" x="1360" y="2200" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-23" parent="1" style="swimlane;whiteSpace=wrap;html=1;direction=north;startSize=60;" value="UserName" vertex="1">
+          <mxGeometry height="20" width="200" x="1360" y="2200" as="geometry">
+            <mxRectangle height="30" width="100" x="600" y="1680" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-24" parent="wtiqyYmBnHTSfobEPRNI-23" style="rounded=0;whiteSpace=wrap;html=1;" value="TaskGroup" vertex="1">
+          <mxGeometry height="20" width="80" x="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-25" parent="wtiqyYmBnHTSfobEPRNI-23" style="rounded=0;whiteSpace=wrap;html=1;" value="Type" vertex="1">
+          <mxGeometry height="20" width="60" x="140" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-26" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Añadir External" vertex="1">
+          <mxGeometry height="30" width="60" x="1500" y="2270" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-27" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Local" vertex="1">
+          <mxGeometry height="30" width="60" x="1500" y="2240" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-28" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline5&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="1360" y="2120" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-29" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Bien ahora tienes un Local, ahora vamos a ver como añadir un External conectando a un Local Externo." vertex="1">
+          <mxGeometry height="280" width="180" x="1370" y="2311.75" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-32" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Archivo (En caso si esta hecha copia de seguridad)" vertex="1">
+          <mxGeometry height="40" width="120" x="39" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-80" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-34" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-52">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-34" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="400" width="200" x="1360" y="2720" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-36" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="External source Name&lt;div&gt;(default: NewSource)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="36" width="160" x="1380" y="2740" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-37" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Password" vertex="1">
+          <mxGeometry height="20" width="120" x="1380" y="2920" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-38" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="IP" vertex="1">
+          <mxGeometry height="20" width="120" x="1380" y="2820" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-39" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Port" vertex="1">
+          <mxGeometry height="20" width="120" x="1380" y="2863.5" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-40" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Mandar peticion" vertex="1">
+          <mxGeometry height="40" width="160" x="1380" y="3060" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-42" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline6&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="1360" y="2640" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-43" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&amp;nbsp;Lo mejor sera utilizar otro dispositivo tuyo con un Local, pero si no lo tienes puedes mirar lista de Tareas Publicas aquí. Pulsa a cada campo para saber que hace y luego pulsa botón &quot;Mandar peticion&quot;." vertex="1">
+          <mxGeometry height="100" width="180" x="1370" y="2950" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-81" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-52" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-65">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-52" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="400" width="200" x="1120" y="2720" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-53" parent="1" style="swimlane;whiteSpace=wrap;html=1;direction=north;startSize=60;" value="UserName" vertex="1">
+          <mxGeometry height="20" width="200" x="1120" y="2720" as="geometry">
+            <mxRectangle height="30" width="100" x="600" y="1680" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-54" parent="wtiqyYmBnHTSfobEPRNI-53" style="rounded=0;whiteSpace=wrap;html=1;" value="TaskGroup" vertex="1">
+          <mxGeometry height="20" width="80" x="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-55" parent="wtiqyYmBnHTSfobEPRNI-53" style="rounded=0;whiteSpace=wrap;html=1;" value="Type" vertex="1">
+          <mxGeometry height="20" width="60" x="140" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-56" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Añadir External" vertex="1">
+          <mxGeometry height="30" width="60" x="1260" y="2790" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-57" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Crear Local" vertex="1">
+          <mxGeometry height="30" width="60" x="1260" y="2760" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-58" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline7&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="1120" y="2640" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-78" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-69">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-59" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Si hiciste todo bien y esta conectado a la red recibes un mensaje en unos segundos.&amp;nbsp;" vertex="1">
+          <mxGeometry height="300" width="180" x="1130" y="2820" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-82" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-65" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-70">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-65" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
+          <mxGeometry height="400" width="200" x="840" y="2720" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-61" parent="wtiqyYmBnHTSfobEPRNI-65" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="" vertex="1">
+          <mxGeometry height="140" width="200" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-63" parent="wtiqyYmBnHTSfobEPRNI-65" style="rounded=0;whiteSpace=wrap;html=1;" value="Mensaje recebido" vertex="1">
+          <mxGeometry height="80" width="180" x="10" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-64" parent="wtiqyYmBnHTSfobEPRNI-65" style="rounded=0;whiteSpace=wrap;html=1;" value="Cerrar" vertex="1">
+          <mxGeometry height="26.5" width="80" x="60" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-68" parent="wtiqyYmBnHTSfobEPRNI-65" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Parece todo se ha ido bien ahora puedes mirar la lista de tareas y recibir actualizaciones de ella. Ahora vamos a mirar otra opción de menú." vertex="1">
+          <mxGeometry height="240" width="180" x="10" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-67" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline8&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="840" y="2640" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-79" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-69" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;fontSize=12;startSize=8;endSize=8;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="wtiqyYmBnHTSfobEPRNI-70">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1020" y="3170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-69" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Pasa 30 Segundos" vertex="1">
+          <mxGeometry height="80" width="80" x="1040" y="3120" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-89" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-70" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-83">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-70" parent="1" style="swimlane;startSize=0;" value="" vertex="1">
+          <mxGeometry height="400" width="200" x="600" y="2720" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-71" parent="wtiqyYmBnHTSfobEPRNI-70" style="rounded=0;whiteSpace=wrap;html=1;" value="Tasks Manager" vertex="1">
+          <mxGeometry height="90" width="120" x="80" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-72" parent="wtiqyYmBnHTSfobEPRNI-70" style="rounded=0;whiteSpace=wrap;html=1;" value="User Manager" vertex="1">
+          <mxGeometry height="90" width="120" x="80" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-73" parent="wtiqyYmBnHTSfobEPRNI-70" style="rounded=0;whiteSpace=wrap;html=1;" value="Usuarios externos" vertex="1">
+          <mxGeometry height="90" width="120" x="80" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-74" parent="wtiqyYmBnHTSfobEPRNI-70" style="rounded=0;whiteSpace=wrap;html=1;" value="Ajustes" vertex="1">
+          <mxGeometry height="90" width="120" x="80" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-75" parent="wtiqyYmBnHTSfobEPRNI-70" style="rounded=0;whiteSpace=wrap;html=1;" value="Nombre o/y ico del usuario" vertex="1">
+          <mxGeometry height="40" width="120" x="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-76" parent="wtiqyYmBnHTSfobEPRNI-70" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Ahora te comento opcion del menú restante &quot;Usuarios externos&quot;. Pulsa el boton." vertex="1">
+          <mxGeometry height="400" width="80" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-77" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline9&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="600" y="2640" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-94" edge="1" parent="1" source="wtiqyYmBnHTSfobEPRNI-83" style="edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=12;startSize=8;endSize=8;" target="wtiqyYmBnHTSfobEPRNI-90">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-83" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Aquí aparecen todos usuarios que están conectados a alguno de tus usuarios" vertex="1">
+          <mxGeometry height="400" width="200" x="360" y="2720" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-85" parent="1" style="swimlane;whiteSpace=wrap;html=1;direction=north;startSize=100;" value="UserName" vertex="1">
+          <mxGeometry height="20" width="200" x="360" y="2720" as="geometry">
+            <mxRectangle height="30" width="100" x="600" y="1680" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-86" parent="wtiqyYmBnHTSfobEPRNI-85" style="rounded=0;whiteSpace=wrap;html=1;" value="Conected User" vertex="1">
+          <mxGeometry height="20" width="100" x="100" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-87" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline10&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" x="360" y="2640" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-90" parent="1" style="rounded=0;whiteSpace=wrap;html=1;labelBackgroundColor=none;" value="Esto ya esta todo." vertex="1">
+          <mxGeometry height="400" width="200" y="2720" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-91" parent="1" style="swimlane;whiteSpace=wrap;html=1;direction=north;startSize=100;" value="UserName" vertex="1">
+          <mxGeometry height="20" width="200" y="2720" as="geometry">
+            <mxRectangle height="30" width="100" x="600" y="1680" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-92" parent="wtiqyYmBnHTSfobEPRNI-91" style="rounded=0;whiteSpace=wrap;html=1;" value="Conected User" vertex="1">
+          <mxGeometry height="20" width="100" x="100" as="geometry" />
+        </mxCell>
+        <mxCell id="wtiqyYmBnHTSfobEPRNI-93" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;align=center;labelBackgroundColor=none;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;TutorialOnline11&lt;/h1&gt;" vertex="1">
+          <mxGeometry height="80" width="200" y="2640" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
