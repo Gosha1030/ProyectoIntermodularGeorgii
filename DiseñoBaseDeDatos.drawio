@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36" version="29.5.4">
   <diagram id="R2lEEEUBdFMjLlhIrx00" name="Page-1">
-    <mxGraphModel dx="1557" dy="1206" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" extFonts="Permanent Marker^https://fonts.googleapis.com/css?family=Permanent+Marker">
+    <mxGraphModel dx="1420" dy="1425" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0" extFonts="Permanent Marker^https://fonts.googleapis.com/css?family=Permanent+Marker">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -642,6 +642,76 @@
           <mxGeometry height="100" relative="1" width="100" as="geometry">
             <mxPoint x="840" y="900" as="sourcePoint" />
             <mxPoint x="940" y="800" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-1" parent="1" style="shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;" value="Travel" vertex="1">
+          <mxGeometry height="180" width="640" x="800" y="840" as="geometry">
+            <mxRectangle height="30" width="110" x="80" y="870" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-2" parent="H7BmILGRsNabPioEHFXZ-1" style="shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=1;" value="" vertex="1">
+          <mxGeometry height="30" width="640" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-3" parent="H7BmILGRsNabPioEHFXZ-2" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;fontStyle=1;" value="PK" vertex="1">
+          <mxGeometry height="30" width="30" as="geometry">
+            <mxRectangle height="30" width="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-4" parent="H7BmILGRsNabPioEHFXZ-2" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;fontStyle=5;" value="TrravelId INT NOT NULL " vertex="1">
+          <mxGeometry height="30" width="610" x="30" as="geometry">
+            <mxRectangle height="30" width="610" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-11" parent="H7BmILGRsNabPioEHFXZ-1" style="shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" value="" vertex="1">
+          <mxGeometry height="30" width="640" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-12" parent="H7BmILGRsNabPioEHFXZ-11" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" value="" vertex="1">
+          <mxGeometry height="30" width="30" as="geometry">
+            <mxRectangle height="30" width="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-13" parent="H7BmILGRsNabPioEHFXZ-11" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;" value="Type VARCHAR(10) NOT NULL " vertex="1">
+          <mxGeometry height="30" width="610" x="30" as="geometry">
+            <mxRectangle height="30" width="610" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-14" parent="H7BmILGRsNabPioEHFXZ-1" style="shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" value="" vertex="1">
+          <mxGeometry height="30" width="640" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-15" parent="H7BmILGRsNabPioEHFXZ-14" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" value="" vertex="1">
+          <mxGeometry height="30" width="30" as="geometry">
+            <mxRectangle height="30" width="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-16" parent="H7BmILGRsNabPioEHFXZ-14" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;" value="Start VARCHAR(100) NOT NULL " vertex="1">
+          <mxGeometry height="30" width="610" x="30" as="geometry">
+            <mxRectangle height="30" width="610" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-20" parent="H7BmILGRsNabPioEHFXZ-1" style="shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" value="" vertex="1">
+          <mxGeometry height="30" width="640" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-21" parent="H7BmILGRsNabPioEHFXZ-20" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" value="" vertex="1">
+          <mxGeometry height="30" width="30" as="geometry">
+            <mxRectangle height="30" width="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-22" parent="H7BmILGRsNabPioEHFXZ-20" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;" value="Finish VARCHAR(100) NOT NULL " vertex="1">
+          <mxGeometry height="30" width="610" x="30" as="geometry">
+            <mxRectangle height="30" width="610" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-17" parent="H7BmILGRsNabPioEHFXZ-1" style="shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=0;" value="" vertex="1">
+          <mxGeometry height="30" width="640" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-18" parent="H7BmILGRsNabPioEHFXZ-17" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;" value="" vertex="1">
+          <mxGeometry height="30" width="30" as="geometry">
+            <mxRectangle height="30" width="30" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="H7BmILGRsNabPioEHFXZ-19" parent="H7BmILGRsNabPioEHFXZ-17" style="shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;" value="TimeM INT NOT NULL" vertex="1">
+          <mxGeometry height="30" width="610" x="30" as="geometry">
+            <mxRectangle height="30" width="610" as="alternateBounds" />
           </mxGeometry>
         </mxCell>
       </root>
