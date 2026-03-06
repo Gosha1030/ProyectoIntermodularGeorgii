@@ -1,0 +1,361 @@
+Task
+OPK Taskld INT NOT NULL
+FK TaskGroup INT NULL
+TaskName VARCHAR(30) NOT NULL
+Type VARCHAR(10) NOT NULL (Unique, Daily, Weekly, Yearly, Periodic)
+Date VARCHAR(100) NOT NULL (Content depends of type)
+State BOOL NOT NULL DEFAULT(TRUE)
+PK ReAsignacionld INT NOT NULL
+FK
+User INT NOT NULL
+ReAsignacionDeld
+Oldid INT NOT NULL
+Newld INT NOT NULL
+IdType BOOL NOT NULL (True = TaskGroup, False = Task)
+StartTime TIME NULL (When Starts)
+TimeM INT NULL (How much Minuts for doing Task)
+Period TimeM INT NULL (How much Minuts for start doing Task; Not useable without StartTime) Weight INT NULL
+NotifyWhenHow VARCHAR(100) NULL (Como notificar y cuando)
+WhenStart VARCHAR(100) NULL (Que hace App cuando se empieza)
+Muted BOOL NOT NULL DEFAULT(FALSE) (Unico dato cuya informacion no se comparte) Where VARCHAR(100) NULL
+PK
+Externalld INT NOT NULL
+FK User INT NOT NULL
+ExternalUser
+ExternalUserName VARCVHAR(20) NOT NULL
+Ip INT NOT NULL
+Port INT NOT NULL
+Type VARCHAR(9) NULL (No estoy seguro que lo voy a usar)
+TaskGroup
+OH PK
+TaskGroupid INT NOT NULL
+PK
+Userld INT NOT NULL
+O+ FK
+TaskGroup INT NOT NULL
+User
+Lo FK TaskGroup INT NULL
+FK
+User INT NULL
+TaskGroupName VARCHAR(30) NOT NULL
+State BOOL NOT NULL DEFAULT(TRUE)
+Weight INT NOT NULL
+Muted BOOL NOT NULL DEFAULT(FALSE) (Unico dato cuya informacion no se comparte)
+UserName VARCHAR(20) NOT NULL
+Password VARCVHAR(20) NOT NULL
+Type VARCHAR(8) (USER, LOCAL, EXTERNAL) NOT NULL
+Ip INT NOT NULL
+PasswordRequired BOOL DEFAULT(TRUE) NOT NULL
+ConfirmRequired BOOL DEFAULT(TRUE) NOT NULL
+Port INT NULL
+Ajustes VARCHAR(100) NULL
+PK TaskChangeld INT NOT NULL
+FK
+Task INT NULL
+FK
+TaskGroup INT NULL
+TaskChange
+Type VARCHAR(10) NOT NULL
+Date VARCHAR(100) NOT NULL (Content depends of type)
+When DATETIME NOT NULL
+PK
+Trravelld INT NOT NULL
+Type VARCHAR(10) NOT NULL Start VARCHAR(100) NOT NULL Finish VARCHAR(100) NOT NULL TimeM INT NOT NULL
+Travel
+
+SplashScreen
+Inicio secion
+TutorialOffline9
+Icono (o icono animado)
+UserName
+Contraseña
+Menú des- plegable
+Esto ya esta todo
+TutorialOffline8
+學 學
+TutorialOffline7
+TutorialOffline6
+Buscar y Filtrar
+Menú des-
+plegable
+Crear Task
+Task Group Name (default: New Task Group)
+Crear Task
+Group
+Añadir
+Task Group (cb)
+sobre funciones offline de la app, si
+Ask pasword [x]
+Autorizado
+-No
+Ante
+quieres también hacer tutorial de funciones online puedes encontrar lo
+Ante
+Ahora aquí puedes
+Ahora puedes arrastrar Tarea
+ver la tarea Creada.
+creado al grupo
+creado. También
+frase alentadora, animante
+Ask paswordsi
+Enviar peticion
+IP del dispositivo principal
+Puerto
+Password
+Mensaje
+Archivo (En caso si esta hecha copia de seguridad)
+New User?
+Si
+No
+Hay Datos
+Si
+Locales
+No
+Enviar peticion
+Hay Datos Externos?
+Recibir Datos
+Estado
+No
+Login
+TutorialOffline 1
+Año
+en ajustes
+TutorialOffline2
+TutorialOffline3
+External
+Weight
+State
+puedes editar las tareas y grupos haciendo click derecho.
+Muted
+Pulsa a cada campo para saber que hace y luego pulsa botón "Crear".
+TutotialOffline4
+Crear
+TutorialOffline5
+Mes
+U
+Toca el botton para ver
+Menú des- plegable
+opciones del menu
+Hola Usuario nuevo,
+ahora te explico como usar la app.
+Ante Esta es pantalla principal. Aquí aparece horario con
+todas tus tareas. Moviendo arriba abajo cambias unidades (día, semana, mes, año). Moviendo izquierda, derecha vas a mover atrás
+adelante.
+El menú tiene
+4 opciones,
+pero para utilizar solo funciones offline de la app vas a necesitar solo dos opciones:
+"Tasks Manager" y "Ajustes". No pienso que es
+nesecario
+comentar ajustes por
+eso movemos al "Tasks Manager"
+Tasks Manager
+Nombre o/y ico del usuario
+Buscar y Filtrar
+Crear Task Crear Task
+Group Añadir
+External
+Task Group (cb) Task Type (cb)
+Task Name (default: New Task)
+Buscar y Filtrar
+Crear Task
+Crear Task Group
+Añadir
+Pulsa a cada
+User Manager
+Bien, ya aparece tu tarea. Y para ahora
+Usuarios externos
+Ajustes
+Aquí puedes mirar todos tus Tareas, pero por ahora no tienes ninguna, por
+eso vamos a crear
+una pulsa boton "Crear Tasks"
+TypeInfoBox
+campo para saber que hace y luego
+StartTime TimeM
+pulsa
+botón "Crear".
+Period TimeM
+Where
+NotifyWhenHow WhenStart
+Crear
+External
+es bastante hacer así, pero si creas otras 100 tareas sera difícil de gestionar las. Para no tener ese problema vamos a crear un grupo de tareas. Pulsa botón "Crear Task Group".
+Inicio
+Menú des- plegable
+Menu
+Task Manager
+Crear Task
+Type Info Boxes
+Nombre o/y ico del usuario
+Buscar y Filtrar
+Unige
+Periodic
+Task Name
+Crear Task Crear Task
+(default: New Task)
+(day,week,month,year)
+Tasks Manager
+Group
+Task Group (cb)
+Date
+Amount
+Añadir External
+Task Type (cb)
+PeriodD
+PeriodD
+Daily
+Weekly
+User Manager
+TypeInfoBox
+Mensaje recebido
+Ante
+Semana
+TaskGroup Tree
+Days of week
+StartTime TimeM
+Usuarios externos
+Period TimeM
+Monthly
+Yearly
+Seguir
+Where
+NotifyWhenHow
+Ajustes
+Days
+f Month
+Days of Year
+Crear
+WhenStart
+PeriodD
+PeriodD
+Ajustes
+Ask password
+Tema
+Permisos
+App de Mapa
+Tutorial Online
+Hacer copia de seguridad
+TutorialOnline1
+Usuarios externos
+UserName
+User Manager
+Crear Local
+Añadir External
+Crear Task Group
+Conected User
+UserName TaskGroup
+Type
+Crear
+Local Name (default: NewLocal)
+Local
+Añadir
+Task Group (cb)
+External
+Port (cb)
+External source Name (default: NewSource)
+Task Group Name (default: New Task Group)
+Task Group (cb)
+IP
+Port
+Weight
+Password
+ExternalUserTable
+State
+UserTable
+PasswordRequired
+Password
+Muted
+ConfirmRequired
+TutorialOnline2
+TutorialOnline3
+Crear Local
+TutorialOnline4
+Mes
+Toca el botton para ver opciones del menu
+Menú des- plegable
+Nombre o/y ico del usuario
+UserName TaskGroup
+Type
+Crear
+Local Name
+(default: NewLocal)
+Vamos a crear
+un usuario de
+Tasks Manager
+tipo Local
+Local Añadir External
+Task Group (cb)
+Ahora te comento opciones del
+Port (cb)
+menú
+Hola Usuario, ahora te
+restantes
+explico como usar
+User Manager
+Ante
+funciones online de la app
+"User Manager" y
+"Usuarios externos" Empiezo con "User Manager". Pulsa el boton
+Usuarios externos
+Esto es la lista con usuarios cuyos datos están en este dispositivo. Hay tres tipos de usuarios. User, este es un usuario normal como tu. Local es un usuario a cual puedes asignar un grupo de tareas y otras personas desde fuero pueden conectar a el para ver este grupo de tareas. Y ultimo tipo es External. Este tipo es cuando pasa lo contrario y tu conectas a alguien para tener acceso a sus tareas.
+Password
+Pulsa a cada campo para saber que hace
+PasswordRequired
+y luego
+pulsa botón
+ConfirmRequired "Crear Local".
+TutorialOnline11
+Ajustes
+TutorialOnline10
+TutorialOnline9
+Crear Local
+TutorialOnline8
+La ventana
+se abre cuando se recibe la respuesta
+Mandar peticion
+Crear
+Respuesta recebida
+TutorialOnline5
+UserName TaskGroup
+Type
+Mensaje recebido
+Crear
+Local
+Añadir
+External
+Cerrar
+TutorialOnline7
+Bien ahora tienes un Local, ahora vamos a ver como añadir un External conectando a un Local Externo.
+TutorialOnline6
+UserName
+Conected User
+UserName
+Conected User
+Nombre o/y ico del
+UserName TaskGroup
+Type
+usuario
+Mensaje recebido
+Crear
+External source Name (default: NewSource)
+Local
+Añadir
+Tasks Manager
+External
+IP
+Cerrar
+Esto ya esta todo.
+Aquí aparecen todos usuarios que están conectados a alguno de tus usuarios
+Ahora te
+comento opcion del menú restante
+User Manager
+"Usuarios
+externos" Pulsa el boton.
+Port
+Usuarios externos
+Ajustes
+Parece todo se ha ido bien ahora puedes mirar la lista de tareas y recibir actualizaciones de ella. Ahora vamos a mirar otra opción de menú.
+Si hiciste todo bien y esta conectado a la red recibes un mensaje en unos segundos.
+Password
+Lo mejor sera utilizar otro dispositivo tuyo con un Local, pero si no lo tienes puedes mirar lista de Tareas Publicas aquí. Pulsa a cada campo para saber que hace y luego pulsa botón "Mandar peticion".
+Mandar peticion
+Pasa 30 Segundos

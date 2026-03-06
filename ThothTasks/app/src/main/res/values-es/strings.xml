@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Thoth Tasks</string>
+    <string name="user">Usuario</string>
+    <string name="passsword">Contraseña</string>
+    <string name="init_seccion">Iniciar sesión</string>
+    <string name="login">Login</string>
+    <string name="ask_password">Preguntar contraseña al iniciar sesión de nuevo</string>
 </resources>
