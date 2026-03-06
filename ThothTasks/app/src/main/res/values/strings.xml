@@ -11,4 +11,8 @@
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="login">Login</string>
+    <string name="user">User</string>
+    <string name="passsword">Password</string>
+    <string name="init_seccion">Init secion</string>
+    <string name="ask_password">Ask password in init</string>
 </resources>
