@@ -1,18 +1,82 @@
 <resources>
     <string name="app_name">Thoth Tasks</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="open_menu">Open menu</string>
+    <string name="close_menu">Close menu</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="splash_quote">Every minute has value.</string>
+    <string name="required">Required field</string>
+    <string name="welcome">Welcome, %1$s</string>
+
+    <string name="menu_schedule">Schedule</string>
+    <string name="menu_tasks">Tasks Manager</string>
+    <string name="menu_users">User Manager</string>
+    <string name="menu_external_users">External Users</string>
+    <string name="menu_settings">Settings</string>
+
     <string name="login">Login</string>
-    <string name="user">User</string>
-    <string name="passsword">Password</string>
-    <string name="init_seccion">Init secion</string>
-    <string name="ask_password">Ask password in init</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="ask_password">Ask password</string>
+
+    <string name="task_name">Task name</string>
+    <string name="task_type">Task type</string>
+    <string name="date_rule">Date rule</string>
+    <string name="start_time">Start time</string>
+    <string name="time_m">Duration (minutes)</string>
+    <string name="period_time_m">Advance (minutes)</string>
+    <string name="where_text">Where</string>
+    <string name="notify_when_how">Notify when/how</string>
+    <string name="when_start">When start</string>
+    <string name="state">State</string>
+    <string name="muted">Muted</string>
+    <string name="create">Create</string>
+    <string name="task_created">Task created</string>
+    <string name="task_group_created">Task group created</string>
+    <string name="empty_tasks">No tasks yet</string>
+
+    <string name="task_group_name">Task group name</string>
+    <string name="weight">Weight</string>
+
+    <string name="rule_unique_hint">Example: 2026-04-20</string>
+    <string name="rule_daily_hint">Example: EVERY_DAY</string>
+    <string name="rule_weekly_hint">Example: MON,WED,FRI</string>
+    <string name="rule_monthly_hint">Example: DAY:15</string>
+    <string name="rule_yearly_hint">Example: 25-12</string>
+    <string name="rule_periodic_hint">Example: EVERY:3D</string>
+
+    <string name="create_task">Create Task</string>
+    <string name="create_task_group">Create Task Group</string>
+
+    <string name="create_local_user">Create Local User</string>
+    <string name="local_user_created">Local user created</string>
+    <string name="no_users_yet">No users yet</string>
+    <string name="local_name">Local name</string>
+    <string name="port">Port</string>
+    <string name="password_required">Password required</string>
+    <string name="confirm_required">Confirmation required</string>
+
+    <string name="add_external_source">Add External Source</string>
+    <string name="external_source_name">External source name</string>
+    <string name="no_external_users_yet">No external users yet</string>
+    <string name="send_request">Send request</string>
+    <string name="request_sent_mock">Request sent (local mock)</string>
+    <string name="invalid_number">Invalid numeric value</string>
+    <string name="ip">IP</string>
+    <string name="type_optional">Type (optional)</string>
+
+    <string name="settings_general">General</string>
+    <string name="settings_tools">Tools</string>
+    <string name="settings_session">Session</string>
+    <string name="language">Language</string>
+    <string name="backup">Backup</string>
+    <string name="tutorial_online">Online tutorial</string>
+    <string name="logout">Logout</string>
+    <string name="backup_coming_soon">Backup coming soon</string>
+    <string name="tutorial_online_coming_soon">Online tutorial coming soon</string>
+    <string name="mode_day">Day</string>
+    <string name="mode_week">Week</string>
+    <string name="mode_month">Month</string>
+    <string name="mode_year">Year</string>
+    <string name="schedule_swipe_help">Swipe ↑ ↓ ← →</string>
+    <string name="search_tasks">Search tasks</string>
 </resources>

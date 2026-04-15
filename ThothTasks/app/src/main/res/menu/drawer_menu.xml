@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_schedule"
+            android:title="@string/menu_schedule" />
+        <item
+            android:id="@+id/nav_tasks"
+            android:title="@string/menu_tasks" />
+        <item
+            android:id="@+id/nav_users"
+            android:title="@string/menu_users" />
+        <item
+            android:id="@+id/nav_external"
+            android:title="@string/menu_external_users" />
+        <item
+            android:id="@+id/nav_settings"
+            android:title="@string/menu_settings" />
+    </group>
+</menu>

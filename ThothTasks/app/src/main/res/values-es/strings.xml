@@ -1,9 +1,82 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Thoth Tasks</string>
-    <string name="user">Usuario</string>
-    <string name="passsword">Contraseña</string>
-    <string name="init_seccion">Iniciar sesión</string>
-    <string name="login">Login</string>
-    <string name="ask_password">Preguntar contraseña al iniciar sesión de nuevo</string>
+    <string name="open_menu">Abrir menú</string>
+    <string name="close_menu">Cerrar menú</string>
+
+    <string name="splash_quote">Cada minuto tiene valor.</string>
+    <string name="required">Campo obligatorio</string>
+    <string name="welcome">Bienvenido, %1$s</string>
+
+    <string name="menu_schedule">Inicio</string>
+    <string name="menu_tasks">Gestor de tareas</string>
+    <string name="menu_users">Gestor de usuarios</string>
+    <string name="menu_external_users">Usuarios externos</string>
+    <string name="menu_settings">Ajustes</string>
+
+    <string name="login">Iniciar sesión</string>
+    <string name="username">Usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="ask_password">Pedir contraseña</string>
+
+    <string name="task_name">Nombre de tarea</string>
+    <string name="task_type">Tipo de tarea</string>
+    <string name="date_rule">Regla de fecha</string>
+    <string name="start_time">Hora de inicio</string>
+    <string name="time_m">Duración (minutos)</string>
+    <string name="period_time_m">Antelación (minutos)</string>
+    <string name="where_text">Dónde</string>
+    <string name="notify_when_how">Notificar cuándo/cómo</string>
+    <string name="when_start">Al empezar</string>
+    <string name="state">Estado</string>
+    <string name="muted">Silenciado</string>
+    <string name="create">Crear</string>
+    <string name="task_created">Tarea creada</string>
+    <string name="task_group_created">Grupo de tareas creado</string>
+    <string name="empty_tasks">Aún no hay tareas</string>
+
+    <string name="task_group_name">Nombre del grupo</string>
+    <string name="weight">Peso</string>
+
+    <string name="rule_unique_hint">Ejemplo: 2026-04-20</string>
+    <string name="rule_daily_hint">Ejemplo: CADA_DIA</string>
+    <string name="rule_weekly_hint">Ejemplo: LUN,MIE,VIE</string>
+    <string name="rule_monthly_hint">Ejemplo: DIA:15</string>
+    <string name="rule_yearly_hint">Ejemplo: 25-12</string>
+    <string name="rule_periodic_hint">Ejemplo: CADA:3D</string>
+
+    <string name="create_task">Crear tarea</string>
+    <string name="create_task_group">Crear grupo de tareas</string>
+
+    <string name="create_local_user">Crear usuario local</string>
+    <string name="local_user_created">Usuario local creado</string>
+    <string name="no_users_yet">Aún no hay usuarios</string>
+    <string name="local_name">Nombre local</string>
+    <string name="port">Puerto</string>
+    <string name="password_required">Contraseña requerida</string>
+    <string name="confirm_required">Confirmación requerida</string>
+
+    <string name="add_external_source">Añadir fuente externa</string>
+    <string name="external_source_name">Nombre de fuente externa</string>
+    <string name="no_external_users_yet">Aún no hay usuarios externos</string>
+    <string name="send_request">Mandar petición</string>
+    <string name="request_sent_mock">Petición enviada (simulación local)</string>
+    <string name="invalid_number">Valor numérico inválido</string>
+    <string name="ip">IP</string>
+    <string name="type_optional">Tipo (opcional)</string>
+
+    <string name="settings_general">General</string>
+    <string name="settings_tools">Herramientas</string>
+    <string name="settings_session">Sesión</string>
+    <string name="language">Idioma</string>
+    <string name="backup">Copia de seguridad</string>
+    <string name="tutorial_online">Tutorial online</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="backup_coming_soon">La copia de seguridad llegará pronto</string>
+    <string name="tutorial_online_coming_soon">El tutorial online llegará pronto</string>
+    <string name="mode_day">Día</string>
+    <string name="mode_week">Semana</string>
+    <string name="mode_month">Mes</string>
+    <string name="mode_year">Año</string>
+    <string name="schedule_swipe_help">Desliza ↑ ↓ ← →</string>
+    <string name="search_tasks">Buscar tareas</string>
 </resources>
