@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_schedule"
-            android:title="@string/menu_schedule" />
+
+    <group android:checkableBehavior="none">
         <item
             android:id="@+id/nav_tasks"
-            android:title="@string/menu_tasks" />
+            android:title="Tasks Manager"
+            android:icon="@android:drawable/ic_menu_agenda"/>
+
         <item
-            android:id="@+id/nav_users"
-            android:title="@string/menu_users" />
+            android:id="@+id/nav_user_manager"
+            android:title="User Manager"
+            android:icon="@android:drawable/ic_menu_manage"/>
+
         <item
-            android:id="@+id/nav_external"
-            android:title="@string/menu_external_users" />
+            android:id="@+id/nav_external_users"
+            android:title="Usuarios externos"
+            android:icon="@android:drawable/ic_menu_share"/>
+
+        <item
+            android:id="@+id/nav_places_travels"
+            android:title="Places y Travels"
+            android:icon="@android:drawable/ic_menu_mapmode"/>
+
         <item
             android:id="@+id/nav_settings"
-            android:title="@string/menu_settings" />
+            android:title="Ajustes"
+            android:icon="@android:drawable/ic_menu_preferences"/>
     </group>
+
 </menu>

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.ThothTasks" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@android:color/holo_blue_light</item>
-        <item name="colorSecondary">@android:color/holo_blue_dark</item>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.ThothTasks" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
     </style>
 </resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Periodic rule"/>
+
+    <Spinner
+        android:id="@+id/spUnit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/etAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Amount (e.g. 2)"
+        android:inputType="number"/>
+
+    <EditText
+        android:id="@+id/etStreak"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Streak days (e.g. 1)"
+        android:inputType="number"/>
+
+</LinearLayout>

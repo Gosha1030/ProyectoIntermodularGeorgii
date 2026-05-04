@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_toggle_mute"
+        android:title="Toggle Mute"/>
+
+    <item
+        android:id="@+id/action_activate_now"
+        android:title="State: Activate now"/>
+
+    <item
+        android:id="@+id/action_deactivate_now"
+        android:title="State: Deactivate now"/>
+
+    <item
+        android:id="@+id/action_schedule_activate"
+        android:title="State: Schedule activate…"/>
+
+    <item
+        android:id="@+id/action_schedule_deactivate"
+        android:title="State: Schedule deactivate…"/>
+
+</menu>
