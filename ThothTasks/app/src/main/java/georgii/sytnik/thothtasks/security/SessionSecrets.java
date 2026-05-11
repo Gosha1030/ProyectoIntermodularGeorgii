@@ -1,0 +1,21 @@
+package georgii.sytnik.thothtasks.security;
+
+public final class SessionSecrets {
+
+    private static volatile char[] passwordChars;
+
+    private SessionSecrets() {}
+
+    /** Call at login success; DO NOT persist this. */
+    public static void setPassword(char[] pwd) {
+        passwordChars = pwd;
+    }
+
+    public static char[] getPassword() {
+        return passwordChars;
+    }
+
+    public static void clear() {
+        passwordChars = null;
+    }
+}

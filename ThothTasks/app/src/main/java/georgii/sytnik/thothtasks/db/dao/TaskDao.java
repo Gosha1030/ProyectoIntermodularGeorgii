@@ -69,4 +69,10 @@ public interface TaskDao {
                     "UPDATE Task SET State = 0, Muted = 1 WHERE TaskId IN (SELECT id FROM sub)"
     )
     void hideSubtree(byte[] rootId);
+
+    @Query("UPDATE Task SET Place = NULL WHERE Place = :placeId")
+    void clearPlaceForTasks(byte[] placeId);
+
+    @Query("UPDATE Task SET 'Action' = :actionJson WHERE TaskId = :taskId")
+    void setActionJson(byte[] taskId, String actionJson);
 }

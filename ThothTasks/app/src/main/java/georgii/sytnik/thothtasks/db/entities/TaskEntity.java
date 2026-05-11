@@ -76,8 +76,9 @@ public class TaskEntity {
     /**
      * JSON TEXT (Action)
      */
+    @NonNull
     @ColumnInfo(name = "Action")
-    public String actionJson;
+    public String actionJson = "{}";
 
     @NonNull
     @ColumnInfo(name = "Muted")

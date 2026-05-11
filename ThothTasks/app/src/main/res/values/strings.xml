@@ -45,4 +45,71 @@
     <string name="save">Save</string>
     <string name="show_deactivated">"Show disabled (State=false, Muted=false)"</string>
     <string name="show_hidden">"Show hidden (State=false, Muted=true)"</string>
+
+    <string name="mode_day">Day</string>
+    <string name="mode_week">Week</string>
+    <string name="mode_month">Month</string>
+    <string name="mode_year">Year</string>
+
+    <string name="hint_swipe">↔ move date | ↕ change mode (day/week/month/year)</string>
+
+    <string name="morning_range">00:00–11:59</string>
+    <string name="afternoon_range">12:00–23:59</string>
+    <string name="no_time_section">No time</string>
+
+    <string name="week_range">Week: %1$s — %2$s</string>
+    <string name="month_title">Month: %1$s</string>
+    <string name="year_title">Year: %1$s</string>
+    <string name="tasks_count">Tasks: %1$d</string>
+
+    <string name="err_periodic_amount_1">Do not use Periodic with amount=1. Create the corresponding task type.</string>
+    <string name="err_periodic_day_7">Periodic day=7 equals Weekly. Create a weekly task.</string>
+    <string name="err_periodic_month_12">Periodic month=12 equals Yearly. Create a yearly task.</string>
+    <string name="err_periodd_not_for_daily">PeriodD is not available for daily tasks.</string>
+
+    <string name="filtered_repeating_info">Repeating tasks are hidden in this mode to reduce clutter.</string>
+
+
+    <string name="nav_tasks">Tasks Manager</string>
+    <string name="nav_user_manager">User Manager</string>
+    <string name="nav_external_users">External users</string>
+    <string name="nav_places_travels">Places and Travels</string>
+    <string name="nav_settings">Settings</string>
+
+    <string name="title_day">Day: %1$s</string>
+    <string name="title_week">Week: %1$s — %2$s</string>
+    <string name="title_month">Month: %1$s</string>
+    <string name="title_year">Year: %1$s</string>
+
+    <string name="no_tasks">(no tasks)</string>
+
+    <string name="weight">Weight</string>
+    <string name="weight_hint">Higher = higher priority</string>
+
+    <string name="user_manager_title">User Manager</string>
+    <string name="locals_title">Locals</string>
+    <string name="external_sources_title">External Sources</string>
+
+    <string name="btn_add_local">Add Local</string>
+    <string name="btn_add_source">Add Source</string>
+
+    <string name="external_user_manager_title">ExternalUser Manager</string>
+    <string name="btn_external_user_manager">ExternalUser Manager</string>
+
+    <string name="field_name">Name</string>
+    <string name="field_port">Port</string>
+    <string name="field_ip">IP</string>
+    <string name="field_resource_id">ResourceId (hex)</string>
+
+    <string name="password_required">PasswordRequired</string>
+    <string name="confirm_required">ConfirmRequired</string>
+    <string name="active">Active</string>
+
+    <string name="cancel">Cancel</string>
+
+    <string name="toast_saved">Saved.</string>
+    <string name="toast_deleted">Deleted.</string>
+
+    <string name="hint_resource_id">Paste QR ResourceId (hex)</string>
+
 </resources>

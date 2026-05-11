@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_toggle_mute_local" android:title="Mute (local)"/>
+    <item android:id="@+id/action_set_action_local" android:title="Action (local)"/>
+    <item android:id="@+id/action_clear_action_local" android:title="Clear Action (local)"/>
+    <item android:id="@+id/action_set_place_local" android:title="Place (local)"/>
+    <item android:id="@+id/action_clear_place_local" android:title="Clear Place (local)"/>
+</menu>

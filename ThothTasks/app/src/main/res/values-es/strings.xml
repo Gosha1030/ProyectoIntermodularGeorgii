@@ -46,4 +46,69 @@
     <string name="save">Guardar</string>
     <string name="show_deactivated">"Mostrar desactivadas (State=false, Muted=false)"</string>
     <string name="show_hidden">"Mostrar ocultas (State=false, Muted=true)"</string>
+
+    <string name="mode_day">Día</string>
+    <string name="mode_week">Semana</string>
+    <string name="mode_month">Mes</string>
+    <string name="mode_year">Año</string>
+
+    <string name="hint_swipe">↔ cambiar fecha | ↕ cambiar modo (día/semana/mes/año)</string>
+
+    <string name="morning_range">00:00–11:59</string>
+    <string name="afternoon_range">12:00–23:59</string>
+    <string name="no_time_section">Sin hora</string>
+
+    <string name="week_range">Semana: %1$s — %2$s</string>
+    <string name="month_title">Mes: %1$s</string>
+    <string name="year_title">Año: %1$s</string>
+    <string name="tasks_count">Tareas: %1$d</string>
+
+    <string name="err_periodic_amount_1">No uses Periodic con amount=1. Crea una tarea del tipo correspondiente.</string>
+    <string name="err_periodic_day_7">Periodic day=7 equivale a Weekly. Crea una tarea semanal.</string>
+    <string name="err_periodic_month_12">Periodic month=12 equivale a Yearly. Crea una tarea anual.</string>
+    <string name="err_periodd_not_for_daily">PeriodD no está disponible para tareas diarias.</string>
+
+    <string name="filtered_repeating_info">Ocultas repetitivas en este modo para evitar saturación.</string>
+
+    <string name="nav_tasks">Tasks Manager</string>
+    <string name="nav_user_manager">User Manager</string>
+    <string name="nav_external_users">Usuarios externos</string>
+    <string name="nav_places_travels">Places y Travels</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <string name="title_day">Día: %1$s</string>
+    <string name="title_week">Semana: %1$s — %2$s</string>
+    <string name="title_month">Mes: %1$s</string>
+    <string name="title_year">Año: %1$s</string>
+
+    <string name="no_tasks">(sin tareas)</string>
+
+    <string name="weight">Weight</string>
+    <string name="weight_hint">Mayor = más prioridad</string>
+
+    <string name="user_manager_title">User Manager</string>
+    <string name="locals_title">Locals</string>
+    <string name="external_sources_title">External Sources</string>
+
+    <string name="btn_add_local">Añadir Local</string>
+    <string name="btn_add_source">Añadir Source</string>
+
+    <string name="external_user_manager_title">ExternalUser Manager</string>
+    <string name="btn_external_user_manager">ExternalUser Manager</string>
+
+    <string name="field_name">Nombre</string>
+    <string name="field_port">Puerto</string>
+    <string name="field_ip">IP</string>
+    <string name="field_resource_id">ResourceId (hex)</string>
+
+    <string name="password_required">PasswordRequired</string>
+    <string name="confirm_required">ConfirmRequired</string>
+    <string name="active">Active</string>
+
+    <string name="cancel">Cancelar</string>
+
+    <string name="toast_saved">Guardado.</string>
+    <string name="toast_deleted">Eliminado.</string>
+
+    <string name="hint_resource_id">Pega ResourceId del QR (hex)</string>
 </resources>

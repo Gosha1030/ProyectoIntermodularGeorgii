@@ -27,6 +27,7 @@ import georgii.sytnik.thothtasks.db.entities.TaskChangeEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.security.PasswordHash;
+import georgii.sytnik.thothtasks.security.SessionSecrets;
 import georgii.sytnik.thothtasks.time.UuidV7;
 
 import android.os.Handler;
@@ -116,6 +117,8 @@ public class LoginActivity extends AppCompatActivity {
                 // Link user to root
                 created.taskRoot = root.taskId;
                 db.userDao().update(created);
+
+                // Persist session + settings
                 persistSessionAndSettings(created, cbAskPassword.isChecked());
 
                 // Register TaskChange create_task
@@ -128,8 +131,14 @@ public class LoginActivity extends AppCompatActivity {
                 ch.whenApplyUtcMs = null;
                 db.taskChangeDao().insert(ch);
 
+                // IMPORTANT: set secrets (only if password provided)
+                if (!pass.isEmpty()) {
+                    SessionSecrets.setPassword(pass.toCharArray());
+                } else {
+                    SessionSecrets.clear();
+                }
+
                 runOnUiThread(() -> Toast.makeText(this, R.string.toast_user_created, Toast.LENGTH_SHORT).show());
-                persistSessionAndSettings(existing, cbAskPassword.isChecked());
                 goMain();
                 return;
             }
@@ -145,6 +154,7 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
                 // Passwordless OK: continúa
+                SessionSecrets.clear();
             } else {
                 // Password provided: verify normally
                 boolean ok = PasswordHash.verify(pass.toCharArray(), existing.password);
@@ -154,6 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                     );
                     return;
                 }
+                SessionSecrets.setPassword(pass.toCharArray());
             }
 
 // Guardar sesión y ajustes (prefs + User.Ajustes JSON)

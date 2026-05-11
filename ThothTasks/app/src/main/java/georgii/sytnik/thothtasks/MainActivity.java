@@ -1,7 +1,9 @@
 package georgii.sytnik.thothtasks;
 
-import android.view.MenuItem;
 import android.content.Intent;
+import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
@@ -11,34 +13,31 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
-import android.os.Bundle;
-import android.view.GestureDetector;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
 
 import georgii.sytnik.thothtasks.db.AppDatabase;
-import georgii.sytnik.thothtasks.db.entities.TaskChangeEntity;
-import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.domain.TaskChangeApplier;
-import georgii.sytnik.thothtasks.domain.schedule.OccurrenceEngine;
+import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
+import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
 import georgii.sytnik.thothtasks.security.SessionStore;
+import georgii.sytnik.thothtasks.ui.ExternalUserManagerActivity;
+import georgii.sytnik.thothtasks.ui.PlacesTravelsActivity;
+import georgii.sytnik.thothtasks.ui.SettingsActivity;
 import georgii.sytnik.thothtasks.ui.TaskManagerActivity;
-import georgii.sytnik.thothtasks.ui.schedule.ScheduleAdapter;
-import georgii.sytnik.thothtasks.ui.schedule.ScheduleTaskRow;
+import georgii.sytnik.thothtasks.ui.UserManagerActivity;
+import georgii.sytnik.thothtasks.ui.schedule.ScheduleDayFragment;
+import georgii.sytnik.thothtasks.ui.schedule.ScheduleMonthFragment;
+import georgii.sytnik.thothtasks.ui.schedule.ScheduleNavigator;
+import georgii.sytnik.thothtasks.ui.schedule.ScheduleWeekFragment;
+import georgii.sytnik.thothtasks.ui.schedule.ScheduleYearFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ScheduleNavigator {
 
     private enum Mode { DAY, WEEK, MONTH, YEAR }
 
@@ -47,12 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawer;
     private NavigationView navView;
     private MaterialToolbar toolbar;
-
     private TextView tvRange;
-    private RecyclerView rv;
-
-    private final List<ScheduleTaskRow> rows = new ArrayList<>();
-    private ScheduleAdapter adapter;
 
     private Mode mode = Mode.DAY;
     private final Calendar anchor = Calendar.getInstance();
@@ -67,13 +61,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Notification permission for Android 13+
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 9001);
+            }
+        }
+
+        ensureActionsChannel();
+
         db = AppDatabase.get(this);
 
         drawer = findViewById(R.id.drawer);
         navView = findViewById(R.id.navView);
         toolbar = findViewById(R.id.toolbar);
         tvRange = findViewById(R.id.tvRange);
-        rv = findViewById(R.id.rvSchedule);
 
         setSupportActionBar(toolbar);
 
@@ -85,10 +88,6 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
 
         navView.setNavigationItemSelectedListener(this::onNavItemSelected);
-
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ScheduleAdapter(rows);
-        rv.setAdapter(adapter);
 
         gestures = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             private static final int SWIPE_THRESHOLD = 120;
@@ -103,14 +102,12 @@ public class MainActivity extends AppCompatActivity {
                 float dx = e2.getX() - e1.getX();
                 float dy = e2.getY() - e1.getY();
 
-                // Horizontal
                 if (Math.abs(dx) > Math.abs(dy)) {
                     if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY) {
                         if (dx > 0) shift(-1); else shift(+1);
                         return true;
                     }
                 } else {
-                    // Vertical
                     if (Math.abs(dy) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY) {
                         if (dy < 0) changeMode(+1); else changeMode(-1);
                         return true;
@@ -123,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        // Detect swipes globally without breaking RecyclerView scroll
         if (gestures != null) gestures.onTouchEvent(ev);
         return super.dispatchTouchEvent(ev);
     }
@@ -132,8 +128,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        // Owner UDP listener
+        startService(new Intent(this, georgii.sytnik.thothtasks.net.UdpOwnerService.class));
+
+        // Optional: update check worker if you still use it
+        georgii.sytnik.thothtasks.ui.work.WorkScheduler.ensureUpdateCheckScheduled(this);
+
+        int horizon = ActionPlanHorizon.getDaysAhead(this, db);
+        ActionPlanner.scheduleNextDays(getApplicationContext(), db, horizon);
+
+
         new Thread(() -> {
-            // keep DB in sync with scheduled state changes
             TaskChangeApplier.applyDueStateChanges(db, System.currentTimeMillis());
 
             userId = SessionStore.loadLastUserId(this);
@@ -142,16 +147,21 @@ public class MainActivity extends AppCompatActivity {
             if (u == null) return;
             rootId = u.taskRoot;
 
-            runOnUiThread(this::refresh);
+            // ✅ Replan actions for next 60 days (covers notify_month)
+            ActionPlanner.scheduleNextDays(getApplicationContext(), db, 60);
+
+            runOnUiThread(this::render);
         }).start();
     }
 
     private boolean onNavItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_tasks) {
-            startActivity(new Intent(this, TaskManagerActivity.class));
-        }
+        if (id == R.id.nav_tasks) startActivity(new Intent(this, TaskManagerActivity.class));
+        else if (id == R.id.nav_user_manager) startActivity(new Intent(this, UserManagerActivity.class));
+        else if (id == R.id.nav_external_users) startActivity(new Intent(this, ExternalUserManagerActivity.class));
+        else if (id == R.id.nav_places_travels) startActivity(new Intent(this, PlacesTravelsActivity.class));
+        else if (id == R.id.nav_settings) startActivity(new Intent(this, SettingsActivity.class));
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -162,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         if (idx < 0) idx = 0;
         if (idx > Mode.YEAR.ordinal()) idx = Mode.YEAR.ordinal();
         mode = Mode.values()[idx];
-        refresh();
+        render();
     }
 
     private void shift(int delta) {
@@ -172,109 +182,67 @@ public class MainActivity extends AppCompatActivity {
             case MONTH: anchor.add(Calendar.MONTH, delta); break;
             case YEAR:  anchor.add(Calendar.YEAR, delta); break;
         }
-        refresh();
+        render();
     }
 
-    private void refresh() {
-        updateRangeTitle();
-        loadScheduleForCurrentMode();
+    private void render() {
+        if (rootId == null) return;
+
+        updateTitles();
+
+        String rootHex = hex(rootId);
+        long utc = anchor.getTimeInMillis();
+
+        switch (mode) {
+            case DAY:
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.scheduleContainer, ScheduleDayFragment.newInstance(utc, rootHex))
+                        .commit();
+                break;
+            case WEEK:
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.scheduleContainer, ScheduleWeekFragment.newInstance(utc, rootHex))
+                        .commit();
+                break;
+            case MONTH:
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.scheduleContainer, ScheduleMonthFragment.newInstance(utc, rootHex))
+                        .commit();
+                break;
+            case YEAR:
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.scheduleContainer, ScheduleYearFragment.newInstance(utc, rootHex))
+                        .commit();
+                break;
+        }
     }
 
-    private void updateRangeTitle() {
+    private void updateTitles() {
         SimpleDateFormat dfDay = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat dfMonth = new SimpleDateFormat("yyyy-MM");
         SimpleDateFormat dfYear = new SimpleDateFormat("yyyy");
 
         switch (mode) {
             case DAY:
-                tvRange.setText("Día: " + dfDay.format(anchor.getTime()));
-                return;
+                toolbar.setTitle(getString(R.string.mode_day));
+                tvRange.setText(getString(R.string.title_day, dfDay.format(anchor.getTime())));
+                break;
             case WEEK: {
+                toolbar.setTitle(getString(R.string.mode_week));
                 Calendar start = startOfWeek(anchor);
                 Calendar end = (Calendar) start.clone();
                 end.add(Calendar.DATE, 6);
-                tvRange.setText("Semana: " + dfDay.format(start.getTime()) + " — " + dfDay.format(end.getTime()));
-                return;
+                tvRange.setText(getString(R.string.title_week, dfDay.format(start.getTime()), dfDay.format(end.getTime())));
+                break;
             }
             case MONTH:
-                tvRange.setText("Mes: " + dfMonth.format(anchor.getTime()));
-                return;
+                toolbar.setTitle(getString(R.string.mode_month));
+                tvRange.setText(getString(R.string.title_month, dfMonth.format(anchor.getTime())));
+                break;
             case YEAR:
-                tvRange.setText("Año: " + dfYear.format(anchor.getTime()));
-        }
-    }
-
-    private void loadScheduleForCurrentMode() {
-        rows.clear();
-        adapter.notifyDataSetChanged();
-
-        if (rootId == null) return;
-
-        new Thread(() -> {
-            List<TaskEntity> tasks = new ArrayList<>();
-            collectActiveSubtree(rootId, tasks);
-
-            HashMap<String, Long> startMap = new HashMap<>();
-            for (TaskEntity t : tasks) {
-                TaskChangeEntity create = db.taskChangeDao().findCreateTask(t.taskId);
-                long startUtc = (create != null && create.whenApplyUtcMs != null)
-                        ? create.whenApplyUtcMs
-                        : (create != null ? create.createAtUtcMs : System.currentTimeMillis());
-                startMap.put(hex(t.taskId), startUtc);
-            }
-
-            List<Calendar> days = enumerateDaysForMode(mode, anchor);
-
-            for (Calendar day : days) {
-                for (TaskEntity t : tasks) {
-                    long startUtc = startMap.get(hex(t.taskId));
-                    if (!OccurrenceEngine.isActiveOnDay(t, startUtc, day)) continue;
-
-                    int sortKey = (t.startTimeMin != null) ? t.startTimeMin : 10_000;
-                    String timeText = (t.startTimeMin != null) ? minutesToText(t.startTimeMin) : "--:--";
-                    String sub = buildSubText(t);
-
-                    if (mode == Mode.WEEK) {
-                        SimpleDateFormat df = new SimpleDateFormat("E dd");
-                        sub = df.format(day.getTime()) + " • " + sub;
-                        sortKey = day.get(Calendar.DAY_OF_YEAR) * 2000 + ((t.startTimeMin != null) ? t.startTimeMin : 1500);
-                    } else if (mode == Mode.MONTH || mode == Mode.YEAR) {
-                        // v0: only anchor day to avoid huge lists; next iteration will do grid/summary
-                        if (!sameDay(day, anchor)) continue;
-                    }
-
-                    rows.add(new ScheduleTaskRow(t, sortKey, timeText, sub));
-                }
-            }
-
-            Collections.sort(rows, Comparator.comparingInt(r -> r.sortKey));
-
-            runOnUiThread(() -> adapter.notifyDataSetChanged());
-        }).start();
-    }
-
-    private List<Calendar> enumerateDaysForMode(Mode mode, Calendar anchor) {
-        List<Calendar> out = new ArrayList<>();
-        if (mode == Mode.DAY) {
-            out.add((Calendar) anchor.clone());
-        } else if (mode == Mode.WEEK) {
-            Calendar s = startOfWeek(anchor);
-            for (int i = 0; i < 7; i++) {
-                Calendar d = (Calendar) s.clone();
-                d.add(Calendar.DATE, i);
-                out.add(d);
-            }
-        } else {
-            out.add((Calendar) anchor.clone());
-        }
-        return out;
-    }
-
-    private void collectActiveSubtree(byte[] fatherId, List<TaskEntity> out) {
-        List<TaskEntity> children = db.taskDao().childrenActiveOf(fatherId);
-        for (TaskEntity c : children) {
-            out.add(c);
-            collectActiveSubtree(c.taskId, out);
+                toolbar.setTitle(getString(R.string.mode_year));
+                tvRange.setText(getString(R.string.title_year, dfYear.format(anchor.getTime())));
+                break;
         }
     }
 
@@ -290,32 +258,40 @@ public class MainActivity extends AppCompatActivity {
         return c;
     }
 
-    private static boolean sameDay(Calendar a, Calendar b) {
-        return a.get(Calendar.YEAR) == b.get(Calendar.YEAR)
-                && a.get(Calendar.DAY_OF_YEAR) == b.get(Calendar.DAY_OF_YEAR);
-    }
-
-    private static String buildSubText(TaskEntity t) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(t.type != null ? t.type : "Task");
-        if (t.timeM != null) sb.append(" • ").append(t.timeM).append("m");
-        if (t.finishTimeMin != null && t.startTimeMin != null) {
-            sb.append(" • ").append(minutesToText(t.startTimeMin)).append("-").append(minutesToText(t.finishTimeMin));
-        }
-        if (t.muted) sb.append(" • muted");
-        return sb.toString();
-    }
-
-    private static String minutesToText(int min) {
-        int h = min / 60;
-        int m = min % 60;
-        return String.format("%02d:%02d", h, m);
-    }
-
     private static String hex(byte[] b) {
-        if (b == null) return "";
         StringBuilder sb = new StringBuilder(b.length * 2);
         for (byte x : b) sb.append(String.format("%02x", x));
         return sb.toString();
+    }
+
+    @Override
+    public void navigateToDay(Calendar day) {
+        mode = Mode.DAY;
+        anchor.setTimeInMillis(day.getTimeInMillis());
+        render();
+    }
+
+    @Override
+    public void navigateToWeek(Calendar anyDayInWeek) {
+        mode = Mode.WEEK;
+        anchor.setTimeInMillis(anyDayInWeek.getTimeInMillis());
+        render();
+    }
+
+    @Override
+    public void navigateToMonth(Calendar anyDayInMonth) {
+        mode = Mode.MONTH;
+        anchor.setTimeInMillis(anyDayInMonth.getTimeInMillis());
+        render();
+    }
+
+    private void ensureActionsChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= 26) {
+            android.app.NotificationChannel ch = new android.app.NotificationChannel(
+                    "actions", "Actions", android.app.NotificationManager.IMPORTANCE_HIGH
+            );
+            android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
+            if (nm != null) nm.createNotificationChannel(ch);
+        }
     }
 }

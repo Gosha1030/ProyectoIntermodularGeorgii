@@ -54,13 +54,10 @@ public class TaskTreeAdapter extends RecyclerView.Adapter<TaskTreeAdapter.VH> {
             h.ivExpand.setImageResource(row.expanded ? android.R.drawable.arrow_down_float : android.R.drawable.ic_media_next);
         }
 
-        // Visual:
-        // - muted & state=true => grey (tu preferencia)
-        // - state=false (si se muestran via toggle) => más gris todavía
-        if (!row.task.state) {
-            h.itemView.setAlpha(0.40f);
-        } else if (row.task.muted) {
+        if (row.task.state && row.effectiveMuted) {
             h.itemView.setAlpha(0.55f);
+        } else if (!row.task.state) {
+            h.itemView.setAlpha(0.40f);
         } else {
             h.itemView.setAlpha(1.0f);
         }

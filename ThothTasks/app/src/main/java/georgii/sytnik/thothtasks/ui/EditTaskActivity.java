@@ -10,21 +10,31 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONObject;
+
 import java.util.Calendar;
-import java.util.UUID;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.TaskChangeEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
+import georgii.sytnik.thothtasks.domain.TaskChangeApplier;
+import georgii.sytnik.thothtasks.domain.action.ActionChangeTypes;
+import georgii.sytnik.thothtasks.domain.action.ActionJson;
+import georgii.sytnik.thothtasks.domain.action.ActionKeys;
+import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
 import georgii.sytnik.thothtasks.domain.validation.TaskHierarchyValidator;
+import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
+import georgii.sytnik.thothtasks.security.ActionSettingsReader;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class EditTaskActivity extends AppCompatActivity {
 
@@ -33,11 +43,15 @@ public class EditTaskActivity extends AppCompatActivity {
 
     private AppDatabase db;
 
-    private TextInputEditText etName, etStart, etFinish, etTimeM, etPeriodD;
+    private TextInputEditText etName, etStart, etFinish, etTimeM, etWeight, etPeriodD;
     private CheckBox cbUninterrupted, cbState, cbMuted;
     private Spinner spType;
     private MaterialButton btnSave, btnDelete, btnPickFather;
     private TextView tvFather;
+
+    // Action switches
+    private SwitchCompat swAlarm, swDnd, swNotifyMonth, swNotifyWeek, swNotifyDay, swNotifyOnDay, swNotify1h, swNotify10m, swNotify1m;
+    private boolean actionUiReady = false;
 
     private byte[] taskId;
     private TaskEntity original;
@@ -59,6 +73,7 @@ public class EditTaskActivity extends AppCompatActivity {
         etStart = findViewById(R.id.etStart);
         etFinish = findViewById(R.id.etFinish);
         etTimeM = findViewById(R.id.etTimeM);
+        etWeight = findViewById(R.id.etWeight);
         etPeriodD = findViewById(R.id.etPeriodD);
 
         cbUninterrupted = findViewById(R.id.cbUninterrupted);
@@ -72,6 +87,17 @@ public class EditTaskActivity extends AppCompatActivity {
 
         btnDelete = findViewById(R.id.btnDelete);
         btnSave = findViewById(R.id.btnSave);
+
+        // Action switches (must exist in XML)
+        swAlarm = findViewById(R.id.swAlarm);
+        swDnd = findViewById(R.id.swDnd);
+        swNotifyMonth = findViewById(R.id.swNotifyMonth);
+        swNotifyWeek = findViewById(R.id.swNotifyWeek);
+        swNotifyDay = findViewById(R.id.swNotifyDay);
+        swNotifyOnDay = findViewById(R.id.swNotifyOnDay);
+        swNotify1h = findViewById(R.id.swNotify1h);
+        swNotify10m = findViewById(R.id.swNotify10m);
+        swNotify1m = findViewById(R.id.swNotify1m);
 
         String[] types = new String[]{"Unique", "Daily", "Weekly", "Yearly", "Periodic", "Empty"};
         spType.setAdapter(new android.widget.ArrayAdapter<>(
@@ -88,6 +114,13 @@ public class EditTaskActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> save());
 
         loadUserRootAndTask();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // apply scheduled changes (state, mute, and later actions if you add them)
+        new Thread(() -> TaskChangeApplier.applyDueStateChanges(db, System.currentTimeMillis())).start();
     }
 
     private void loadUserRootAndTask() {
@@ -107,32 +140,37 @@ public class EditTaskActivity extends AppCompatActivity {
                 return;
             }
 
-            // Default father selection = current father (or root if null)
-            selectedFatherId = original.taskFather; // may be null (rare), treat as root in save
+            // Ensure actionJson non-null
+            if (original.actionJson == null || original.actionJson.trim().isEmpty()) {
+                original.actionJson = "{}";
+                db.taskDao().setActionJson(original.taskId, "{}");
+            }
+
+            selectedFatherId = original.taskFather;
             selectedFatherName = null;
 
             String fatherLabel = getFatherLabel(original.taskFather, userRootId);
-
-            String finalFatherLabel = fatherLabel;
-
             runOnUiThread(() -> {
                 etName.setText(original.taskName);
                 spType.setSelection(indexOfType(original.type));
                 etStart.setText(minutesToText(original.startTimeMin));
                 etFinish.setText(minutesToText(original.finishTimeMin));
                 etTimeM.setText(original.timeM == null ? "" : String.valueOf(original.timeM));
+                etWeight.setText(original.weight == null ? "" : String.valueOf(original.weight));
                 etPeriodD.setText(original.periodD == null ? "" : String.valueOf(original.periodD));
                 cbUninterrupted.setChecked(original.uninterrupted);
                 cbState.setChecked(original.state);
                 cbMuted.setChecked(original.muted);
+                tvFather.setText(fatherLabel);
 
-                tvFather.setText(finalFatherLabel);
+                // ✅ bind action switches now (and only once)
+                bindActionSwitches(original);
+                actionUiReady = true;
             });
         }).start();
     }
 
     private void openFatherPicker() {
-        // Exclude this task subtree to avoid cycles
         Intent i = new Intent(this, TaskPickerActivity.class);
         i.putExtra(TaskPickerActivity.EXTRA_EXCLUDE_ROOT_ID, original != null ? original.taskId : null);
         startActivityForResult(i, REQ_PICK_FATHER);
@@ -159,23 +197,21 @@ public class EditTaskActivity extends AppCompatActivity {
         Integer startMin = parseTimeToMinutes(textOf(etStart));
         Integer finishMin = parseTimeToMinutes(textOf(etFinish));
 
-        // No crossing midnight
         if (startMin != null && finishMin != null && startMin >= finishMin) {
             Toast.makeText(this, R.string.toast_invalid_time_order, Toast.LENGTH_SHORT).show();
             return;
         }
 
         Integer timeM = parseInt(textOf(etTimeM));
+        Integer weight = parseInt(textOf(etWeight));
         Integer periodD = parseInt(textOf(etPeriodD));
 
         boolean uninterrupted = cbUninterrupted.isChecked();
         boolean newState = cbState.isChecked();
         boolean newMuted = cbMuted.isChecked();
 
-        // Rule: if State=false by user => force Muted=false (deactivate is not hide)
         if (!newState) newMuted = false;
 
-        // Father logic: if null, use userRoot
         byte[] newFatherId = (selectedFatherId != null) ? selectedFatherId : userRootId;
 
         boolean changedFather = !equalBytes(orRoot(original.taskFather), newFatherId);
@@ -188,25 +224,26 @@ public class EditTaskActivity extends AppCompatActivity {
                         || !safeEquals(startMin, original.startTimeMin)
                         || !safeEquals(finishMin, original.finishTimeMin)
                         || !safeEquals(timeM, original.timeM)
+                        || !safeEquals(weight, original.weight)
                         || !safeEquals(periodD, original.periodD)
                         || (uninterrupted != original.uninterrupted)
                         || changedFather;
 
         final boolean finalNewMuted = newMuted;
         final boolean finalNewState = newState;
+        final String finalName = name;
 
         long newStartUtc = System.currentTimeMillis();
 
-        String finalName = name;
         new Thread(() -> {
             long now = System.currentTimeMillis();
 
-            // 1) Only mute change (and nothing else): update same task, record TaskChange
+            // 1) Only mute change
             if (!changedOther && !changedState && changedMuted) {
                 db.taskDao().setMuted(original.taskId, finalNewMuted);
 
                 TaskChangeEntity ch = new TaskChangeEntity();
-                ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+                ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 ch.taskId = original.taskId;
                 ch.newTaskId = null;
                 ch.type = finalNewMuted ? "mute_on" : "mute_off";
@@ -218,12 +255,12 @@ public class EditTaskActivity extends AppCompatActivity {
                 return;
             }
 
-            // 2) Only state change (and nothing else): update same task, force muted if needed, record TaskChange
+            // 2) Only state change
             if (!changedOther && changedState && !changedMuted) {
                 db.taskDao().setStateMuted(original.taskId, finalNewState, finalNewMuted);
 
                 TaskChangeEntity ch = new TaskChangeEntity();
-                ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+                ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 ch.taskId = original.taskId;
                 ch.newTaskId = null;
                 ch.type = finalNewState ? "activate" : "task_deactivate";
@@ -235,19 +272,22 @@ public class EditTaskActivity extends AppCompatActivity {
                 return;
             }
 
-            // 3) Any other change (including father): VERSION UPDATE
+            // 3) Version update for other changes
             TaskEntity newer = copyOf(original);
-            newer.taskId = uuidToBytes(UuidV7.newUuid());
+            newer.taskId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             newer.taskName = finalName;
             newer.type = type;
             newer.startTimeMin = startMin;
             newer.finishTimeMin = finishMin;
             newer.timeM = timeM;
+            newer.weight = weight;
             newer.periodD = periodD;
             newer.uninterrupted = uninterrupted;
             newer.state = finalNewState;
             newer.muted = finalNewMuted;
             newer.taskFather = newFatherId;
+
+            if (!validateCreateTask(newer.type, newer.periodicJson, newer.periodD)) return;
 
             TaskHierarchyValidator.ValidationResult vr =
                     TaskHierarchyValidator.canChildExistInsideParent(
@@ -262,7 +302,6 @@ public class EditTaskActivity extends AppCompatActivity {
                 return;
             }
 
-// Validar hijos del padre editado (por capas, saltando empty transparentes)
             TaskHierarchyValidator.ValidationResult vrKids =
                     TaskHierarchyValidator.canLayerDescendantsStillFitInsideNewParent(
                             db,
@@ -277,19 +316,12 @@ public class EditTaskActivity extends AppCompatActivity {
                 return;
             }
 
-
-            // Insert new version
             db.taskDao().insert(newer);
-
-            // Old version becomes hidden by versioning: State=false AND Muted=true
             db.taskDao().setStateMuted(original.taskId, false, true);
-
-            // Move children from old to new
             db.taskDao().reparentChildren(original.taskId, newer.taskId);
 
-            // Record TaskChange old -> new
             TaskChangeEntity ch = new TaskChangeEntity();
-            ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+            ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             ch.taskId = original.taskId;
             ch.newTaskId = newer.taskId;
             ch.type = "task_update";
@@ -307,11 +339,10 @@ public class EditTaskActivity extends AppCompatActivity {
         new Thread(() -> {
             long now = System.currentTimeMillis();
 
-            // Hide subtree: State=false, Muted=true
             db.taskDao().hideSubtree(original.taskId);
 
             TaskChangeEntity ch = new TaskChangeEntity();
-            ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+            ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             ch.taskId = original.taskId;
             ch.newTaskId = null;
             ch.type = "delete_task";
@@ -323,7 +354,65 @@ public class EditTaskActivity extends AppCompatActivity {
         }).start();
     }
 
-    // --- helpers ---
+    // ---------------- ACTION SWITCHES ----------------
+
+    private void bindActionSwitches(TaskEntity task) {
+        // Avoid triggering listeners during init
+        swAlarm.setOnCheckedChangeListener(null);
+        swDnd.setOnCheckedChangeListener(null);
+        swNotifyMonth.setOnCheckedChangeListener(null);
+        swNotifyWeek.setOnCheckedChangeListener(null);
+        swNotifyDay.setOnCheckedChangeListener(null);
+        swNotifyOnDay.setOnCheckedChangeListener(null);
+        swNotify1h.setOnCheckedChangeListener(null);
+        swNotify10m.setOnCheckedChangeListener(null);
+        swNotify1m.setOnCheckedChangeListener(null);
+
+        swAlarm.setChecked(ActionJson.get(task.actionJson, ActionKeys.ALARM));
+        swDnd.setChecked(ActionJson.get(task.actionJson, ActionKeys.DND));
+        swNotifyMonth.setChecked(ActionJson.get(task.actionJson, ActionKeys.NOTIFY_MONTH));
+        swNotifyWeek.setChecked(ActionJson.get(task.actionJson, ActionKeys.NOTIFY_WEEK));
+        swNotifyDay.setChecked(ActionJson.get(task.actionJson, ActionKeys.NOTIFY_DAY));
+        swNotifyOnDay.setChecked(ActionJson.get(task.actionJson, ActionKeys.NOTIFY_ON_DAY));
+        swNotify1h.setChecked(ActionJson.get(task.actionJson, ActionKeys.NOTIFY_1H));
+        swNotify10m.setChecked(ActionJson.get(task.actionJson, ActionKeys.NOTIFY_10M));
+        swNotify1m.setChecked(ActionJson.get(task.actionJson, ActionKeys.NOTIFY_1M));
+
+        wireAction(swAlarm, task, ActionKeys.ALARM);
+        wireAction(swDnd, task, ActionKeys.DND);
+        wireAction(swNotifyMonth, task, ActionKeys.NOTIFY_MONTH);
+        wireAction(swNotifyWeek, task, ActionKeys.NOTIFY_WEEK);
+        wireAction(swNotifyDay, task, ActionKeys.NOTIFY_DAY);
+        wireAction(swNotifyOnDay, task, ActionKeys.NOTIFY_ON_DAY);
+        wireAction(swNotify1h, task, ActionKeys.NOTIFY_1H);
+        wireAction(swNotify10m, task, ActionKeys.NOTIFY_10M);
+        wireAction(swNotify1m, task, ActionKeys.NOTIFY_1M);
+    }
+
+    private void wireAction(SwitchCompat sw, TaskEntity task, String key) {
+        sw.setOnCheckedChangeListener((btn, checked) -> {
+            if (!actionUiReady) return;
+            new Thread(() -> {
+                String newJson = ActionJson.set(task.actionJson, key, checked);
+                db.taskDao().setActionJson(task.taskId, newJson);
+                task.actionJson = newJson;
+
+                TaskChangeEntity ch = new TaskChangeEntity();
+                ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
+                ch.taskId = task.taskId;
+                ch.newTaskId = null;
+                ch.type = checked ? ActionChangeTypes.on(key) : ActionChangeTypes.off(key);
+                ch.createAtUtcMs = System.currentTimeMillis();
+                ch.whenApplyUtcMs = null;
+                db.taskChangeDao().insert(ch);
+
+                int horizon = ActionPlanHorizon.getDaysAhead(this, db);
+                ActionPlanner.scheduleNextDays(getApplicationContext(), db, horizon);
+            }).start();
+        });
+    }
+
+    // ---------------- helpers ----------------
 
     private String getFatherLabel(byte[] fatherId, byte[] rootId) {
         if (fatherId == null || equalBytes(fatherId, rootId)) return getString(R.string.no_father_selected);
@@ -419,14 +508,32 @@ public class EditTaskActivity extends AppCompatActivity {
         return true;
     }
 
-    private static byte[] uuidToBytes(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        return new byte[] {
-                (byte)(msb >>> 56), (byte)(msb >>> 48), (byte)(msb >>> 40), (byte)(msb >>> 32),
-                (byte)(msb >>> 24), (byte)(msb >>> 16), (byte)(msb >>>  8), (byte)(msb),
-                (byte)(lsb >>> 56), (byte)(lsb >>> 48), (byte)(lsb >>> 40), (byte)(lsb >>> 32),
-                (byte)(lsb >>> 24), (byte)(lsb >>> 16), (byte)(lsb >>>  8), (byte)(lsb)
-        };
+    private boolean validateCreateTask(String type, String periodicJson, Integer periodD) {
+        if ("Daily".equals(type) && periodD != null) {
+            Toast.makeText(this, R.string.err_periodd_not_for_daily, Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        if ("Periodic".equals(type) && periodicJson != null && !periodicJson.isEmpty()) {
+            try {
+                JSONObject o = new JSONObject(periodicJson);
+                String unit = o.optString("unit", "");
+                int amount = o.optInt("amount", 1);
+
+                if (amount == 1) {
+                    Toast.makeText(this, R.string.err_periodic_amount_1, Toast.LENGTH_LONG).show();
+                    return false;
+                }
+                if ("day".equals(unit) && amount == 7) {
+                    Toast.makeText(this, R.string.err_periodic_day_7, Toast.LENGTH_LONG).show();
+                    return false;
+                }
+                if ("month".equals(unit) && amount == 12) {
+                    Toast.makeText(this, R.string.err_periodic_month_12, Toast.LENGTH_LONG).show();
+                    return false;
+                }
+            } catch (Exception ignored) {}
+        }
+        return true;
     }
 }

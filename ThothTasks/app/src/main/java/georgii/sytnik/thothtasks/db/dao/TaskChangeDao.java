@@ -30,7 +30,6 @@ public interface TaskChangeDao {
     )
     TaskChangeEntity findFirstDeactivateAfter(byte[] taskId, long afterUtcMs);
 
-    // (si lo usas en TaskManager para aplicar cambios vencidos, opcional)
     @Query(
             "SELECT * FROM TaskChange " +
                     "WHERE WhenApply IS NOT NULL AND WhenApply <= :nowUtcMs " +
@@ -38,5 +37,28 @@ public interface TaskChangeDao {
                     "ORDER BY WhenApply ASC"
     )
     List<TaskChangeEntity> dueStateChanges(long nowUtcMs);
-}
 
+    @Query(
+            "SELECT * FROM TaskChange WHERE Task IN (" +
+                    " SELECT TaskId FROM Task WHERE TaskFather = :rootTaskId OR TaskId = :rootTaskId" +
+                    ") ORDER BY CreateAt"
+    )
+    List<TaskChangeEntity> historyForTaskTree(byte[] rootTaskId);
+
+    @Query(
+            "SELECT * FROM TaskChange WHERE CreateAt > :sinceUtcMs " +
+                    "AND Task IN (" +
+                    " SELECT TaskId FROM Task WHERE TaskFather = :rootTaskId OR TaskId = :rootTaskId" +
+                    ") ORDER BY CreateAt"
+    )
+    List<TaskChangeEntity> changesAfter(byte[] rootTaskId, long sinceUtcMs);
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void insertIgnore(TaskChangeEntity change);
+
+    @Query("SELECT COALESCE(MAX(CreateAt), 0) FROM TaskChange WHERE Task IN (" +
+                    " SELECT TaskId FROM Task WHERE TaskFather = :rootTaskId OR TaskId = :rootTaskId" +
+                    ")"
+    )
+    long maxCreateAtForTaskTree(byte[] rootTaskId);
+}

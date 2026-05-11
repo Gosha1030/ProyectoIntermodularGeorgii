@@ -1,5 +1,8 @@
 package georgii.sytnik.thothtasks.ui;
 
+import static georgii.sytnik.thothtasks.net.MessageCodec.hex;
+
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -14,23 +17,35 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
+import georgii.sytnik.thothtasks.db.entities.ExternalSourceEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskChangeEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskEntity;
+import georgii.sytnik.thothtasks.db.entities.TaskOverlayEntity;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.domain.TaskChangeApplier;
+import georgii.sytnik.thothtasks.domain.action.ActionKeys;
+import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
+import georgii.sytnik.thothtasks.domain.schedule.OverlayResolver;
+import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
+import georgii.sytnik.thothtasks.security.ActionSettingsReader;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
 import georgii.sytnik.thothtasks.ui.tree.NodeRow;
@@ -67,9 +82,13 @@ public class TaskManagerActivity extends AppCompatActivity {
         adapter = new TaskTreeAdapter(rows, new TaskTreeAdapter.Listener() {
             @Override public void onToggle(NodeRow row, int position) { toggleRow(row, position); }
             @Override public void onClick(NodeRow row) {
-                Intent i = new Intent(TaskManagerActivity.this, EditTaskActivity.class);
-                i.putExtra(EditTaskActivity.EXTRA_TASK_ID, row.task.taskId);
-                startActivity(i);
+                if (row.sourceId == null) {
+                    Intent i = new Intent(TaskManagerActivity.this, EditTaskActivity.class);
+                    i.putExtra(EditTaskActivity.EXTRA_TASK_ID, row.task.taskId);
+                    startActivity(i);
+                } else {
+                    showImportedOverlayDialog(row);
+                }
             }
             @Override public void onLongPress(NodeRow row, View anchor) { showContextMenu(row, anchor); }
         });
@@ -127,9 +146,17 @@ public class TaskManagerActivity extends AppCompatActivity {
                     rows.add(r);
                 }
             } else {
+                List<ExternalSourceEntity> allSources = db.externalSourceDao().listAll();
+                Map<String, byte[]> importedRootToSource = new HashMap<>();
+                for (ExternalSourceEntity s : allSources) {
+                    if (s.importedRootTaskId != null) importedRootToSource.put(hex(s.importedRootTaskId), s.sourceId);
+                }
                 List<TaskEntity> top = db.taskDao().childrenFiltered(currentRootId, includeInactive, includeHidden);
                 for (TaskEntity t : top) {
                     NodeRow r = new NodeRow(t, 0);
+                    byte[] sourceId = importedRootToSource.get(hex(t.taskId));
+                    r.sourceId = sourceId; // if null => local
+                    r.effectiveMuted = OverlayResolver.effectiveMuted(db, r.sourceId, t.taskId, t.muted);
                     r.hasChildren = !db.taskDao().childrenFiltered(t.taskId, includeInactive, includeHidden).isEmpty();
                     rows.add(r);
                 }
@@ -165,6 +192,8 @@ public class TaskManagerActivity extends AppCompatActivity {
                 List<NodeRow> insert = new ArrayList<>();
                 for (TaskEntity c : children) {
                     NodeRow nr = new NodeRow(c, row.level + 1);
+                    nr.sourceId = row.sourceId; // inherit
+                    nr.effectiveMuted = OverlayResolver.effectiveMuted(db, nr.sourceId, c.taskId, c.muted);
                     nr.hasChildren = !db.taskDao().childrenFiltered(c.taskId, includeInactive, includeHidden).isEmpty();
                     insert.add(nr);
                 }
@@ -179,6 +208,11 @@ public class TaskManagerActivity extends AppCompatActivity {
     }
 
     private void showContextMenu(NodeRow row, View anchor) {
+        if (row.sourceId != null) {
+            showImportedContextMenu(row, anchor);
+            return;
+        }
+
         PopupMenu pm = new PopupMenu(this, anchor);
         MenuInflater inflater = pm.getMenuInflater();
         inflater.inflate(R.menu.menu_task_node, pm.getMenu());
@@ -207,6 +241,35 @@ public class TaskManagerActivity extends AppCompatActivity {
         pm.show();
     }
 
+    private void showImportedContextMenu(NodeRow row, View anchor) {
+        PopupMenu pm = new PopupMenu(this, anchor);
+        MenuInflater inflater = pm.getMenuInflater();
+        inflater.inflate(R.menu.menu_imported_task, pm.getMenu());
+
+        pm.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.action_toggle_mute_local) {
+                toggleMuteLocal(row.sourceId, row.task, row.effectiveMuted);
+                return true;
+            } else if (id == R.id.action_set_action_local) {
+                showImportedActionDialog(row);
+                return true;
+            } else if (id == R.id.action_clear_action_local) {
+                clearActionLocal(row.sourceId, row.task.taskId);
+                return true;
+            } else if (id == R.id.action_set_place_local) {
+                pickPlaceForImported(row);
+                return true;
+            } else if (id == R.id.action_clear_place_local) {
+                setPlaceLocal(row.sourceId, row.task.taskId, null);
+                return true;
+            }
+            return false;
+        });
+
+        pm.show();
+    }
+
     // ---------------- MUTE (immediate) ----------------
 
     private void toggleMuteNow(TaskEntity task) {
@@ -222,6 +285,23 @@ public class TaskManagerActivity extends AppCompatActivity {
             ch.createAtUtcMs = System.currentTimeMillis();
             ch.whenApplyUtcMs = null;
             db.taskChangeDao().insert(ch);
+
+            runOnUiThread(this::reloadTree);
+        }).start();
+    }
+
+    private void toggleMuteLocal(byte[] sourceId, TaskEntity task, boolean currentEffectiveMuted) {
+        new Thread(() -> {
+            TaskOverlayEntity ov = db.taskOverlayDao().find(sourceId, task.taskId);
+            if (ov == null) {
+                ov = new TaskOverlayEntity();
+                ov.overlayId = uuidToBytes(UuidV7.newUuid());
+                ov.sourceId = sourceId;
+                ov.taskId = task.taskId;
+            }
+            ov.mutedLocal = !currentEffectiveMuted;
+            ov.updatedAtUtcMs = System.currentTimeMillis();
+            db.taskOverlayDao().upsert(ov);
 
             runOnUiThread(this::reloadTree);
         }).start();
@@ -300,7 +380,7 @@ public class TaskManagerActivity extends AppCompatActivity {
         return true;
     }
 
-    private static byte[] uuidToBytes(UUID uuid) {
+    public static byte[] uuidToBytes(UUID uuid) {
         long msb = uuid.getMostSignificantBits();
         long lsb = uuid.getLeastSignificantBits();
         return new byte[] {
@@ -309,5 +389,231 @@ public class TaskManagerActivity extends AppCompatActivity {
                 (byte)(lsb >>> 56), (byte)(lsb >>> 48), (byte)(lsb >>> 40), (byte)(lsb >>> 32),
                 (byte)(lsb >>> 24), (byte)(lsb >>> 16), (byte)(lsb >>>  8), (byte)(lsb)
         };
+    }
+
+    private void showImportedOverlayDialog(NodeRow row) {
+        // row.sourceId != null siempre aquí
+        if (row.sourceId == null) return;
+
+        String[] options = new String[] {
+                "Mute (local)",
+                "Action (local)",
+                "Clear Action (local)"
+        };
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle(row.task.taskName)
+                .setItems(options, (dlg, which) -> {
+                    if (which == 0) {
+                        // toggle mute local
+                        toggleMuteLocal(row.sourceId, row.task, row.effectiveMuted);
+                    } else if (which == 1) {
+                        // set action local
+                        showActionLocalDialog(row.sourceId, row.task);
+                    } else if (which == 2) {
+                        clearActionLocal(row.sourceId, row.task);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void showActionLocalDialog(byte[] sourceId, TaskEntity task) {
+        com.google.android.material.textfield.TextInputEditText et = new com.google.android.material.textfield.TextInputEditText(this);
+        et.setHint("{\"type\":\"notify\",\"beforeMin\":60}");
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Action (local) • " + task.taskName)
+                .setView(et)
+                .setPositiveButton("Save", (d, w) -> {
+                    String json = et.getText() != null ? et.getText().toString().trim() : "";
+                    setActionLocal(sourceId, task, json.isEmpty() ? null : json);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void setActionLocal(byte[] sourceId, TaskEntity task, String actionJsonOrNull) {
+        new Thread(() -> {
+            TaskOverlayEntity ov = db.taskOverlayDao().find(sourceId, task.taskId);
+            if (ov == null) {
+                ov = new TaskOverlayEntity();
+                ov.overlayId = uuidToBytes(UuidV7.newUuid());
+                ov.sourceId = sourceId;
+                ov.taskId = task.taskId;
+            }
+            ov.actionLocalJson = actionJsonOrNull;
+            ov.updatedAtUtcMs = System.currentTimeMillis();
+            db.taskOverlayDao().upsert(ov);
+
+            runOnUiThread(this::reloadTree);
+        }).start();
+    }
+
+    private void clearActionLocal(byte[] sourceId, TaskEntity task) {
+        setActionLocal(sourceId, task, null);
+    }
+
+    private NodeRow pendingImportedRowForPlace;
+    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceImportedLauncher =
+            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
+                if (pendingImportedRowForPlace == null) return;
+                if (res.getResultCode() == RESULT_OK && res.getData() != null) {
+                    byte[] placeId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
+                    setPlaceLocal(pendingImportedRowForPlace.sourceId, pendingImportedRowForPlace.task.taskId, placeId);
+                }
+                pendingImportedRowForPlace = null;
+            });
+
+    private void pickPlaceForImported(NodeRow row) {
+        pendingImportedRowForPlace = row;
+        Intent i = new Intent(this, PlacePickerActivity.class);
+        i.putExtra(PlacePickerActivity.EXTRA_ALLOW_ANY, true);
+        pickPlaceImportedLauncher.launch(i);
+    }
+
+    private void setPlaceLocal(byte[] sourceId, byte[] taskId, byte[] placeIdOrNull) {
+        new Thread(() -> {
+            TaskOverlayEntity ov = db.taskOverlayDao().find(sourceId, taskId);
+            if (ov == null) {
+                ov = new TaskOverlayEntity();
+                ov.overlayId = georgii.sytnik.thothtasks.util.UuidBytes.uuidToBytes(UuidV7.newUuid());
+                ov.sourceId = sourceId;
+                ov.taskId = taskId;
+            }
+            ov.placeLocalId = placeIdOrNull;
+            ov.updatedAtUtcMs = System.currentTimeMillis();
+            db.taskOverlayDao().upsert(ov);
+
+            runOnUiThread(this::reloadTree);
+        }).start();
+    }
+
+    private void showImportedActionDialog(NodeRow row) {
+        if (row.sourceId == null) return; // solo importadas
+
+        // carga overlay actual (si existe)
+        new Thread(() -> {
+            TaskOverlayEntity ov = db.taskOverlayDao().find(row.sourceId, row.task.taskId);
+            String overlayJson = (ov != null && ov.actionLocalJson != null) ? ov.actionLocalJson : null;
+
+            runOnUiThread(() -> {
+                View v = getLayoutInflater().inflate(R.layout.dialog_action_local, null);
+
+                SwitchCompat swAlarm = v.findViewById(R.id.swAlarm);
+                SwitchCompat swDnd = v.findViewById(R.id.swDnd);
+                SwitchCompat swNotifyMonth = v.findViewById(R.id.swNotifyMonth);
+                SwitchCompat swNotifyWeek = v.findViewById(R.id.swNotifyWeek);
+                SwitchCompat swNotifyDay = v.findViewById(R.id.swNotifyDay);
+                SwitchCompat swNotifyOnDay = v.findViewById(R.id.swNotifyOnDay);
+                SwitchCompat swNotify1h = v.findViewById(R.id.swNotify1h);
+                SwitchCompat swNotify10m = v.findViewById(R.id.swNotify10m);
+                SwitchCompat swNotify1m = v.findViewById(R.id.swNotify1m);
+
+                // init switches from overlayJson (si null -> todo false)
+                JSONObject o = georgii.sytnik.thothtasks.domain.action.ActionJson.parseOrEmpty(overlayJson);
+
+                swAlarm.setChecked(o.optBoolean(ActionKeys.ALARM, false));
+                swDnd.setChecked(o.optBoolean(ActionKeys.DND, false));
+                swNotifyMonth.setChecked(o.optBoolean(ActionKeys.NOTIFY_MONTH, false));
+                swNotifyWeek.setChecked(o.optBoolean(ActionKeys.NOTIFY_WEEK, false));
+                swNotifyDay.setChecked(o.optBoolean(ActionKeys.NOTIFY_DAY, false));
+                swNotifyOnDay.setChecked(o.optBoolean(ActionKeys.NOTIFY_ON_DAY, false));
+                swNotify1h.setChecked(o.optBoolean(ActionKeys.NOTIFY_1H, false));
+                swNotify10m.setChecked(o.optBoolean(ActionKeys.NOTIFY_10M, false));
+                swNotify1m.setChecked(o.optBoolean(ActionKeys.NOTIFY_1M, false));
+
+                // si la task no tiene hora definida, deshabilitar acciones de hora (opcional UX)
+                boolean hasExactTime = (row.task.startTimeMin != null && row.task.finishTimeMin != null);
+                swAlarm.setEnabled(hasExactTime);
+                swNotify1h.setEnabled(hasExactTime);
+                swNotify10m.setEnabled(hasExactTime);
+                swNotify1m.setEnabled(hasExactTime);
+
+                AlertDialog dlg = new AlertDialog.Builder(this)
+                        .setTitle("Action (local) • " + row.task.taskName)
+                        .setView(v)
+                        .setPositiveButton("Save", null)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+
+                dlg.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(btn -> {
+                    // build full overlay json (sin herencia, sin base)
+                    String json = buildOverlayActionJson(
+                            hasExactTime,
+                            swAlarm.isChecked(),
+                            swDnd.isChecked(),
+                            swNotifyMonth.isChecked(),
+                            swNotifyWeek.isChecked(),
+                            swNotifyDay.isChecked(),
+                            swNotifyOnDay.isChecked(),
+                            swNotify1h.isChecked(),
+                            swNotify10m.isChecked(),
+                            swNotify1m.isChecked()
+                    );
+
+                    saveActionLocal(row.sourceId, row.task.taskId, json);
+                    dlg.dismiss();
+                });
+            });
+        }).start();
+    }
+
+    private String buildOverlayActionJson(boolean hasExactTime,
+                                          boolean alarm, boolean dnd,
+                                          boolean nMonth, boolean nWeek, boolean nDay, boolean nOnDay,
+                                          boolean n1h, boolean n10m, boolean n1m) {
+        try {
+            JSONObject o = new JSONObject();
+
+            o.put(ActionKeys.NOTIFY_MONTH, nMonth);
+            o.put(ActionKeys.NOTIFY_WEEK, nWeek);
+            o.put(ActionKeys.NOTIFY_DAY, nDay);
+            o.put(ActionKeys.NOTIFY_ON_DAY, nOnDay);
+            o.put(ActionKeys.DND, dnd);
+
+            // acciones “de hora” solo si Start+Finish existen
+            o.put(ActionKeys.ALARM, hasExactTime && alarm);
+            o.put(ActionKeys.NOTIFY_1H, hasExactTime && n1h);
+            o.put(ActionKeys.NOTIFY_10M, hasExactTime && n10m);
+            o.put(ActionKeys.NOTIFY_1M, hasExactTime && n1m);
+
+            return o.toString();
+        } catch (Exception e) {
+            return "{}";
+        }
+    }
+
+    private void saveActionLocal(byte[] sourceId, byte[] taskId, String json) {
+        new Thread(() -> {
+            TaskOverlayEntity ov = db.taskOverlayDao().find(sourceId, taskId);
+            if (ov == null) {
+                ov = new TaskOverlayEntity();
+                ov.overlayId = georgii.sytnik.thothtasks.util.UuidBytes.uuidToBytes(UuidV7.newUuid());
+                ov.sourceId = sourceId;
+                ov.taskId = taskId;
+            }
+            ov.actionLocalJson = json;
+            ov.updatedAtUtcMs = System.currentTimeMillis();
+            db.taskOverlayDao().upsert(ov);
+
+            int horizon = ActionPlanHorizon.getDaysAhead(this, db);
+            ActionPlanner.scheduleNextDays(getApplicationContext(), db, horizon);
+
+            runOnUiThread(this::reloadTree);
+        }).start();
+    }
+
+    private void clearActionLocal(byte[] sourceId, byte[] taskId) {
+        new Thread(() -> {
+            TaskOverlayEntity ov = db.taskOverlayDao().find(sourceId, taskId);
+            if (ov != null) {
+                ov.actionLocalJson = null;
+                ov.updatedAtUtcMs = System.currentTimeMillis();
+                db.taskOverlayDao().upsert(ov);
+            }
+            ActionPlanner.scheduleNextDays(getApplicationContext(), db, 60);
+            runOnUiThread(this::reloadTree);
+        }).start();
     }
 }
