@@ -1,115 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="action_alarm">Alarm (start or travel)</string>
+    <string name="action_dnd">Do Not Disturb</string>
+    <string name="action_notify_10m">Notify 10 minutes before</string>
+    <string name="action_notify_1h">Notify 1 hour before</string>
+    <string name="action_notify_1m">Notify 1 minute before</string>
+    <string name="action_notify_day">Notify 1 day before</string>
+    <string name="action_notify_month">Notify 1 month before</string>
+    <string name="action_notify_on_day">Notify on the same day</string>
+    <string name="action_notify_week">Notify 1 week before</string>
+    <string name="actions_title">Actions</string>
     <string name="app_name">Thoth Tasks</string>
-
+    <string name="ask_password">Always ask for password</string>
+    <string name="cancel">Cancel</string>
+    <string name="channel_actions_name">Actions</string>
+    <string name="confirm_delete_message">This will hide the task subtree.</string>
+    <string name="confirm_delete_title">Delete task?</string>
+    <string name="create">Create</string>
+    <string name="create_task_title">Create task</string>
+    <string name="default_new_task_name">New task</string>
+    <string name="delete">Delete</string>
+    <string name="dnd_granted">DND access: GRANTED</string>
+    <string name="dnd_not_granted">DND access: NOT GRANTED</string>
+    <string name="empty">(empty)</string>
+    <string name="err_periodd_not_for_daily">PeriodD is not allowed for Daily tasks.</string>
+    <string name="err_periodic_amount_1">Periodic amount cannot be 1.</string>
+    <string name="err_periodic_day_7">Periodic unit day with amount 7 duplicates Weekly.</string>
+    <string name="err_periodic_month_12">Periodic unit month with amount 12 duplicates Yearly.</string>
+    <string name="finish_time">End time</string>
+    <string name="login_button">Enter / Create</string>
+    <string name="login_title">Sign in</string>
+    <string name="logout_button">Sign out</string>
+    <string name="mode_day">Day</string>
+    <string name="mode_month">Month</string>
+    <string name="mode_week">Week</string>
+    <string name="mode_year">Year</string>
+    <string name="nav_external_users">External users</string>
+    <string name="nav_places_travels">Places &amp; travels</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_user_manager">User manager</string>
+    <string name="no_father_selected">(root)</string>
+    <string name="notif_granted">Notifications: GRANTED</string>
+    <string name="notif_not_granted">Notifications: NOT GRANTED</string>
+    <string name="password">Password</string>
+    <string name="period_d">Period (days)</string>
+    <string name="pick_father">Pick father</string>
+    <string name="pick_place">Pick place</string>
+    <string name="place_anywhere">(anywhere)</string>
+    <string name="save">Save</string>
+    <string name="search_hint">Search</string>
+    <string name="settings_alarm_section">Alarms (Actions)</string>
+    <string name="settings_alarm_sound">Alarm: sound (HIGH notification)</string>
+    <string name="settings_alarm_vibrate">Alarm: vibrate</string>
+    <string name="settings_ask_password">Always ask for password on login</string>
+    <string name="settings_grant_dnd">Grant Do Not Disturb access</string>
+    <string name="settings_grant_notifications">Request notification permission</string>
+    <string name="settings_permissions">Permissions</string>
+    <string name="settings_plan_days">Days ahead</string>
+    <string name="settings_plan_days_hint">How many days ahead to plan actions (60 recommended for month notifications)</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_travel_mandatory">Mandatory extra (min)</string>
+    <string name="settings_travel_mandatory_hint">Added when creating a travel (mandatory)</string>
+    <string name="settings_travel_optional">Optional extra (min)</string>
+    <string name="settings_travel_optional_hint">Added when inserting travel if there is gap</string>
+    <string name="settings_travel_section">Travels (extras)</string>
+    <string name="settings_ux_section">UX</string>
     <string name="splash_quote_1">Today is a great day to move forward.</string>
     <string name="splash_quote_2">One step at a time—keep going.</string>
     <string name="splash_quote_3">The important thing is to start.</string>
     <string name="splash_quote_4">Your time is your power.</string>
-
-    <string name="login_title">Sign in</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
-    <string name="ask_password">Always ask for password</string>
-    <string name="login_button">Enter / Create</string>
-
-    <string name="toast_empty_username">Please enter a username.</string>
-    <string name="toast_wrong_password">Wrong password.</string>
-    <string name="toast_user_created">User created.</string>
-    <string name="toast_password_required">Password is required for this user.</string>
-    <string name="logout_button">Sign out</string>
-    <string name="toast_logged_out">Signed out.</string>
-    <string name="tasks_manager_title">Tasks Manager</string>
-    <string name="search_hint">Search / Filter</string>
-    <string name="create_task_title">Create Task</string>
-    <string name="task_name">Task Name</string>
-    <string name="task_father">Task Father</string>
-    <string name="task_type">Task Type</string>
-    <string name="start_time">StartTime</string>
-    <string name="finish_time">FinishTime</string>
-    <string name="time_m">TimeM (min)</string>
-    <string name="uninterrupted">Uninterrupted</string>
-    <string name="period_d">PeriodD (days)</string>
-    <string name="create">Create</string>
-    <string name="pick_father">Pick father</string>
-    <string name="no_father_selected">(no father)</string>
-
-    <string name="toast_invalid_time_order">StartTime must be less than FinishTime (crossing midnight is not allowed).</string>
-    <string name="toast_task_created">Task created.</string>
-    <string name="toast_select_father">Select a task.</string>
-
-    <string name="show_inactive">Show inactive</string>
-    <string name="edit_task_title">Edit Task</string>
-    <string name="state">State (active)</string>
-    <string name="mute">Muted</string>
-    <string name="delete">Delete</string>
-    <string name="save">Save</string>
-    <string name="show_deactivated">"Show disabled (State=false, Muted=false)"</string>
-    <string name="show_hidden">"Show hidden (State=false, Muted=true)"</string>
-
-    <string name="mode_day">Day</string>
-    <string name="mode_week">Week</string>
-    <string name="mode_month">Month</string>
-    <string name="mode_year">Year</string>
-
-    <string name="hint_swipe">↔ move date | ↕ change mode (day/week/month/year)</string>
-
-    <string name="morning_range">00:00–11:59</string>
-    <string name="afternoon_range">12:00–23:59</string>
-    <string name="no_time_section">No time</string>
-
-    <string name="week_range">Week: %1$s — %2$s</string>
-    <string name="month_title">Month: %1$s</string>
-    <string name="year_title">Year: %1$s</string>
-    <string name="tasks_count">Tasks: %1$d</string>
-
-    <string name="err_periodic_amount_1">Do not use Periodic with amount=1. Create the corresponding task type.</string>
-    <string name="err_periodic_day_7">Periodic day=7 equals Weekly. Create a weekly task.</string>
-    <string name="err_periodic_month_12">Periodic month=12 equals Yearly. Create a yearly task.</string>
-    <string name="err_periodd_not_for_daily">PeriodD is not available for daily tasks.</string>
-
-    <string name="filtered_repeating_info">Repeating tasks are hidden in this mode to reduce clutter.</string>
-
-
-    <string name="nav_tasks">Tasks Manager</string>
-    <string name="nav_user_manager">User Manager</string>
-    <string name="nav_external_users">External users</string>
-    <string name="nav_places_travels">Places and Travels</string>
-    <string name="nav_settings">Settings</string>
-
+    <string name="start_time">Start time</string>
+    <string name="task_father">Parent task</string>
+    <string name="task_name">Task name</string>
+    <string name="task_type">Task type</string>
+    <string name="tasks_manager_title">Tasks</string>
+    <string name="time_m">Duration (min)</string>
     <string name="title_day">Day: %1$s</string>
-    <string name="title_week">Week: %1$s — %2$s</string>
     <string name="title_month">Month: %1$s</string>
+    <string name="title_week">Week: %1$s — %2$s</string>
     <string name="title_year">Year: %1$s</string>
-
-    <string name="no_tasks">(no tasks)</string>
-
-    <string name="weight">Weight</string>
-    <string name="weight_hint">Higher = higher priority</string>
-
-    <string name="user_manager_title">User Manager</string>
-    <string name="locals_title">Locals</string>
-    <string name="external_sources_title">External Sources</string>
-
-    <string name="btn_add_local">Add Local</string>
-    <string name="btn_add_source">Add Source</string>
-
-    <string name="external_user_manager_title">ExternalUser Manager</string>
-    <string name="btn_external_user_manager">ExternalUser Manager</string>
-
-    <string name="field_name">Name</string>
-    <string name="field_port">Port</string>
-    <string name="field_ip">IP</string>
-    <string name="field_resource_id">ResourceId (hex)</string>
-
-    <string name="password_required">PasswordRequired</string>
-    <string name="confirm_required">ConfirmRequired</string>
-    <string name="active">Active</string>
-
-    <string name="cancel">Cancel</string>
-
-    <string name="toast_saved">Saved.</string>
+    <string name="toast_already_granted">Already granted.</string>
     <string name="toast_deleted">Deleted.</string>
+    <string name="toast_dnd_not_available">DND not available on this Android version.</string>
+    <string name="toast_empty_username">Please enter a username.</string>
+    <string name="toast_imported_readonly">Imported task: read-only. Use the menu for local overlays.</string>
+    <string name="toast_invalid_time_order">Start must be earlier than finish.</string>
+    <string name="toast_logged_out">Signed out.</string>
+    <string name="toast_not_required">Not required on this Android version.</string>
+    <string name="toast_password_required">Password is required for this user.</string>
+    <string name="toast_saved">Saved.</string>
+    <string name="toast_task_created">Task created.</string>
+    <string name="toast_user_created">User created.</string>
+    <string name="toast_wrong_password">Wrong password.</string>
+    <string name="uninterrupted">Uninterrupted</string>
+    <string name="username">Username</string>
+    <string name="week_range">Week: %1$s — %2$s</string>
+    <string name="weight">Weight</string>
+    <string name="weight_hint">Higher weight means more priority when overlapping.</string>
+    <string name="when_apply_now">(now)</string>
+    <string name="when_apply_pick">Start date (WhenApply)</string>
 
-    <string name="hint_resource_id">Paste QR ResourceId (hex)</string>
+    <string name="menu_action_local">Actions (local)</string>
+    <string name="menu_action_local_clear">Clear actions (local)</string>
+    <string name="menu_place_local">Set place (local)</string>
+    <string name="menu_place_local_clear">Clear place (local)</string>
+    <string name="menu_mute_local_on">Mute (local) ON</string>
+    <string name="menu_mute_local_off">Mute (local) OFF</string>
 
+
+    <string name="menu_toggle_mute">Toggle mute</string>
+    <string name="menu_state_activate_now">State: activate now</string>
+    <string name="menu_state_deactivate_now">State: deactivate now</string>
+    <string name="menu_state_schedule_activate">State: schedule activate…</string>
+    <string name="menu_state_schedule_deactivate">State: schedule deactivate…</string>
+
+    <string name="edit_task_title">Edit task</string>
+    <string name="state_active">Active</string>
+    <string name="muted">Muted</string>
+
+    <string name="typeinfo_weekly_title">Days of week</string>
+    <string name="dow_mon">Mon</string>
+    <string name="dow_tue">Tue</string>
+    <string name="dow_wed">Wed</string>
+    <string name="dow_thu">Thu</string>
+    <string name="dow_fri">Fri</string>
+    <string name="dow_sat">Sat</string>
+    <string name="dow_sun">Sun</string>
+
+    <string name="typeinfo_periodic_title">Periodic rule</string>
+    <string name="typeinfo_periodic_amount_hint">Amount (e.g. 2)</string>
+    <string name="typeinfo_periodic_streak_hint">Streak days (e.g. 1)</string>
+
+    <string name="typeinfo_yearly_title">Days of year (month/day)</string>
+    <string name="typeinfo_yearly_hint">Add: MM-DD (e.g. 01-05)</string>
+    <string name="typeinfo_yearly_add">Add</string>
+
+    <string name="type_optional">Type (optional)</string>
+    <string name="timem_required_minutes">TimeM (required, minutes)</string>
+    <string name="usertimem_optional">UserTimeM (optional)</string>
+    <string name="googletimem_optional">GoogleTimeM (optional)</string>
+    <string name="googledata_json_optional">GoogleData JSON (optional)</string>
+
+    <string name="places_title">Places</string>
+    <string name="travels_title">Travels</string>
+    <string name="places_travels_title">Places &amp; travels</string>
+    <string name="place_placeholder">Place</string>
+    <string name="travel_title_placeholder">Start → Finish</string>
+    <string name="travel_subtitle_placeholder">type • time • source</string>
+    <string name="travel_pick_start">Pick start</string>
+    <string name="travel_pick_finish">Pick finish</string>
+    <string name="not_set">(not set)</string>
+    <string name="place_picker_title">Pick place</string>
+    <string name="place_picker_any">(Any)</string>
+    <string name="toast_place_exists">Already exists.</string>
+    <string name="toast_error_generic">Error.</string>
+    <string name="toast_create_places_first">Create places first.</string>
+    <string name="toast_travel_start_finish_required">Start and finish are required.</string>
+    <string name="toast_travel_time_invalid">Invalid duration (min).</string>
+    <string name="toast_travel_save_error">Error saving travel.</string>
+    <string name="confirm_delete_generic_title">Delete?</string>
+
+    <string name="dash">-</string>
+
+    <string name="travel_unknown_start">Start?</string>
+    <string name="travel_unknown_finish">Finish?</string>
+
+    <string name="travel_title_format">%1$s → %2$s</string>
+    <string name="travel_sub_format">%1$s • %2$dm • user=%3$s • google=%4$s</string>
+
+    <string name="action_msg_notify_on_day">Notify on day: %1$s</string>
+    <string name="action_msg_alarm">Alarm: %1$s</string>
+    <string name="action_msg_notify_1h">1 hour before: %1$s</string>
+    <string name="action_msg_notify_10m">10 minutes before: %1$s</string>
+    <string name="action_msg_notify_1m">1 minute before: %1$s</string>
+    <string name="action_msg_notify_day_before">1 day before: %1$s</string>
+    <string name="action_msg_notify_week_before">1 week before: %1$s</string>
+    <string name="action_msg_notify_month_before">1 month before: %1$s</string>
+
+    <string name="action_title_action">Action</string>
+    <string name="action_title_notify">Notification</string>
+    <string name="action_title_alarm">Alarm</string>
+    <string name="action_title_dnd_on">Do Not Disturb ON</string>
+    <string name="action_title_dnd_off">Do Not Disturb OFF</string>
+
+    <string name="channel_actions_desc">Notifications created by actions planner.</string>
+
+    <string name="channel_alarms_name">Alarms</string>
+    <string name="channel_alarms_desc">High priority alarms created by actions planner.</string>
+
+    <string name="schedule_time_placeholder">08:00</string>
+    <string name="schedule_task_name_placeholder">Task</string>
+    <string name="schedule_task_meta_placeholder">type / duration</string>
+    <string name="schedule_day_label_placeholder">Mon 30</string>
+    <string name="schedule_week_label_placeholder">Week: 2026-04-27 — 2026-05-03</string>
+    <string name="schedule_month_label_placeholder">April 2026</string>
+
+    <string name="unknown_short">Unknown</string>
+    <string name="schedule_tap_to_create">tap to create</string>
+    <string name="schedule_warn_no_travel_defined">⚠ Travel not defined: %1$s → %2$s (%3$s)</string>
+    <string name="schedule_warn_no_time_for_travel">⚠ Not enough time for travel (%1$dm): %2$s → %3$s</string>
+
+    <string name="schedule_bullet_task">• %1$s</string>
+    <string name="schedule_bullet_task_with_date">• %1$s  %2$s</string>
+    <string name="schedule_time_parens">(%1$s)</string>
+
+    <string name="time_range_sep">–</string>
+
+    <string name="nav_logout">Log out</string>
+    <string name="toast_select_father">Chose father</string>
+    <string name="field_name">Nombre</string>
+    <string name="field_port">Port</string>
+    <string name="btn_add_local">Add Local</string>
+    <string name="field_ip">field ip</string>
+    <string name="hint_resource_id">Source id</string>
+    <string name="btn_add_source">Add source</string>
+    <string name="external_user_manager_title">External user manager</string>
+    <string name="hint_swipe">Swipe</string>
+    <string name="show_deactivated">Show deactivated</string>
+    <string name="show_hidden">Show hidden</string>
+    <string name="user_manager_title">User manager</string>
+    <string name="btn_external_user_manager">Open external user manager</string>
+    <string name="locals_title">Locals</string>
+    <string name="external_sources_title">Externals</string>
+    <string name="no_time_section">No time</string>
+    <string name="no_tasks">No tasks</string>
+    <string name="add">Add</string>
 </resources>

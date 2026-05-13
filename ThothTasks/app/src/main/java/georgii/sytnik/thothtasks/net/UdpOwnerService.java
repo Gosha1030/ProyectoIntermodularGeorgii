@@ -5,6 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.os.Build;
+
+import androidx.core.app.NotificationCompat;
+
 import androidx.annotation.Nullable;
 
 import org.json.JSONArray;
@@ -21,6 +28,7 @@ import java.util.List;
 
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.AccessGrantEntity;
+import georgii.sytnik.thothtasks.db.entities.AccessRequestEntity;
 import georgii.sytnik.thothtasks.db.entities.ExternalUserEntity;
 import georgii.sytnik.thothtasks.db.entities.PendingOutboxEntity;
 import georgii.sytnik.thothtasks.db.entities.ReceivedInboxEntity;
@@ -251,15 +259,24 @@ public class UdpOwnerService extends Service {
                     sendHandshakeResult(peerIp, peerPort, rid, env.optString("msgId"), false, "NO_PENDING");
                     return;
                 }
+                // PasswordRequired: solo exigimos contraseña si el owner la requiere
+                byte[] ownerId = SessionStore.loadLastUserId(this);
+                UserEntity owner = (ownerId != null) ? db.userDao().findById(ownerId) : null;
 
-                // Owner must have password in memory (security)
+                // default seguro: si no sabemos, exigimos password
+                boolean requirePwd = (owner == null) || owner.passwordRequired;
+
                 char[] pwd = SessionSecrets.getPassword();
-                if (pwd == null || pwd.length == 0) {
-                    HandshakeCache.remove(peerKey);
-                    sendHandshakeResult(peerIp, peerPort, rid, env.optString("msgId"), false, "OWNER_NO_PASSWORD");
-                    return;
+                if (requirePwd) {
+                    if (pwd == null || pwd.length == 0) {
+                        HandshakeCache.remove(peerKey);
+                        sendHandshakeResult(peerIp, peerPort, rid, env.optString("msgId"), false, "OWNER_NO_PASSWORD");
+                        return;
+                    }
+                } else {
+                    // Password no requerido => tratamos como password vacío
+                    if (pwd == null) pwd = new char[0];
                 }
-
                 String sessionId = body.optString("sessionId", "");
                 String proofB64 = body.optString("proof", "");
                 if (sessionId.isEmpty() || proofB64.isEmpty()) {
@@ -330,7 +347,7 @@ public class UdpOwnerService extends Service {
                 ShareResourceEntity res = db.shareResourceDao().findById(resourceId);
                 if (res == null || !res.active) return;
 
-                if (!checkGranted(peerIp, peerPort, ridHex, resourceIdHex, body.optString("name", peerIp + ":" + peerPort))) return;
+                if (!checkGranted(peerIp, peerPort, ridHex, resourceIdHex, env.optString("msgId"), body.optString("name", peerIp + ":" + peerPort))) return;
 
                 long remoteVersion = db.taskChangeDao().maxCreateAtForTaskTree(res.rootTaskId);
 
@@ -364,7 +381,7 @@ public class UdpOwnerService extends Service {
                 ShareResourceEntity res = db.shareResourceDao().findById(resourceId);
                 if (res == null || !res.active) return;
 
-                if (!checkGranted(peerIp, peerPort, ridHex, resourceIdHex, body.optString("name", peerIp + ":" + peerPort))) return;
+                if (!checkGranted(peerIp, peerPort, ridHex, resourceIdHex, env.optString("msgId"), body.optString("name", peerIp + ":" + peerPort))) return;
 
                 long startDayUtcMs = body.optLong("startDayUtcMs", System.currentTimeMillis());
                 int days = body.optInt("days", 30);
@@ -405,7 +422,7 @@ public class UdpOwnerService extends Service {
                 ShareResourceEntity res = db.shareResourceDao().findById(resourceId);
                 if (res == null || !res.active) return;
 
-                if (!checkGranted(peerIp, peerPort, ridHex, resourceIdHex, body.optString("name", peerIp + ":" + peerPort))) return;
+                if (!checkGranted(peerIp, peerPort, ridHex, resourceIdHex, env.optString("msgId"), body.optString("name", peerIp + ":" + peerPort))) return;
 
                 JSONObject payload = georgii.sytnik.thothtasks.domain.sync.SyncPayloadBuilder
                         .build(db, resourceId, sinceVersion);
@@ -485,19 +502,64 @@ public class UdpOwnerService extends Service {
     }
 
     /** Returns true if peer has grant for resourceId. */
-    private boolean checkGranted(String peerIp, int peerPort, String ridHex, String resourceIdHex, String externalName) {
+    private boolean checkGranted(String peerIp, int peerPort, String ridHex, String resourceIdHex, String reqMsgIdHex, String externalName) {
         try {
             byte[] ownerId = SessionStore.loadLastUserId(this);
             if (ownerId == null) return false;
 
+            UserEntity owner = db.userDao().findById(ownerId);
+            if (owner == null) return false;
+
             ExternalUserEntity eu = findOrCreateExternalUser(db, ownerId, peerIp, peerPort, externalName);
             if (eu.blocked) return false;
 
-            ShareResourceEntity res = db.shareResourceDao().findById(MessageCodec.hexToBytes(resourceIdHex));
+            byte[] resourceId = MessageCodec.hexToBytes(resourceIdHex);
+            ShareResourceEntity res = db.shareResourceDao().findById(resourceId);
             if (res == null) return false;
 
+            // ✅ Si el owner NO requiere confirmación: permitir siempre
+            if (!owner.confirmRequired) return true;
+
+            // ✅ ConfirmRequired: debe existir grant activo para este recurso
             AccessGrantEntity g = db.accessGrantDao().find(eu.externalId, res.resourceId);
-            return (g != null && g.granted && g.revokedAtUtcMs == null);
+            boolean ok = (g != null && g.granted && g.revokedAtUtcMs == null);
+            if (ok) return true;
+
+            // Persistente: crear/actualizar solicitud PENDING una sola vez hasta decisión
+            long now = System.currentTimeMillis();
+            boolean notify = false;
+
+            AccessRequestEntity ar = db.accessRequestDao().find(eu.externalId, res.resourceId);
+            if (ar == null) {
+                ar = new AccessRequestEntity();
+                ar.requestId = MessageCodec.uuidToBytes(UuidV7.newUuid());
+                ar.externalUserId = eu.externalId;
+                ar.resourceId = res.resourceId;
+                ar.state = AccessRequestEntity.STATE_PENDING;
+                ar.createdAtUtcMs = now;
+                ar.lastNotifiedAtUtcMs = now;
+                ar.peerIp = peerIp;
+                ar.peerPort = peerPort;
+                ar.requestMsgIdHex = reqMsgIdHex;
+                ar.externalName = externalName;
+                db.accessRequestDao().upsert(ar);
+                notify = true;
+            } else {
+                // si sigue pendiente, actualizamos datos (msgId/ip/port/nombre) sin volver a notificar
+                if (AccessRequestEntity.STATE_PENDING.equals(ar.state)) {
+                    ar.peerIp = peerIp;
+                    ar.peerPort = peerPort;
+                    ar.requestMsgIdHex = reqMsgIdHex;
+                    ar.externalName = externalName;
+                    db.accessRequestDao().upsert(ar);
+                }
+            }
+
+            if (notify) {
+                maybeNotifyAccessOnce(eu, res, peerIp, peerPort, resourceIdHex, reqMsgIdHex, externalName);
+            }
+
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -589,5 +651,93 @@ public class UdpOwnerService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+
+    // --- Access request notification (ConfirmRequired) ---
+    private static final String ACCESS_CHANNEL_ID = "thoth_access_requests";
+
+    private void ensureAccessChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+        try {
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            NotificationChannel existing = nm.getNotificationChannel(ACCESS_CHANNEL_ID);
+            if (existing != null) return;
+            NotificationChannel ch = new NotificationChannel(
+                    ACCESS_CHANNEL_ID,
+                    "Access requests",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            ch.setDescription("Requests to access shared resources");
+            nm.createNotificationChannel(ch);
+        } catch (Exception ignored) {}
+    }
+
+    private void maybeNotifyAccessOnce(ExternalUserEntity eu,
+                                       ShareResourceEntity res,
+                                       String peerIp,
+                                       int peerPort,
+                                       String resourceIdHex,
+                                       String reqMsgIdHex,
+                                       String externalName) {
+        try {
+            if (reqMsgIdHex == null || reqMsgIdHex.isEmpty()) return;
+
+            ensureAccessChannel();
+
+            Intent accept = new Intent(this, AccessDecisionReceiver.class);
+            accept.setAction(Protocol.ACTION_ACCEPT);
+            accept.putExtra(Protocol.EXTRA_PEER_IP, peerIp);
+            accept.putExtra(Protocol.EXTRA_PEER_PORT, peerPort);
+            accept.putExtra(Protocol.EXTRA_RESOURCE_ID_HEX, resourceIdHex);
+            accept.putExtra(Protocol.EXTRA_REQUEST_MSGID_HEX, reqMsgIdHex);
+            accept.putExtra(Protocol.EXTRA_EXTERNAL_NAME, externalName);
+
+            Intent reject = new Intent(this, AccessDecisionReceiver.class);
+            reject.setAction(Protocol.ACTION_REJECT);
+            reject.putExtra(Protocol.EXTRA_PEER_IP, peerIp);
+            reject.putExtra(Protocol.EXTRA_PEER_PORT, peerPort);
+            reject.putExtra(Protocol.EXTRA_RESOURCE_ID_HEX, resourceIdHex);
+            reject.putExtra(Protocol.EXTRA_REQUEST_MSGID_HEX, reqMsgIdHex);
+            reject.putExtra(Protocol.EXTRA_EXTERNAL_NAME, externalName);
+
+            Intent block = new Intent(this, AccessDecisionReceiver.class);
+            block.setAction(Protocol.ACTION_BLOCK);
+            block.putExtra(Protocol.EXTRA_PEER_IP, peerIp);
+            block.putExtra(Protocol.EXTRA_PEER_PORT, peerPort);
+            block.putExtra(Protocol.EXTRA_RESOURCE_ID_HEX, resourceIdHex);
+            block.putExtra(Protocol.EXTRA_REQUEST_MSGID_HEX, reqMsgIdHex);
+            block.putExtra(Protocol.EXTRA_EXTERNAL_NAME, externalName);
+
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= PendingIntent.FLAG_IMMUTABLE;
+
+            String key = MessageCodec.hex(eu.externalId) + "|" + resourceIdHex;
+            int baseId = key.hashCode();
+
+            PendingIntent piAccept = PendingIntent.getBroadcast(this, baseId + 1, accept, flags);
+            PendingIntent piReject = PendingIntent.getBroadcast(this, baseId + 2, reject, flags);
+            PendingIntent piBlock  = PendingIntent.getBroadcast(this, baseId + 3, block, flags);
+
+            String title = "Access request";
+            String resName = (res != null && res.name != null) ? res.name : resourceIdHex;
+            String who = (externalName != null && !externalName.isEmpty()) ? externalName : (peerIp + ":" + peerPort);
+            String text = who + " wants access to " + resName;
+
+            NotificationCompat.Builder nb = new NotificationCompat.Builder(this, ACCESS_CHANNEL_ID)
+                    .setSmallIcon(android.R.drawable.ic_dialog_alert)
+                    .setContentTitle(title)
+                    .setContentText(text)
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
+                    .setAutoCancel(true)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .addAction(android.R.drawable.checkbox_on_background, "Allow", piAccept)
+                    .addAction(android.R.drawable.ic_delete, "Reject", piReject)
+                    .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Block", piBlock);
+
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null) nm.notify(baseId, nb.build());
+        } catch (Exception ignored) {}
     }
 }

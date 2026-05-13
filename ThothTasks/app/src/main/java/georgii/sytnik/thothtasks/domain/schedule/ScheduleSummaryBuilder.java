@@ -47,7 +47,7 @@ public final class ScheduleSummaryBuilder {
 
         List<TaskEntity> fixed = new ArrayList<>();
         for (TaskEntity t : all) {
-            if (!"Empty".equals(t.type) && t.startTimeMin != null && t.finishTimeMin != null) {
+            if (!"".equals(t.type) && t.startTimeMin != null && t.finishTimeMin != null) {
                 fixed.add(t);
             }
         }

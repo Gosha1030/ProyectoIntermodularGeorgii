@@ -73,7 +73,7 @@ public class TravelsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_travels);
-        setTitle("Travels");
+        setTitle(R.string.travels_title);
 
         pendingAutoOpen = getIntent().getBooleanExtra(EXTRA_AUTO_OPEN, false);
         prefillStartId = getIntent().getByteArrayExtra(EXTRA_PREFILL_START);
@@ -132,7 +132,7 @@ public class TravelsActivity extends AppCompatActivity {
         new Thread(() -> {
             List<PlaceEntity> places = db.placeDao().listAll();
             if (places.isEmpty()) {
-                runOnUiThread(() -> Toast.makeText(this, "Primero crea Places.", Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> Toast.makeText(this, R.string.toast_create_places_first, Toast.LENGTH_LONG).show());
                 return;
             }
             runOnUiThread(() -> openTravelEditor(null));
@@ -178,9 +178,9 @@ public class TravelsActivity extends AppCompatActivity {
         btnPickFinish.setOnClickListener(b -> launchPickFinish());
 
         dlg = new AlertDialog.Builder(this)
-                .setTitle(t == null ? "New Travel" : "Edit Travel")
+                .setTitle(t == null ? getString(R.string.create) : getString(R.string.save))
                 .setView(v)
-                .setPositiveButton("Save", null)
+                .setPositiveButton(getString(R.string.save), null)
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
 
@@ -188,7 +188,7 @@ public class TravelsActivity extends AppCompatActivity {
         dlg.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(btn -> {
             // validation
             if (startPlaceId == null || finishPlaceId == null) {
-                Toast.makeText(this, "Start y Finish son obligatorios", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_travel_start_finish_required, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -198,7 +198,7 @@ public class TravelsActivity extends AppCompatActivity {
                 timeM = Integer.parseInt(s);
                 if (timeM <= 0) throw new Exception();
             } catch (Exception e) {
-                Toast.makeText(this, "TimeM inválido", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.toast_travel_time_invalid, Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -228,7 +228,7 @@ public class TravelsActivity extends AppCompatActivity {
     }
 
     private String nameOfPlace(byte[] placeId) {
-        if (placeId == null) return "(not set)";
+        if (placeId == null) return getString(R.string.not_set);
         return placeNameByIdHex.getOrDefault(MessageCodec.hex(placeId), "(?)");
     }
 
@@ -268,14 +268,14 @@ public class TravelsActivity extends AppCompatActivity {
                 });
 
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this, "Error guardando Travel", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, R.string.toast_travel_save_error, Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
 
     private void confirmDelete(TravelEntity t) {
         new AlertDialog.Builder(this)
-                .setTitle("Delete Travel?")
+                .setTitle(getString(R.string.confirm_delete_generic_title))
                 .setMessage(nameOfPlace(t.startPlaceId) + " → " + nameOfPlace(t.finishPlaceId))
                 .setPositiveButton(R.string.delete, (d,w) -> deleteTravel(t))
                 .setNegativeButton(android.R.string.cancel, null)

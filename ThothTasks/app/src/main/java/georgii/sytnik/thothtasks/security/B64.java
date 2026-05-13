@@ -2,6 +2,7 @@ package georgii.sytnik.thothtasks.security;
 
 import android.util.Base64;
 
+/** Base64 helper compatible with minSdk 24. */
 public final class B64 {
     private B64() {}
 

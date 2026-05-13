@@ -21,6 +21,8 @@ import georgii.sytnik.thothtasks.db.entities.ExternalUserEntity;
 import georgii.sytnik.thothtasks.db.entities.ShareResourceEntity;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
+import georgii.sytnik.thothtasks.util.HexBytes;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class ExternalUserManagerActivity extends AppCompatActivity {
 
@@ -98,7 +100,7 @@ public class ExternalUserManagerActivity extends AppCompatActivity {
             HashMap<String, AccessGrantEntity> current = new HashMap<>();
             List<AccessGrantEntity> grants = db.accessGrantDao().grantsForExternal(externalUser.externalId);
             for (AccessGrantEntity g : grants) {
-                current.put(hex(g.resourceId), g);
+                current.put(HexBytes.hex(g.resourceId), g);
             }
 
             String[] labels = new String[resources.size()];
@@ -107,7 +109,7 @@ public class ExternalUserManagerActivity extends AppCompatActivity {
             for (int i = 0; i < resources.size(); i++) {
                 ShareResourceEntity r = resources.get(i);
                 labels[i] = r.name + " (" + r.type + ")";
-                AccessGrantEntity g = current.get(hex(r.resourceId));
+                AccessGrantEntity g = current.get(HexBytes.hex(r.resourceId));
                 checked[i] = (g != null && g.granted && g.revokedAtUtcMs == null);
             }
 
@@ -140,13 +142,13 @@ public class ExternalUserManagerActivity extends AppCompatActivity {
                 ShareResourceEntity r = resources.get(i);
                 boolean wantGranted = checked[i];
 
-                String key = hex(r.resourceId);
+                String key = HexBytes.hex(r.resourceId);
                 AccessGrantEntity existing = current.get(key);
 
                 if (wantGranted) {
                     if (existing == null) {
                         AccessGrantEntity g = new AccessGrantEntity();
-                        g.grantId = uuidToBytes(UuidV7.newUuid());
+                        g.grantId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                         g.externalUserId = externalUser.externalId;
                         g.resourceId = r.resourceId;
                         g.granted = true;
@@ -171,24 +173,5 @@ public class ExternalUserManagerActivity extends AppCompatActivity {
 
             runOnUiThread(() -> Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_SHORT).show());
         }).start();
-    }
-
-    // ---- utils ----
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
-    }
-
-    private static byte[] uuidToBytes(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        return new byte[] {
-                (byte)(msb >>> 56), (byte)(msb >>> 48), (byte)(msb >>> 40), (byte)(msb >>> 32),
-                (byte)(msb >>> 24), (byte)(msb >>> 16), (byte)(msb >>>  8), (byte)(msb),
-                (byte)(lsb >>> 56), (byte)(lsb >>> 48), (byte)(lsb >>> 40), (byte)(lsb >>> 32),
-                (byte)(lsb >>> 24), (byte)(lsb >>> 16), (byte)(lsb >>>  8), (byte)(lsb)
-        };
     }
 }

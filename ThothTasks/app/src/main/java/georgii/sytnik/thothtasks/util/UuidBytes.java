@@ -2,6 +2,7 @@ package georgii.sytnik.thothtasks.util;
 
 import java.util.UUID;
 
+/** UUID <-> 16 bytes (big-endian). */
 public final class UuidBytes {
     private UuidBytes() {}
 

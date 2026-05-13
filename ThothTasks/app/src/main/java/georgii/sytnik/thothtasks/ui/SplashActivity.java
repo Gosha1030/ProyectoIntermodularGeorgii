@@ -18,6 +18,7 @@ import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.security.SessionStore;
+import georgii.sytnik.thothtasks.ui.action.NotificationChannels;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -32,6 +33,9 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        // Ensure notification channels exist early (Android 8+)
+        NotificationChannels.ensureCreated(this);
 
         TextView quote = findViewById(R.id.splashQuote);
         quote.setText(QUOTES[new Random().nextInt(QUOTES.length)]);

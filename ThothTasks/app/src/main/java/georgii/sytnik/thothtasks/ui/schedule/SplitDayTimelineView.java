@@ -1,11 +1,27 @@
 package georgii.sytnik.thothtasks.ui.schedule;
 
+import georgii.sytnik.thothtasks.R;
+
+import java.util.Locale;
+
 import android.content.Context;
+import java.util.Locale;
+
 import android.graphics.Canvas;
+import java.util.Locale;
+
 import android.graphics.Paint;
+import java.util.Locale;
+
 import android.graphics.RectF;
+import java.util.Locale;
+
 import android.util.AttributeSet;
+import java.util.Locale;
+
 import android.view.View;
+
+import java.util.Locale;
 
 import androidx.annotation.Nullable;
 
@@ -125,7 +141,7 @@ public class SplitDayTimelineView extends View {
                 // put label inside the row (avoid clipping at bottom)
                 float labelY = y + Math.min(dp(14), hourHeightPx * 0.35f);
 
-                String l = String.format("%02d", i);
+                String l = String.format(Locale.getDefault(), "%02d", i);
                 canvas.drawText(l, left + dp(6), labelY, labelPaint);
 
                 String r = String.format("%02d", 12 + i);
@@ -173,7 +189,7 @@ public class SplitDayTimelineView extends View {
         else p = original.muted ? blockMutedPaint : blockPaint;
         canvas.drawRoundRect(rect, radiusPx, radiusPx, p);
 
-        String time = minutesToText(original.startMin) + "–" + minutesToText(original.endMin);
+        String time = minutesToText(original.startMin) + getResources().getString(R.string.time_range_sep) + minutesToText(original.endMin);
         float tx = rect.left + dp(8);
         float ty = rect.top + dp(16);
 
@@ -196,7 +212,7 @@ public class SplitDayTimelineView extends View {
     private String minutesToText(int min) {
         int h = min / 60;
         int m = min % 60;
-        return String.format("%02d:%02d", h, m);
+        return String.format(Locale.getDefault(), "%02d:%02d", h, m);
     }
 
     private int clamp(int v, int lo, int hi) {

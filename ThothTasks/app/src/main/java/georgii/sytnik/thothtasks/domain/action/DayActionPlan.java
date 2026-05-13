@@ -7,6 +7,8 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import georgii.sytnik.thothtasks.R;
+import georgii.sytnik.thothtasks.util.HexBytes;
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.TaskChangeEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskEntity;
@@ -40,7 +42,7 @@ public final class DayActionPlan {
             long startUtc = (create != null && create.whenApplyUtcMs != null)
                     ? create.whenApplyUtcMs
                     : (create != null ? create.createAtUtcMs : System.currentTimeMillis());
-            startMap.put(hex(t.taskId), startUtc);
+            startMap.put(HexBytes.hex(t.taskId), startUtc);
         }
 
         // tasks active today
@@ -49,7 +51,7 @@ public final class DayActionPlan {
 
         for (TaskWithSource tws : all) {
             TaskEntity t = tws.task;
-            long sUtc = startMap.get(hex(t.taskId));
+            long sUtc = startMap.get(HexBytes.hex(t.taskId));
             if (!OccurrenceEngine.isActiveOnDay(t, sUtc, day)) continue;
 
             if (t.startTimeMin == null || t.finishTimeMin == null) activeNoTime.add(tws);
@@ -64,7 +66,7 @@ public final class DayActionPlan {
             TaskEntity t = tws.task;
             // apply muted overlay not needed for action planning
             todayForPlanner.add(t);
-            byId.put(hex(t.taskId), tws);
+            byId.put(HexBytes.hex(t.taskId), tws);
         }
 
         Map<String, Integer> depth = DayTimelinePlanner.computeDepths(todayForPlanner);
@@ -77,7 +79,6 @@ public final class DayActionPlan {
         // Build travel blocks (same logic as scheduler; simplified: only if travel exists and gap allows)
         List<DayBlock> travelBlocks = buildTravelBlocks(db, visibleTaskBlocks, byId);
 
-        // Merge for "inicio real": if a TRAVEL ends exactly when TASK starts => use travel start
         travelBlocks.sort(Comparator.comparingInt(a -> a.startMin));
         visibleTaskBlocks.sort(Comparator.comparingInt(a -> a.startMin));
 
@@ -109,36 +110,36 @@ public final class DayActionPlan {
 
             // notify_on_day
             if (actions.optBoolean(NOTIFY_ON_DAY, false)) {
-                scheduleNotifyAt(ctx, dayKey, t, startRealUtc, "ON_DAY_START", "Notify on day: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, startRealUtc, "ON_DAY_START", ctx.getString(R.string.action_msg_notify_on_day, t.taskName));
             }
 
             if (actions.optBoolean(ALARM, false)) {
-                scheduleAlarmAt(ctx, dayKey, t, startRealUtc, "START", "Alarm: " + t.taskName);
+                scheduleAlarmAt(ctx, dayKey, t, startRealUtc, "START", ctx.getString(R.string.action_msg_alarm, t.taskName));
             }
 
             if (actions.optBoolean(NOTIFY_1H, false)) {
-                scheduleNotifyAt(ctx, dayKey, t, startRealUtc - 60*60_000L, "MINUS_60M", "1h: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, startRealUtc - 60*60_000L, "MINUS_60M", ctx.getString(R.string.action_msg_notify_1h, t.taskName));
             }
             if (actions.optBoolean(NOTIFY_10M, false)) {
-                scheduleNotifyAt(ctx, dayKey, t, startRealUtc - 10*60_000L, "MINUS_10M", "10m: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, startRealUtc - 10*60_000L, "MINUS_10M", ctx.getString(R.string.action_msg_notify_10m, t.taskName));
             }
             if (actions.optBoolean(NOTIFY_1M, false)) {
-                scheduleNotifyAt(ctx, dayKey, t, startRealUtc - 1*60_000L, "MINUS_1M", "1m: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, startRealUtc - 1*60_000L, "MINUS_1M", ctx.getString(R.string.action_msg_notify_1m, t.taskName));
             }
 
             // notify_day/week/month relative to this occurrence day at 00:00
             long day00Utc = day00ToUtc(day);
             if (actions.optBoolean(NOTIFY_DAY, false))
-                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 24*60*60_000L, "DAY_BEFORE_00", "1 día antes: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 24*60*60_000L, "DAY_BEFORE_00", ctx.getString(R.string.action_msg_notify_day_before, t.taskName));
 
             if (actions.optBoolean(NOTIFY_WEEK, false))
-                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 7L*24*60*60_000L, "WEEK_BEFORE_00", "1 semana antes: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 7L*24*60*60_000L, "WEEK_BEFORE_00", ctx.getString(R.string.action_msg_notify_week_before, t.taskName));
 
             if (actions.optBoolean(NOTIFY_MONTH, false)) {
                 Calendar m = (Calendar) day.clone();
                 m.add(Calendar.MONTH, -1);
                 long m00 = day00ToUtc(m);
-                scheduleNotifyAt(ctx, dayKey, t, m00, "MONTH_BEFORE_00", "1 mes antes: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, m00, "MONTH_BEFORE_00", ctx.getString(R.string.action_msg_notify_month_before, t.taskName));
             }
         }
 
@@ -148,16 +149,16 @@ public final class DayActionPlan {
             JSONObject actions = resolveActions(db, tws.sourceId, t);
 
             long day00Utc = day00ToUtc(day);
-            if (actions.optBoolean(NOTIFY_ON_DAY, false)) scheduleNotifyAt(ctx, dayKey, t, day00Utc, "ON_DAY_00", "Notify (día): " + t.taskName);
+            if (actions.optBoolean(NOTIFY_ON_DAY, false)) scheduleNotifyAt(ctx, dayKey, t, day00Utc, "ON_DAY_00", ctx.getString(R.string.action_msg_notify_on_day, t.taskName));
             if (actions.optBoolean(NOTIFY_DAY, false))
-                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 24*60*60_000L, "DAY_BEFORE_00", "1 día antes: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 24*60*60_000L, "DAY_BEFORE_00", ctx.getString(R.string.action_msg_notify_day_before, t.taskName));
             if (actions.optBoolean(NOTIFY_WEEK, false))
-                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 7L*24*60*60_000L, "WEEK_BEFORE_00", "1 semana antes: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, day00Utc - 7L*24*60*60_000L, "WEEK_BEFORE_00", ctx.getString(R.string.action_msg_notify_week_before, t.taskName));
             if (actions.optBoolean(NOTIFY_MONTH, false)) {
                 Calendar m = (Calendar) day.clone();
                 m.add(Calendar.MONTH, -1);
                 long m00 = day00ToUtc(m);
-                scheduleNotifyAt(ctx, dayKey, t, m00, "MONTH_BEFORE_00", "1 mes antes: " + t.taskName);
+                scheduleNotifyAt(ctx, dayKey, t, m00, "MONTH_BEFORE_00", ctx.getString(R.string.action_msg_notify_month_before, t.taskName));
             }
         }
 
@@ -243,7 +244,6 @@ public final class DayActionPlan {
     }
 
     private static List<DayBlock> buildTravelBlocks(AppDatabase db, List<DayBlock> taskBlocks, HashMap<String, TaskWithSource> byId) {
-        // v1: travel blocks only affect "inicio real". We'll attempt to insert if gap allows and Travel exists.
         List<DayBlock> out = new ArrayList<>();
 
         byte[] lastKnownPlace = null;
@@ -315,14 +315,7 @@ public final class DayActionPlan {
         return c.getTimeInMillis();
     }
 
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
-    }
-
     private static int codeFor(String kind, String dayKey, byte[] taskId, String slot) {
-        return ActionPlanner.stableCode(kind + "|" + dayKey + "|" + hex(taskId) + "|" + slot);
+        return ActionPlanner.stableCode(kind + "|" + dayKey + "|" + HexBytes.hex(taskId) + "|" + slot);
     }
 }

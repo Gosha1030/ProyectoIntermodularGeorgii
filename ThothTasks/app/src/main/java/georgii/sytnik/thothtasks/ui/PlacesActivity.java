@@ -21,6 +21,7 @@ import georgii.sytnik.thothtasks.db.entities.PlaceEntity;
 import georgii.sytnik.thothtasks.domain.place.PlaceService;
 import georgii.sytnik.thothtasks.time.UuidV7;
 import georgii.sytnik.thothtasks.ui.place.PlaceAdapter;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class PlacesActivity extends AppCompatActivity {
 
@@ -32,7 +33,7 @@ public class PlacesActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_places);
-        setTitle("Places");
+        setTitle(R.string.places_title);
 
         db = AppDatabase.get(this);
 
@@ -67,9 +68,9 @@ public class PlacesActivity extends AppCompatActivity {
         etName.setHint("PlaceName");
 
         new AlertDialog.Builder(this)
-                .setTitle("New Place")
+                .setTitle(getString(R.string.create))
                 .setView(etName)
-                .setPositiveButton("Save", (d,w) -> {
+                .setPositiveButton(getString(R.string.save), (d,w) -> {
                     String name = etName.getText() != null ? etName.getText().toString().trim() : "";
                     if (name.isEmpty()) return;
                     saveNewPlace(name);
@@ -83,17 +84,17 @@ public class PlacesActivity extends AppCompatActivity {
             try {
                 PlaceEntity existing = db.placeDao().findByName(name);
                 if (existing != null) {
-                    runOnUiThread(() -> Toast.makeText(this, "Ya existe", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(this, R.string.toast_place_exists, Toast.LENGTH_SHORT).show());
                     return;
                 }
                 PlaceEntity p = new PlaceEntity();
-                p.placeId = georgii.sytnik.thothtasks.ui.TaskManagerActivity.uuidToBytes(UuidV7.newUuid());
+                p.placeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 p.placeName = name;
                 p.googleMapsDataJson = null;
                 db.placeDao().insert(p);
                 runOnUiThread(() -> { Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_SHORT).show(); load(); });
             } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(this, R.string.toast_error_generic, Toast.LENGTH_SHORT).show());
             }
         }).start();
     }
@@ -103,9 +104,9 @@ public class PlacesActivity extends AppCompatActivity {
         etName.setText(p.placeName);
 
         new AlertDialog.Builder(this)
-                .setTitle("Edit Place")
+                .setTitle(getString(R.string.save))
                 .setView(etName)
-                .setPositiveButton("Save", (d,w) -> {
+                .setPositiveButton(getString(R.string.save), (d,w) -> {
                     String name = etName.getText() != null ? etName.getText().toString().trim() : "";
                     if (name.isEmpty()) return;
                     updatePlace(p, name);
@@ -124,7 +125,7 @@ public class PlacesActivity extends AppCompatActivity {
 
     private void deletePlace(PlaceEntity p) {
         new AlertDialog.Builder(this)
-                .setTitle("Delete Place?")
+                .setTitle(getString(R.string.confirm_delete_generic_title))
                 .setMessage(p.placeName)
                 .setPositiveButton(R.string.delete, (d,w) -> {
                     new Thread(() -> {

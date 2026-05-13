@@ -16,7 +16,7 @@ public class PlacesTravelsActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_places_travels);
-        setTitle("Places y Travels");
+        setTitle(R.string.places_travels_title);
 
         MaterialButton btnPlaces = findViewById(R.id.btnPlaces);
         MaterialButton btnTravels = findViewById(R.id.btnTravels);

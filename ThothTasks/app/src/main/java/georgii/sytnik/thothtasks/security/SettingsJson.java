@@ -3,7 +3,6 @@ package georgii.sytnik.thothtasks.security;
 import org.json.JSONObject;
 
 public final class SettingsJson {
-
     private SettingsJson() {}
 
     public static JSONObject parseOrEmpty(String json) {
@@ -24,8 +23,9 @@ public final class SettingsJson {
     }
 
     public static String getString(JSONObject o, String k, String def) {
+        if (o == null) return def;
         String v = o.optString(k, null);
-        return (v == null) ? def : v;
+        return (v == null || v.isEmpty()) ? def : v;
     }
 
     public static void putBool(JSONObject o, String k, boolean v) {

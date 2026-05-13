@@ -9,59 +9,67 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <TextView
+            android:id="@+id/tvActionsTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/actions_title"
+            android:textStyle="bold"
+            android:paddingBottom="6dp" />
+
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swAlarm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Alarm (inicio o travel)"/>
+            android:text="@string/action_alarm" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swDnd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No molestar (DND)"/>
+            android:text="@string/action_dnd" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swNotifyMonth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notificar 1 mes antes"/>
+            android:text="@string/action_notify_month" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swNotifyWeek"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notificar 1 semana antes"/>
+            android:text="@string/action_notify_week" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swNotifyDay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notificar 1 día antes"/>
+            android:text="@string/action_notify_day" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swNotifyOnDay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notificar el mismo día"/>
+            android:text="@string/action_notify_on_day" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swNotify1h"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notificar 1h antes"/>
+            android:text="@string/action_notify_1h" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swNotify10m"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notificar 10m antes"/>
+            android:text="@string/action_notify_10m" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swNotify1m"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Notificar 1m antes"/>
+            android:text="@string/action_notify_1m" />
 
     </LinearLayout>
 </ScrollView>

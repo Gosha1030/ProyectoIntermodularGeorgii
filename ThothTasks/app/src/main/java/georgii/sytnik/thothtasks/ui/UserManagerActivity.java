@@ -35,6 +35,8 @@ import georgii.sytnik.thothtasks.security.PasswordHash;
 import georgii.sytnik.thothtasks.security.SessionSecrets;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
+import georgii.sytnik.thothtasks.util.HexBytes;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class UserManagerActivity extends AppCompatActivity {
 
@@ -184,11 +186,10 @@ public class UserManagerActivity extends AppCompatActivity {
     private void saveNewLocal(UserEntity owner, String name, Integer port) {
         new Thread(() -> {
             ShareResourceEntity r = new ShareResourceEntity();
-            r.resourceId = uuidToBytes(UuidV7.newUuid());
+            r.resourceId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             r.ownerUserId = owner.userId;
             r.type = "LOCAL";
             r.name = name;
-            // v1: share whole tree (later choose subtree)
             r.rootTaskId = owner.taskRoot;
             r.port = port;
             r.passwordRequired = true;   // same password as user
@@ -326,7 +327,7 @@ public class UserManagerActivity extends AppCompatActivity {
                 ExternalSourceEntity temp = new ExternalSourceEntity();
                 temp.ip = ip;
                 temp.port = port;
-                temp.resourceId = hexToBytes(resourceHex);
+                temp.resourceId = HexBytes.hexToBytes(resourceHex);
 
                 JSONObject summaryBody = georgii.sytnik.thothtasks.net.ScheduleSummaryClientSecure.requestSummarySecure(
                         this,
@@ -381,11 +382,11 @@ public class UserManagerActivity extends AppCompatActivity {
 
                 // 6) Insert ExternalSource FIRST (so Importer can update ImportedRootTaskId + SyncState)
                 ExternalSourceEntity src = new ExternalSourceEntity();
-                src.sourceId = uuidToBytes(UuidV7.newUuid());
+                src.sourceId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 src.displayName = displayName;
                 src.ip = ip;
                 src.port = port;
-                src.resourceId = hexToBytes(resourceHex);
+                src.resourceId = HexBytes.hexToBytes(resourceHex);
                 src.remotePubKeyB64 = null;
                 src.blocked = false;
                 src.includedInSchedule = true;
@@ -444,7 +445,7 @@ public class UserManagerActivity extends AppCompatActivity {
 
                 if (st == null) {
                     st = new SyncStateEntity();
-                    st.syncId = uuidToBytes(UuidV7.newUuid());
+                    st.syncId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                     st.peerKey = peerKey;
                     st.resourceId = src.resourceId;
                 }
@@ -522,27 +523,6 @@ public class UserManagerActivity extends AppCompatActivity {
     }
 
     // ---- utils ----
-
-    private static byte[] uuidToBytes(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        return new byte[] {
-                (byte)(msb >>> 56), (byte)(msb >>> 48), (byte)(msb >>> 40), (byte)(msb >>> 32),
-                (byte)(msb >>> 24), (byte)(msb >>> 16), (byte)(msb >>>  8), (byte)(msb),
-                (byte)(lsb >>> 56), (byte)(lsb >>> 48), (byte)(lsb >>> 40), (byte)(lsb >>> 32),
-                (byte)(lsb >>> 24), (byte)(lsb >>> 16), (byte)(lsb >>>  8), (byte)(lsb)
-        };
-    }
-
-    private static byte[] hexToBytes(String hex) {
-        int len = hex.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i+1), 16));
-        }
-        return data;
-    }
 
     private interface PasswordOkCallback { void onOk(char[] pwd); }
 

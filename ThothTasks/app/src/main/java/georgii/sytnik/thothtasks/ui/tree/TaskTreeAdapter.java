@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import georgii.sytnik.thothtasks.R;
+import georgii.sytnik.thothtasks.util.TaskTypeUi;
 
 public class TaskTreeAdapter extends RecyclerView.Adapter<TaskTreeAdapter.VH> {
 
@@ -30,60 +31,85 @@ public class TaskTreeAdapter extends RecyclerView.Adapter<TaskTreeAdapter.VH> {
         this.listener = listener;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_task_node, parent, false);
+        View v = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_task_node, parent, false);
         return new VH(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
         NodeRow row = rows.get(position);
+
+        // Indentation by level (left padding)
+        int padLeft = dp(h.itemView, 8 + row.level * 18);
+        h.itemView.setPadding(
+                padLeft,
+                h.itemView.getPaddingTop(),
+                h.itemView.getPaddingRight(),
+                h.itemView.getPaddingBottom()
+        );
+
+        // Title
         h.tvName.setText(row.task.taskName);
 
-        int indentPx = (int) (h.itemView.getResources().getDisplayMetrics().density * 16 * row.level);
-        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) h.tvName.getLayoutParams();
-        lp.leftMargin = indentPx;
-        h.tvName.setLayoutParams(lp);
+        // Subtitle: localized task type label (Unique/Daily/... -> One-time/Daily... or Única/Diaria...)
+        h.tvType.setText(TaskTypeUi.label(h.itemView.getContext(), row.task.type));
 
-        if (!row.hasChildren) {
-            h.ivExpand.setImageResource(0);
-            h.ivExpand.setVisibility(View.INVISIBLE);
+        // Expand icon
+        h.ivExpand.setVisibility(row.hasChildren ? View.VISIBLE : View.INVISIBLE);
+        h.ivExpand.setRotation(row.expanded ? 90f : 0f);
+
+        // Muted visual state (effectiveMuted already resolved)
+        if (row.effectiveMuted) {
+            h.tvName.setAlpha(0.45f);
+            h.tvType.setAlpha(0.35f);
+            h.tvName.setPaintFlags(h.tvName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            h.ivExpand.setVisibility(View.VISIBLE);
-            h.ivExpand.setImageResource(row.expanded ? android.R.drawable.arrow_down_float : android.R.drawable.ic_media_next);
+            h.tvName.setAlpha(1f);
+            h.tvType.setAlpha(0.75f);
+            h.tvName.setPaintFlags(h.tvName.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
 
-        if (row.task.state && row.effectiveMuted) {
-            h.itemView.setAlpha(0.55f);
-        } else if (!row.task.state) {
-            h.itemView.setAlpha(0.40f);
-        } else {
-            h.itemView.setAlpha(1.0f);
-        }
-        h.tvName.setPaintFlags(h.tvName.getPaintFlags() | Paint.ANTI_ALIAS_FLAG);
-
-        h.ivExpand.setOnClickListener(v -> {
-            if (row.hasChildren) listener.onToggle(row, position);
+        // Clicks
+        h.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onClick(row);
         });
 
-        h.itemView.setOnClickListener(v -> listener.onClick(row));
-
         h.itemView.setOnLongClickListener(v -> {
-            listener.onLongPress(row, v);
+            if (listener != null) listener.onLongPress(row, h.itemView);
             return true;
+        });
+
+        // Expand/collapse on icon click (delegated to activity to rebuild list)
+        h.ivExpand.setOnClickListener(v -> {
+            row.expanded = !row.expanded;
+            if (listener != null) listener.onClick(row);
         });
     }
 
-    @Override public int getItemCount() { return rows.size(); }
+    @Override
+    public int getItemCount() {
+        return rows != null ? rows.size() : 0;
+    }
 
-    public static class VH extends RecyclerView.ViewHolder {
-        ImageView ivExpand;
-        TextView tvName;
-        public VH(@NonNull View itemView) {
+    static final class VH extends RecyclerView.ViewHolder {
+        final ImageView ivExpand;
+        final TextView tvName;
+        final TextView tvType;
+
+        VH(@NonNull View itemView) {
             super(itemView);
             ivExpand = itemView.findViewById(R.id.ivExpand);
             tvName = itemView.findViewById(R.id.tvName);
+            tvType = itemView.findViewById(R.id.tvType);
         }
+    }
+
+    private static int dp(View v, int dp) {
+        float d = v.getResources().getDisplayMetrics().density;
+        return (int) (dp * d + 0.5f);
     }
 }

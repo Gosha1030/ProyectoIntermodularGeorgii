@@ -1,24 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_toggle_mute"
-        android:title="Toggle Mute"/>
-
+        android:title="@string/menu_toggle_mute" />
     <item
         android:id="@+id/action_activate_now"
-        android:title="State: Activate now"/>
-
+        android:title="@string/menu_state_activate_now" />
     <item
         android:id="@+id/action_deactivate_now"
-        android:title="State: Deactivate now"/>
-
+        android:title="@string/menu_state_deactivate_now" />
     <item
         android:id="@+id/action_schedule_activate"
-        android:title="State: Schedule activate…"/>
-
+        android:title="@string/menu_state_schedule_activate" />
     <item
         android:id="@+id/action_schedule_deactivate"
-        android:title="State: Schedule deactivate…"/>
-
+        android:title="@string/menu_state_schedule_deactivate" />
 </menu>

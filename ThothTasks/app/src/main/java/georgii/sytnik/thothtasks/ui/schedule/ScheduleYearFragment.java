@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormatSymbols;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -23,8 +25,8 @@ import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 import georgii.sytnik.thothtasks.domain.schedule.OccurrenceEngine;
 import georgii.sytnik.thothtasks.domain.schedule.OverlayResolver;
 import georgii.sytnik.thothtasks.domain.schedule.ScheduleFilters;
-import georgii.sytnik.thothtasks.domain.schedule.TaskCollector;      // <- tu collector que devuelve TaskWithSource
-import georgii.sytnik.thothtasks.domain.schedule.TaskWithSource;    // <- wrapper
+import georgii.sytnik.thothtasks.domain.schedule.TaskCollector;
+import georgii.sytnik.thothtasks.domain.schedule.TaskWithSource;
 import georgii.sytnik.thothtasks.net.MessageCodec;
 
 public class ScheduleYearFragment extends Fragment {
@@ -81,7 +83,7 @@ public class ScheduleYearFragment extends Fragment {
             }
 
             List<YearBlockAdapter.MonthBlock> blocks = new ArrayList<>();
-            SimpleDateFormat dfDay = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat dfDay = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
             String[] monthNames = new DateFormatSymbols().getMonths();
 
             for (int m = 0; m < 12; m++) {
@@ -107,15 +109,20 @@ public class ScheduleYearFragment extends Fragment {
 
                         boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId, t.taskId, t.muted);
 
-                        String line = "• " + dfDay.format(cur.getTime()) + "  " + t.taskName;
-                        if (t.startTimeMin != null) line += " (" + minutesToText(t.startTimeMin) + ")";
+                        String line = getString(R.string.schedule_bullet_task_with_date, dfDay.format(cur.getTime()), t.taskName);
+                        if (t.startTimeMin != null) line += " " + getString(R.string.schedule_time_parens, minutesToText(t.startTimeMin));
                         lines.add(new TaskLineAdapter.Line(line, effMuted));
                     }
 
                     cur.add(Calendar.DATE, 1);
                 }
 
-                String header = monthNames[m] + " " + targetYear;
+                Calendar monthStart = Calendar.getInstance();
+                monthStart.clear();
+                monthStart.set(Calendar.YEAR, targetYear);
+                monthStart.set(Calendar.MONTH, m);
+                monthStart.set(Calendar.DAY_OF_MONTH, 1);
+                String header = new SimpleDateFormat("LLLL yyyy", Locale.getDefault()).format(monthStart.getTime());
                 blocks.add(new YearBlockAdapter.MonthBlock(header, (Calendar) first.clone(), lines));
             }
 

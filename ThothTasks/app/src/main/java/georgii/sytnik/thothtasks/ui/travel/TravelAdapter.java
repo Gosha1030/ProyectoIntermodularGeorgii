@@ -1,5 +1,6 @@
 package georgii.sytnik.thothtasks.ui.travel;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.entities.TravelEntity;
-import georgii.sytnik.thothtasks.net.MessageCodec;
+import georgii.sytnik.thothtasks.util.HexBytes;
 
 public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.VH> {
 
@@ -32,7 +33,8 @@ public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.VH> {
         this.listener = listener;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_travel, parent, false);
         return new VH(v);
@@ -41,27 +43,48 @@ public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.VH> {
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
         TravelEntity t = items.get(position);
+        Context ctx = h.itemView.getContext();
 
-        String start = placeNameByIdHex.getOrDefault(MessageCodec.hex(t.startPlaceId), "Start?");
-        String finish = placeNameByIdHex.getOrDefault(MessageCodec.hex(t.finishPlaceId), "Finish?");
+        String start = placeNameByIdHex.get(HexBytes.hex(t.startPlaceId));
+        if (start == null) start = ctx.getString(R.string.travel_unknown_start);
 
-        h.tvTitle.setText(start + " → " + finish);
+        String finish = placeNameByIdHex.get(HexBytes.hex(t.finishPlaceId));
+        if (finish == null) finish = ctx.getString(R.string.travel_unknown_finish);
 
-        String type = (t.type == null || t.type.trim().isEmpty()) ? "-" : t.type.trim();
-        String user = (t.userTimeM == null) ? "-" : String.valueOf(t.userTimeM);
-        String google = (t.googleTimeM == null) ? "-" : String.valueOf(t.googleTimeM);
+        h.tvTitle.setText(ctx.getString(R.string.travel_title_format, start, finish));
 
-        h.tvSub.setText(type + " • " + t.timeM + "m • user=" + user + " • google=" + google);
+        String dash = ctx.getString(R.string.dash);
 
-        h.itemView.setOnClickListener(v -> listener.onClick(t));
-        h.btnDelete.setOnClickListener(v -> listener.onDelete(t));
+        String type = (t.type == null || t.type.trim().isEmpty()) ? dash : t.type.trim();
+        String user = (t.userTimeM == null) ? dash : String.valueOf(t.userTimeM);
+        String google = (t.googleTimeM == null) ? dash : String.valueOf(t.googleTimeM);
+
+        h.tvSub.setText(ctx.getString(
+                R.string.travel_sub_format,
+                type,
+                t.timeM,
+                user,
+                google
+        ));
+
+        h.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onClick(t);
+        });
+
+        h.btnDelete.setOnClickListener(v -> {
+            if (listener != null) listener.onDelete(t);
+        });
     }
 
-    @Override public int getItemCount() { return items.size(); }
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
 
     static class VH extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvSub;
-        View btnDelete;
+        final TextView tvTitle;
+        final TextView tvSub;
+        final View btnDelete;
 
         VH(@NonNull View itemView) {
             super(itemView);

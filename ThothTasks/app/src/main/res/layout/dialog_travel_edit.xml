@@ -14,13 +14,13 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pick Start"/>
+            android:text="@string/travel_pick_start"/>
 
         <TextView
             android:id="@+id/tvStart"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="(not set)"
+            android:text="@string/not_set"
             android:paddingBottom="10dp"/>
 
         <com.google.android.material.button.MaterialButton
@@ -28,13 +28,13 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pick Finish"/>
+            android:text="@string/travel_pick_finish"/>
 
         <TextView
             android:id="@+id/tvFinish"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="(not set)"
+            android:text="@string/not_set"
             android:paddingBottom="10dp"/>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -44,7 +44,7 @@
                 android:id="@+id/etType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Type (optional)"/>
+                android:hint="@string/type_optional"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -54,7 +54,7 @@
                 android:id="@+id/etTimeM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="TimeM (required, minutes)"
+                android:hint="@string/timem_required_minutes"
                 android:inputType="number"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -65,7 +65,7 @@
                 android:id="@+id/etUserTimeM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="UserTimeM (optional)"
+                android:hint="@string/usertimem_optional"
                 android:inputType="number"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -76,7 +76,7 @@
                 android:id="@+id/etGoogleTimeM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="GoogleTimeM (optional)"
+                android:hint="@string/googletimem_optional"
                 android:inputType="number"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -87,7 +87,7 @@
                 android:id="@+id/etGoogleData"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="GoogleData JSON (optional)"
+                android:hint="@string/googledata_json_optional"
                 android:inputType="textMultiLine"/>
         </com.google.android.material.textfield.TextInputLayout>
 

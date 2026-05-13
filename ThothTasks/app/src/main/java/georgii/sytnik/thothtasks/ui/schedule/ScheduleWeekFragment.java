@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -82,7 +83,7 @@ public class ScheduleWeekFragment extends Fragment {
             }
 
             List<WeekBlockAdapter.DayBlock> blocks = new ArrayList<>();
-            SimpleDateFormat dfHeader = new SimpleDateFormat("EEE dd");
+            SimpleDateFormat dfHeader = new SimpleDateFormat("EEE dd", Locale.getDefault());
 
             for (int i = 0; i < 7; i++) {
                 Calendar day = (Calendar) start.clone();
@@ -96,8 +97,8 @@ public class ScheduleWeekFragment extends Fragment {
 
                     boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId, t.taskId, t.muted);
 
-                    String line = "• " + t.taskName;
-                    if (t.startTimeMin != null) line += " (" + minutesToText(t.startTimeMin) + ")";
+                    String line = getString(R.string.schedule_bullet_task, t.taskName);
+                    if (t.startTimeMin != null) line += " " + getString(R.string.schedule_time_parens, minutesToText(t.startTimeMin));
                     lines.add(new TaskLineAdapter.Line(line, effMuted));
                 }
 

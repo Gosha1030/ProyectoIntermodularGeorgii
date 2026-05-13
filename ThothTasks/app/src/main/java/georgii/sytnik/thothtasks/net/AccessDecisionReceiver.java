@@ -10,9 +10,11 @@ import java.util.UUID;
 
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.AccessGrantEntity;
+import georgii.sytnik.thothtasks.db.entities.AccessRequestEntity;
 import georgii.sytnik.thothtasks.db.entities.ExternalUserEntity;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class AccessDecisionReceiver extends BroadcastReceiver {
 
@@ -37,30 +39,41 @@ public class AccessDecisionReceiver extends BroadcastReceiver {
                     return;
                 }
 
+                // Resolver ExternalUser + ResourceId + ackOfHex desde DB (para soportar reintentos)
+                byte[] resourceId = MessageCodec.hexToBytes(resourceIdHex);
+                ExternalUserEntity eu = UdpOwnerService.findOrCreateExternalUser(db, ownerUserId, ip, port, externalName);
+
+                String ackOfHex = reqMsgIdHex;
+                AccessRequestEntity ar = db.accessRequestDao().find(eu.externalId, resourceId);
+                if (ar != null && ar.requestMsgIdHex != null && !ar.requestMsgIdHex.isEmpty()) {
+                    ackOfHex = ar.requestMsgIdHex;
+                }
+
+                long now = System.currentTimeMillis();
+
+
                 if (Protocol.ACTION_BLOCK.equals(action)) {
                     // ✅ usa la firma nueva
-                    ExternalUserEntity eu = UdpOwnerService.findOrCreateExternalUser(db, ownerUserId, ip, port, externalName);
                     db.externalUserDao().setBlocked(eu.externalId, true);
-                    sendAccessResult(context, ip, port, resourceIdHex, false, "BLOCKED", reqMsgIdHex);
+                    db.accessRequestDao().setDecision(eu.externalId, resourceId, AccessRequestEntity.STATE_BLOCKED, now);
+                    sendAccessResult(context, ip, port, resourceIdHex, false, "BLOCKED", ackOfHex);
                     return;
                 }
 
                 if (Protocol.ACTION_REJECT.equals(action)) {
-                    sendAccessResult(context, ip, port, resourceIdHex, false, "REJECTED", reqMsgIdHex);
+                    db.accessRequestDao().setDecision(eu.externalId, resourceId, AccessRequestEntity.STATE_REJECTED, now);
+                    sendAccessResult(context, ip, port, resourceIdHex, false, "REJECTED", ackOfHex);
                     return;
                 }
 
                 if (Protocol.ACTION_ACCEPT.equals(action)) {
                     // ✅ usa la firma nueva
-                    ExternalUserEntity eu = UdpOwnerService.findOrCreateExternalUser(db, ownerUserId, ip, port, externalName);
-
                     // create / update grant
-                    byte[] resourceId = MessageCodec.hexToBytes(resourceIdHex);
                     AccessGrantEntity g = db.accessGrantDao().find(eu.externalId, resourceId);
 
                     if (g == null) {
                         g = new AccessGrantEntity();
-                        g.grantId = uuidToBytes(UuidV7.newUuid());
+                        g.grantId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                         g.externalUserId = eu.externalId;
                         g.resourceId = resourceId;
                     }
@@ -70,7 +83,8 @@ public class AccessDecisionReceiver extends BroadcastReceiver {
                     g.revokedAtUtcMs = null;
                     db.accessGrantDao().upsert(g);
 
-                    sendAccessResult(context, ip, port, resourceIdHex, true, "OK", reqMsgIdHex);
+                    db.accessRequestDao().setDecision(eu.externalId, resourceId, AccessRequestEntity.STATE_ACCEPTED, now);
+                    sendAccessResult(context, ip, port, resourceIdHex, true, "OK", ackOfHex);
                 }
 
             } catch (Exception ignored) {
@@ -101,14 +115,4 @@ public class AccessDecisionReceiver extends BroadcastReceiver {
         UdpOwnerService.sendRaw(ctx, ip, port, env);
     }
 
-    private static byte[] uuidToBytes(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        return new byte[]{
-                (byte) (msb >>> 56), (byte) (msb >>> 48), (byte) (msb >>> 40), (byte) (msb >>> 32),
-                (byte) (msb >>> 24), (byte) (msb >>> 16), (byte) (msb >>> 8), (byte) (msb),
-                (byte) (lsb >>> 56), (byte) (lsb >>> 48), (byte) (lsb >>> 40), (byte) (lsb >>> 32),
-                (byte) (lsb >>> 24), (byte) (lsb >>> 16), (byte) (lsb >>> 8), (byte) (lsb)
-        };
-    }
 }

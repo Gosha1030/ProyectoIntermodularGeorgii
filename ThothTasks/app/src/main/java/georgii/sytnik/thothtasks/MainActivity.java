@@ -20,13 +20,17 @@ import com.google.android.material.navigation.NavigationView;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import org.json.JSONObject;
+
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.domain.TaskChangeApplier;
 import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
 import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
 import georgii.sytnik.thothtasks.security.SessionStore;
+import georgii.sytnik.thothtasks.security.SessionSecrets;
 import georgii.sytnik.thothtasks.ui.ExternalUserManagerActivity;
+import georgii.sytnik.thothtasks.ui.LoginActivity;
 import georgii.sytnik.thothtasks.ui.PlacesTravelsActivity;
 import georgii.sytnik.thothtasks.ui.SettingsActivity;
 import georgii.sytnik.thothtasks.ui.TaskManagerActivity;
@@ -36,6 +40,7 @@ import georgii.sytnik.thothtasks.ui.schedule.ScheduleMonthFragment;
 import georgii.sytnik.thothtasks.ui.schedule.ScheduleNavigator;
 import georgii.sytnik.thothtasks.ui.schedule.ScheduleWeekFragment;
 import georgii.sytnik.thothtasks.ui.schedule.ScheduleYearFragment;
+import georgii.sytnik.thothtasks.util.HexBytes;
 
 public class MainActivity extends AppCompatActivity implements ScheduleNavigator {
 
@@ -134,8 +139,10 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
         // Optional: update check worker if you still use it
         georgii.sytnik.thothtasks.ui.work.WorkScheduler.ensureUpdateCheckScheduled(this);
 
-        int horizon = ActionPlanHorizon.getDaysAhead(this, db);
-        ActionPlanner.scheduleNextDays(getApplicationContext(), db, horizon);
+        new Thread(() -> {
+            int horizon = ActionPlanHorizon.getDaysAhead(this, db);
+            ActionPlanner.scheduleNextDays(getApplicationContext(), db, horizon);
+        }).start();
 
 
         new Thread(() -> {
@@ -146,11 +153,6 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
             UserEntity u = db.userDao().findById(userId);
             if (u == null) return;
             rootId = u.taskRoot;
-
-            // ✅ Replan actions for next 60 days (covers notify_month)
-            ActionPlanner.scheduleNextDays(getApplicationContext(), db, 60);
-
-            runOnUiThread(this::render);
         }).start();
     }
 
@@ -162,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
         else if (id == R.id.nav_external_users) startActivity(new Intent(this, ExternalUserManagerActivity.class));
         else if (id == R.id.nav_places_travels) startActivity(new Intent(this, PlacesTravelsActivity.class));
         else if (id == R.id.nav_settings) startActivity(new Intent(this, SettingsActivity.class));
+        else if (id == R.id.nav_logout) performLogout();
 
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -190,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
 
         updateTitles();
 
-        String rootHex = hex(rootId);
+        String rootHex = HexBytes.hex(rootId);
         long utc = anchor.getTimeInMillis();
 
         switch (mode) {
@@ -258,12 +261,6 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
         return c;
     }
 
-    private static String hex(byte[] b) {
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
-    }
-
     @Override
     public void navigateToDay(Calendar day) {
         mode = Mode.DAY;
@@ -293,5 +290,39 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
             android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
             if (nm != null) nm.createNotificationChannel(ch);
         }
+    }
+
+
+    private void performLogout() {
+        byte[] lastUserId = SessionStore.loadLastUserId(this);
+
+        // Mark explicit logout in user settings (best effort)
+        if (lastUserId != null) {
+            new Thread(() -> {
+                try {
+                    UserEntity u = db.userDao().findById(lastUserId);
+                    if (u != null) {
+                        JSONObject obj = u.ajustesJson != null ? new JSONObject(u.ajustesJson) : new JSONObject();
+                        obj.put("explicitLogout", true);
+                        obj.put("explicitLogoutUtcMs", System.currentTimeMillis());
+                        u.ajustesJson = obj.toString();
+                        db.userDao().update(u);
+                    }
+                } catch (Exception ignored) {
+                }
+            }).start();
+        }
+
+        // Clear local session + secrets
+        try {
+            SessionSecrets.clear();
+        } catch (Exception ignored) {
+        }
+        SessionStore.clear(this);
+
+        Intent i = new Intent(this, LoginActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
+        finish();
     }
 }

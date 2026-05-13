@@ -35,7 +35,7 @@ public class PlacePickerActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_picker);
-        setTitle("Pick place");
+        setTitle(R.string.place_picker_title);
 
         db = AppDatabase.get(this);
 
@@ -66,11 +66,11 @@ public class PlacePickerActivity extends AppCompatActivity {
             all.clear();
             all.addAll(db.placeDao().listAll());
 
-            // Prepend "(Any)" option as a fake place
+            // Prepend getString(R.string.place_picker_any) option as a fake place
             if (allowAny) {
                 PlaceEntity any = new PlaceEntity();
                 any.placeId = null;
-                any.placeName = "(Cualquier lugar)";
+                any.placeName = getString(R.string.place_picker_any);
                 any.googleMapsDataJson = null;
                 all.add(0, any);
             }

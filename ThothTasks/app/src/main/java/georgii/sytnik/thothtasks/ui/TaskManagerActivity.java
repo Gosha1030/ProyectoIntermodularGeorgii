@@ -1,7 +1,5 @@
 package georgii.sytnik.thothtasks.ui;
 
-import static georgii.sytnik.thothtasks.net.MessageCodec.hex;
-
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -48,8 +46,10 @@ import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
 import georgii.sytnik.thothtasks.security.ActionSettingsReader;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 import georgii.sytnik.thothtasks.ui.tree.NodeRow;
 import georgii.sytnik.thothtasks.ui.tree.TaskTreeAdapter;
+import georgii.sytnik.thothtasks.util.HexBytes;
 
 public class TaskManagerActivity extends AppCompatActivity {
 
@@ -149,12 +149,12 @@ public class TaskManagerActivity extends AppCompatActivity {
                 List<ExternalSourceEntity> allSources = db.externalSourceDao().listAll();
                 Map<String, byte[]> importedRootToSource = new HashMap<>();
                 for (ExternalSourceEntity s : allSources) {
-                    if (s.importedRootTaskId != null) importedRootToSource.put(hex(s.importedRootTaskId), s.sourceId);
+                    if (s.importedRootTaskId != null) importedRootToSource.put(HexBytes.hex(s.importedRootTaskId), s.sourceId);
                 }
                 List<TaskEntity> top = db.taskDao().childrenFiltered(currentRootId, includeInactive, includeHidden);
                 for (TaskEntity t : top) {
                     NodeRow r = new NodeRow(t, 0);
-                    byte[] sourceId = importedRootToSource.get(hex(t.taskId));
+                    byte[] sourceId = importedRootToSource.get(HexBytes.hex(t.taskId));
                     r.sourceId = sourceId; // if null => local
                     r.effectiveMuted = OverlayResolver.effectiveMuted(db, r.sourceId, t.taskId, t.muted);
                     r.hasChildren = !db.taskDao().childrenFiltered(t.taskId, includeInactive, includeHidden).isEmpty();
@@ -248,10 +248,13 @@ public class TaskManagerActivity extends AppCompatActivity {
 
         pm.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.action_toggle_mute_local) {
-                toggleMuteLocal(row.sourceId, row.task, row.effectiveMuted);
+            if (id == R.id.action_mute_local_on) {
+                toggleMuteLocal(row.sourceId, row.task, true);
                 return true;
-            } else if (id == R.id.action_set_action_local) {
+            } else if (id == R.id.action_mute_local_off) {
+                toggleMuteLocal(row.sourceId, row.task, false);
+                return true;
+            } else if (id == R.id.action_edit_action_local) {
                 showImportedActionDialog(row);
                 return true;
             } else if (id == R.id.action_clear_action_local) {
@@ -278,7 +281,7 @@ public class TaskManagerActivity extends AppCompatActivity {
             db.taskDao().setMuted(task.taskId, newMuted);
 
             TaskChangeEntity ch = new TaskChangeEntity();
-            ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+            ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             ch.taskId = task.taskId;
             ch.newTaskId = null;
             ch.type = newMuted ? "mute_on" : "mute_off";
@@ -295,7 +298,7 @@ public class TaskManagerActivity extends AppCompatActivity {
             TaskOverlayEntity ov = db.taskOverlayDao().find(sourceId, task.taskId);
             if (ov == null) {
                 ov = new TaskOverlayEntity();
-                ov.overlayId = uuidToBytes(UuidV7.newUuid());
+                ov.overlayId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 ov.sourceId = sourceId;
                 ov.taskId = task.taskId;
             }
@@ -320,7 +323,7 @@ public class TaskManagerActivity extends AppCompatActivity {
             db.taskDao().setStateMuted(task.taskId, state, muted);
 
             TaskChangeEntity ch = new TaskChangeEntity();
-            ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+            ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             ch.taskId = task.taskId;
             ch.newTaskId = null;
             ch.type = state ? "activate" : "task_deactivate";
@@ -360,7 +363,7 @@ public class TaskManagerActivity extends AppCompatActivity {
             long now = System.currentTimeMillis();
 
             TaskChangeEntity ch = new TaskChangeEntity();
-            ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+            ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             ch.taskId = task.taskId;
             ch.newTaskId = null;
             ch.type = state ? "activate" : "task_deactivate";
@@ -378,17 +381,6 @@ public class TaskManagerActivity extends AppCompatActivity {
         if (a == null || b == null || a.length != b.length) return false;
         for (int i = 0; i < a.length; i++) if (a[i] != b[i]) return false;
         return true;
-    }
-
-    public static byte[] uuidToBytes(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        return new byte[] {
-                (byte)(msb >>> 56), (byte)(msb >>> 48), (byte)(msb >>> 40), (byte)(msb >>> 32),
-                (byte)(msb >>> 24), (byte)(msb >>> 16), (byte)(msb >>>  8), (byte)(msb),
-                (byte)(lsb >>> 56), (byte)(lsb >>> 48), (byte)(lsb >>> 40), (byte)(lsb >>> 32),
-                (byte)(lsb >>> 24), (byte)(lsb >>> 16), (byte)(lsb >>>  8), (byte)(lsb)
-        };
     }
 
     private void showImportedOverlayDialog(NodeRow row) {
@@ -438,7 +430,7 @@ public class TaskManagerActivity extends AppCompatActivity {
             TaskOverlayEntity ov = db.taskOverlayDao().find(sourceId, task.taskId);
             if (ov == null) {
                 ov = new TaskOverlayEntity();
-                ov.overlayId = uuidToBytes(UuidV7.newUuid());
+                ov.overlayId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 ov.sourceId = sourceId;
                 ov.taskId = task.taskId;
             }
@@ -612,7 +604,7 @@ public class TaskManagerActivity extends AppCompatActivity {
                 ov.updatedAtUtcMs = System.currentTimeMillis();
                 db.taskOverlayDao().upsert(ov);
             }
-            ActionPlanner.scheduleNextDays(getApplicationContext(), db, 60);
+            ActionPlanner.scheduleNextDays(getApplicationContext(), db, ActionPlanHorizon.getDaysAhead(this, db));
             runOnUiThread(this::reloadTree);
         }).start();
     }

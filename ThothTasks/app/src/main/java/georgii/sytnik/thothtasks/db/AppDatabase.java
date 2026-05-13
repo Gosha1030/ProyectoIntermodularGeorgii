@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
 import georgii.sytnik.thothtasks.db.dao.AccessGrantDao;
+import georgii.sytnik.thothtasks.db.dao.AccessRequestDao;
 import georgii.sytnik.thothtasks.db.dao.ExternalSourceDao;
 import georgii.sytnik.thothtasks.db.dao.ExternalUserDao;
 import georgii.sytnik.thothtasks.db.dao.InboxDao;
@@ -21,6 +22,7 @@ import georgii.sytnik.thothtasks.db.dao.TaskOverlayDao;
 import georgii.sytnik.thothtasks.db.dao.TravelDao;
 import georgii.sytnik.thothtasks.db.dao.UserDao;
 import georgii.sytnik.thothtasks.db.entities.AccessGrantEntity;
+import georgii.sytnik.thothtasks.db.entities.AccessRequestEntity;
 import georgii.sytnik.thothtasks.db.entities.ExternalSourceEntity;
 import georgii.sytnik.thothtasks.db.entities.ExternalUserEntity;
 import georgii.sytnik.thothtasks.db.entities.PendingOutboxEntity;
@@ -45,13 +47,14 @@ import georgii.sytnik.thothtasks.db.entities.UserEntity;
                 ShareResourceEntity.class,
                 ExternalSourceEntity.class,
                 AccessGrantEntity.class,
+                AccessRequestEntity.class,
                 SyncStateEntity.class,
                 TaskOverlayEntity.class,
                 PendingOutboxEntity.class,
                 ReceivedInboxEntity.class
 
         },
-        version = 1,
+        version = 2,
         exportSchema = false
 )
 @TypeConverters({Converters.class})
@@ -66,6 +69,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ShareResourceDao shareResourceDao();
     public abstract ExternalSourceDao externalSourceDao();
     public abstract AccessGrantDao accessGrantDao();
+    public abstract AccessRequestDao accessRequestDao();
     public abstract SyncStateDao syncStateDao();
     public abstract OutboxDao outboxDao();
     public abstract InboxDao inboxDao();

@@ -7,6 +7,10 @@ import org.json.JSONObject;
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 
+/**
+ * Reads action planning horizon (days ahead) from User.Ajustes JSON.
+ * Key: actionPlanDaysAhead (default 60, clamp 1..365).
+ */
 public final class ActionPlanHorizon {
 
     private ActionPlanHorizon() {}

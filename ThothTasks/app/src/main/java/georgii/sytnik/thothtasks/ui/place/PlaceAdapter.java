@@ -28,7 +28,8 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.VH> {
         this.listener = listener;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_place, parent, false);
         return new VH(v);
@@ -37,16 +38,31 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.VH> {
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
         PlaceEntity p = items.get(position);
-        h.tvName.setText(p.placeName);
-        h.itemView.setOnClickListener(v -> listener.onClick(p));
-        h.btnDelete.setOnClickListener(v -> listener.onDelete(p));
+
+        String name = (p.placeName == null || p.placeName.trim().isEmpty())
+                ? h.itemView.getContext().getString(R.string.place_placeholder)
+                : p.placeName;
+
+        h.tvName.setText(name);
+
+        h.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onClick(p);
+        });
+
+        h.btnDelete.setOnClickListener(v -> {
+            if (listener != null) listener.onDelete(p);
+        });
     }
 
-    @Override public int getItemCount() { return items.size(); }
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
 
     static class VH extends RecyclerView.ViewHolder {
-        TextView tvName;
-        View btnDelete;
+        final TextView tvName;
+        final View btnDelete;
+
         VH(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);

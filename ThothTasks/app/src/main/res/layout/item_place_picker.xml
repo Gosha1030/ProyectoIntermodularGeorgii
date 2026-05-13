@@ -6,4 +6,4 @@
     android:minHeight="48dp"
     android:padding="12dp"
     android:textAppearance="?attr/textAppearanceBodyLarge"
-    android:text="Place"/>
+    android:text="@string/place_placeholder"/>

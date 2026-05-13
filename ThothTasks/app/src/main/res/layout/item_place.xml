@@ -11,7 +11,7 @@
         android:id="@+id/tvName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Place"
+        android:text="@string/place_placeholder"
         android:textAppearance="?attr/textAppearanceBodyLarge"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

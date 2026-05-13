@@ -5,7 +5,6 @@ import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 public class NodeRow {
     public final TaskEntity task;
     public final int level;
-
     public boolean expanded;
     public boolean hasChildren;
 

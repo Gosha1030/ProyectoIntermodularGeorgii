@@ -1,114 +1,229 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="action_alarm">Alarma (inicio o viaje)</string>
+    <string name="action_dnd">No molestar</string>
+    <string name="action_notify_10m">Notificar 10 minutos antes</string>
+    <string name="action_notify_1h">Notificar 1 hora antes</string>
+    <string name="action_notify_1m">Notificar 1 minuto antes</string>
+    <string name="action_notify_day">Notificar 1 día antes</string>
+    <string name="action_notify_month">Notificar 1 mes antes</string>
+    <string name="action_notify_on_day">Notificar el mismo día</string>
+    <string name="action_notify_week">Notificar 1 semana antes</string>
+    <string name="actions_title">Acciones</string>
     <string name="app_name">Thoth Tasks</string>
-
+    <string name="ask_password">Pedir contraseña siempre</string>
+    <string name="cancel">Cancelar</string>
+    <string name="channel_actions_name">Acciones</string>
+    <string name="confirm_delete_message">Esto ocultará el subárbol de la tarea.</string>
+    <string name="confirm_delete_title">¿Eliminar tarea?</string>
+    <string name="create">Crear</string>
+    <string name="create_task_title">Crear tarea</string>
+    <string name="default_new_task_name">Nueva tarea</string>
+    <string name="delete">Eliminar</string>
+    <string name="dnd_granted">Acceso DND: CONCEDIDO</string>
+    <string name="dnd_not_granted">Acceso DND: NO CONCEDIDO</string>
+    <string name="empty">(vacío)</string>
+    <string name="err_periodd_not_for_daily">PeriodD no está permitido para Daily.</string>
+    <string name="err_periodic_amount_1">Periodic amount no puede ser 1.</string>
+    <string name="err_periodic_day_7">Periodic day=7 duplica Weekly.</string>
+    <string name="err_periodic_month_12">Periodic month=12 duplica Yearly.</string>
+    <string name="finish_time">Hora de fin</string>
+    <string name="login_button">Entrar / Crear</string>
+    <string name="login_title">Inicio de sesión</string>
+    <string name="logout_button">Cerrar sesión</string>
+    <string name="mode_day">Día</string>
+    <string name="mode_month">Mes</string>
+    <string name="mode_week">Semana</string>
+    <string name="mode_year">Año</string>
+    <string name="nav_external_users">Usuarios externos</string>
+    <string name="nav_places_travels">Places y travels</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="nav_tasks">Tareas</string>
+    <string name="nav_user_manager">Gestión de usuario</string>
+    <string name="no_father_selected">(raíz)</string>
+    <string name="notif_granted">Notificaciones: CONCEDIDO</string>
+    <string name="notif_not_granted">Notificaciones: NO CONCEDIDO</string>
+    <string name="password">Contraseña</string>
+    <string name="period_d">Periodo (días)</string>
+    <string name="pick_father">Elegir padre</string>
+    <string name="pick_place">Elegir lugar</string>
+    <string name="place_anywhere">(cualquier lugar)</string>
+    <string name="save">Guardar</string>
+    <string name="search_hint">Buscar</string>
+    <string name="settings_alarm_section">Alarmas (Acciones)</string>
+    <string name="settings_alarm_sound">Alarma: sonido (notificación HIGH)</string>
+    <string name="settings_alarm_vibrate">Alarma: vibración</string>
+    <string name="settings_ask_password">Pedir contraseña al entrar</string>
+    <string name="settings_grant_dnd">Conceder acceso No molestar</string>
+    <string name="settings_grant_notifications">Pedir permiso de notificaciones</string>
+    <string name="settings_permissions">Permisos</string>
+    <string name="settings_plan_days">Días por adelantado</string>
+    <string name="settings_plan_days_hint">Cuántos días planificar acciones (60 recomendado para notificación mensual)</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_travel_mandatory">Extra obligatorio (min)</string>
+    <string name="settings_travel_mandatory_hint">Se suma al crear un viaje (obligatorio)</string>
+    <string name="settings_travel_optional">Extra opcional (min)</string>
+    <string name="settings_travel_optional_hint">Se suma al insertar el viaje si hay hueco</string>
+    <string name="settings_travel_section">Viajes (extras)</string>
+    <string name="settings_ux_section">UX</string>
     <string name="splash_quote_1">Hoy es un buen día para avanzar.</string>
     <string name="splash_quote_2">Un paso a la vez, pero sin parar.</string>
     <string name="splash_quote_3">Lo importante es empezar.</string>
     <string name="splash_quote_4">Tu tiempo es tu poder.</string>
-
-    <string name="login_title">Inicio de sesión</string>
-    <string name="username">Usuario</string>
-    <string name="password">Contraseña</string>
-    <string name="ask_password">Pedir contraseña siempre</string>
-    <string name="login_button">Entrar / Crear</string>
-
-    <string name="toast_empty_username">Escribe un nombre de usuario.</string>
-    <string name="toast_wrong_password">Contraseña incorrecta.</string>
-    <string name="toast_user_created">Usuario creado.</string>
-    <string name="toast_password_required">La contraseña es obligatoria para este usuario.</string>
-    <string name="logout_button">Cerrar sesión</string>
-    <string name="toast_logged_out">Sesión cerrada.</string>
-    <string name="tasks_manager_title">Tasks Manager</string>
-    <string name="search_hint">Buscar / Filtrar</string>
-    <string name="create_task_title">Crear Task</string>
-    <string name="task_name">Task Name</string>
-    <string name="task_father">Task Father</string>
-    <string name="task_type">Task Type</string>
-    <string name="start_time">StartTime</string>
-    <string name="finish_time">FinishTime</string>
-    <string name="time_m">TimeM (min)</string>
-    <string name="uninterrupted">Uninterrupted</string>
-    <string name="period_d">PeriodD (días)</string>
-    <string name="create">Crear</string>
-    <string name="pick_father">Elegir padre</string>
-    <string name="no_father_selected">(sin padre)</string>
-
-    <string name="toast_invalid_time_order">StartTime debe ser menor que FinishTime (no se permite cruzar medianoche).</string>
-    <string name="toast_task_created">Tarea creada.</string>
-    <string name="toast_select_father">Selecciona una tarea.</string>
-
-    <string name="show_inactive">Mostrar desactivadas</string>
-    <string name="edit_task_title">Editar Task</string>
-    <string name="state">Status (activo)</string>
-    <string name="mute">Mutear</string>
-    <string name="delete">Eliminar</string>
-    <string name="save">Guardar</string>
-    <string name="show_deactivated">"Mostrar desactivadas (State=false, Muted=false)"</string>
-    <string name="show_hidden">"Mostrar ocultas (State=false, Muted=true)"</string>
-
-    <string name="mode_day">Día</string>
-    <string name="mode_week">Semana</string>
-    <string name="mode_month">Mes</string>
-    <string name="mode_year">Año</string>
-
-    <string name="hint_swipe">↔ cambiar fecha | ↕ cambiar modo (día/semana/mes/año)</string>
-
-    <string name="morning_range">00:00–11:59</string>
-    <string name="afternoon_range">12:00–23:59</string>
-    <string name="no_time_section">Sin hora</string>
-
-    <string name="week_range">Semana: %1$s — %2$s</string>
-    <string name="month_title">Mes: %1$s</string>
-    <string name="year_title">Año: %1$s</string>
-    <string name="tasks_count">Tareas: %1$d</string>
-
-    <string name="err_periodic_amount_1">No uses Periodic con amount=1. Crea una tarea del tipo correspondiente.</string>
-    <string name="err_periodic_day_7">Periodic day=7 equivale a Weekly. Crea una tarea semanal.</string>
-    <string name="err_periodic_month_12">Periodic month=12 equivale a Yearly. Crea una tarea anual.</string>
-    <string name="err_periodd_not_for_daily">PeriodD no está disponible para tareas diarias.</string>
-
-    <string name="filtered_repeating_info">Ocultas repetitivas en este modo para evitar saturación.</string>
-
-    <string name="nav_tasks">Tasks Manager</string>
-    <string name="nav_user_manager">User Manager</string>
-    <string name="nav_external_users">Usuarios externos</string>
-    <string name="nav_places_travels">Places y Travels</string>
-    <string name="nav_settings">Ajustes</string>
-
+    <string name="start_time">Hora de inicio</string>
+    <string name="task_father">Tarea padre</string>
+    <string name="task_name">Nombre de la tarea</string>
+    <string name="task_type">Tipo de tarea</string>
+    <string name="tasks_manager_title">Gestor de tareas</string>
+    <string name="time_m">Duración (min)</string>
     <string name="title_day">Día: %1$s</string>
-    <string name="title_week">Semana: %1$s — %2$s</string>
     <string name="title_month">Mes: %1$s</string>
+    <string name="title_week">Semana: %1$s — %2$s</string>
     <string name="title_year">Año: %1$s</string>
+    <string name="toast_already_granted">Ya concedido.</string>
+    <string name="toast_deleted">Eliminado.</string>
+    <string name="toast_dnd_not_available">DND no disponible en esta versión.</string>
+    <string name="toast_empty_username">Escribe un nombre de usuario.</string>
+    <string name="toast_imported_readonly">Tarea importada: solo lectura. Usa el menú para overlays locales.</string>
+    <string name="toast_invalid_time_order">Start debe ser antes de finish.</string>
+    <string name="toast_logged_out">Sesión cerrada.</string>
+    <string name="toast_not_required">No requerido en esta versión.</string>
+    <string name="toast_password_required">La contraseña es obligatoria para este usuario.</string>
+    <string name="toast_saved">Guardado.</string>
+    <string name="toast_task_created">Task creada.</string>
+    <string name="toast_user_created">Usuario creado.</string>
+    <string name="toast_wrong_password">Contraseña incorrecta.</string>
+    <string name="uninterrupted">Sin interrupción</string>
+    <string name="username">Usuario</string>
+    <string name="week_range">Semana: %1$s — %2$s</string>
+    <string name="weight">Peso</string>
+    <string name="weight_hint">Más peso significa más prioridad al solaparse.</string>
+    <string name="when_apply_now">(ahora)</string>
+    <string name="when_apply_pick">Fecha de inicio (WhenApply)</string>
 
-    <string name="no_tasks">(sin tareas)</string>
+    <string name="menu_action_local">Acciones (local)</string>
+    <string name="menu_action_local_clear">Borrar acciones (local)</string>
+    <string name="menu_place_local">Elegir lugar (local)</string>
+    <string name="menu_place_local_clear">Borrar lugar (local)</string>
+    <string name="menu_mute_local_on">Silenciar (local) ON</string>
+    <string name="menu_mute_local_off">Silenciar (local) OFF</string>
 
-    <string name="weight">Weight</string>
-    <string name="weight_hint">Mayor = más prioridad</string>
+    <string name="menu_toggle_mute">Silenciar / activar</string>
+    <string name="menu_state_activate_now">Estado: activar ahora</string>
+    <string name="menu_state_deactivate_now">Estado: desactivar ahora</string>
+    <string name="menu_state_schedule_activate">Estado: programar activación…</string>
+    <string name="menu_state_schedule_deactivate">Estado: programar desactivación…</string>
 
-    <string name="user_manager_title">User Manager</string>
-    <string name="locals_title">Locals</string>
-    <string name="external_sources_title">External Sources</string>
+    <string name="edit_task_title">Editar tarea</string>
+    <string name="state_active">Activa</string>
+    <string name="muted">Silenciada</string>
 
-    <string name="btn_add_local">Añadir Local</string>
-    <string name="btn_add_source">Añadir Source</string>
+    <string name="typeinfo_weekly_title">Días de la semana</string>
+    <string name="dow_mon">Lun</string>
+    <string name="dow_tue">Mar</string>
+    <string name="dow_wed">Mié</string>
+    <string name="dow_thu">Jue</string>
+    <string name="dow_fri">Vie</string>
+    <string name="dow_sat">Sáb</string>
+    <string name="dow_sun">Dom</string>
 
-    <string name="external_user_manager_title">ExternalUser Manager</string>
-    <string name="btn_external_user_manager">ExternalUser Manager</string>
+    <string name="typeinfo_periodic_title">Regla periódica</string>
+    <string name="typeinfo_periodic_amount_hint">Cantidad (p. ej. 2)</string>
+    <string name="typeinfo_periodic_streak_hint">Días seguidos (p. ej. 1)</string>
 
+    <string name="typeinfo_yearly_title">Días del año (mes/día)</string>
+    <string name="typeinfo_yearly_hint">Añadir: MM-DD (p. ej. 01-05)</string>
+    <string name="typeinfo_yearly_add">Añadir</string>
+
+    <string name="type_optional">Tipo (opcional)</string>
+    <string name="timem_required_minutes">TimeM (requerido, minutos)</string>
+    <string name="usertimem_optional">UserTimeM (opcional)</string>
+    <string name="googletimem_optional">GoogleTimeM (opcional)</string>
+    <string name="googledata_json_optional">GoogleData JSON (opcional)</string>
+
+    <string name="places_title">Lugares</string>
+    <string name="travels_title">Viajes</string>
+    <string name="places_travels_title">Lugares y viajes</string>
+    <string name="place_placeholder">Lugar</string>
+    <string name="travel_title_placeholder">Inicio → Fin</string>
+    <string name="travel_subtitle_placeholder">tipo • tiempo • origen</string>
+    <string name="travel_pick_start">Elegir inicio</string>
+    <string name="travel_pick_finish">Elegir fin</string>
+    <string name="not_set">(sin definir)</string>
+    <string name="place_picker_title">Elegir lugar</string>
+    <string name="place_picker_any">(Cualquier lugar)</string>
+    <string name="toast_place_exists">Ya existe.</string>
+    <string name="toast_error_generic">Error.</string>
+    <string name="toast_create_places_first">Primero crea lugares.</string>
+    <string name="toast_travel_start_finish_required">Inicio y fin son obligatorios.</string>
+    <string name="toast_travel_time_invalid">Duración inválida (min).</string>
+    <string name="toast_travel_save_error">Error guardando el viaje.</string>
+    <string name="confirm_delete_generic_title">¿Eliminar?</string>
+
+    <string name="dash">-</string>
+
+    <string name="travel_unknown_start">¿Inicio?</string>
+    <string name="travel_unknown_finish">¿Fin?</string>
+
+    <string name="travel_title_format">%1$s → %2$s</string>
+    <string name="travel_sub_format">%1$s • %2$dm • usuario=%3$s • google=%4$s</string>
+
+    <string name="action_msg_notify_on_day">Notificar el mismo día: %1$s</string>
+    <string name="action_msg_alarm">Alarma: %1$s</string>
+    <string name="action_msg_notify_1h">1 hora antes: %1$s</string>
+    <string name="action_msg_notify_10m">10 minutos antes: %1$s</string>
+    <string name="action_msg_notify_1m">1 minuto antes: %1$s</string>
+    <string name="action_msg_notify_day_before">1 día antes: %1$s</string>
+    <string name="action_msg_notify_week_before">1 semana antes: %1$s</string>
+    <string name="action_msg_notify_month_before">1 mes antes: %1$s</string>
+
+    <string name="action_title_action">Acción</string>
+    <string name="action_title_notify">Notificación</string>
+    <string name="action_title_alarm">Alarma</string>
+    <string name="action_title_dnd_on">No molestar ON</string>
+    <string name="action_title_dnd_off">No molestar OFF</string>
+
+    <string name="channel_actions_desc">Notificaciones creadas por el planificador de acciones.</string>
+
+    <string name="channel_alarms_name">Alarmas</string>
+    <string name="channel_alarms_desc">Alarmas de alta prioridad creadas por el planificador de acciones.</string>
+
+    <string name="schedule_time_placeholder">08:00</string>
+    <string name="schedule_task_name_placeholder">Tarea</string>
+    <string name="schedule_task_meta_placeholder">tipo / duración</string>
+    <string name="schedule_day_label_placeholder">Lun 30</string>
+    <string name="schedule_week_label_placeholder">Semana: 2026-04-27 — 2026-05-03</string>
+    <string name="schedule_month_label_placeholder">Abril 2026</string>
+
+    <string name="unknown_short">NoConosido</string>
+    <string name="schedule_tap_to_create">tap to create</string>
+    <string name="schedule_warn_no_travel_defined">⚠ Travel not defined: %1$s → %2$s (%3$s)</string>
+    <string name="schedule_warn_no_time_for_travel">⚠ Not enough time for travel (%1$dm): %2$s → %3$s</string>
+
+    <string name="schedule_bullet_task">• %1$s</string>
+    <string name="schedule_bullet_task_with_date">• %1$s  %2$s</string>
+    <string name="schedule_time_parens">(%1$s)</string>
+
+    <string name="time_range_sep">–</string>
+
+    <string name="nav_logout">Cerrar sesión</string>
+
+    <string name="toast_select_father">Eligir padre</string>
     <string name="field_name">Nombre</string>
     <string name="field_port">Puerto</string>
-    <string name="field_ip">IP</string>
-    <string name="field_resource_id">ResourceId (hex)</string>
-
-    <string name="password_required">PasswordRequired</string>
-    <string name="confirm_required">ConfirmRequired</string>
-    <string name="active">Active</string>
-
-    <string name="cancel">Cancelar</string>
-
-    <string name="toast_saved">Guardado.</string>
-    <string name="toast_deleted">Eliminado.</string>
-
-    <string name="hint_resource_id">Pega ResourceId del QR (hex)</string>
+    <string name="btn_add_local">Añadir Local</string>
+    <string name="field_ip">Ip de campo</string>
+    <string name="hint_resource_id">Id de recurso</string>
+    <string name="btn_add_source">Añadir recurso</string>
+    <string name="external_user_manager_title">Meneger de usuarios Externos</string>
+    <string name="hint_swipe">Swipe</string>
+    <string name="show_deactivated">Mostrar deactivado</string>
+    <string name="show_hidden">Mostrar oculto</string>
+    <string name="user_manager_title">Meneger de usuarios</string>
+    <string name="btn_external_user_manager">Abrir meneger de usuarios Externos</string>
+    <string name="locals_title">Locales</string>
+    <string name="external_sources_title">Externos</string>
+    <string name="no_time_section">Sin tiempo</string>
+    <string name="no_tasks">Sin tareas</string>
+    <string name="add">Añadir</string>
 </resources>

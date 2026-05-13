@@ -38,6 +38,7 @@ import android.text.TextWatcher;
 import org.json.JSONObject;
 
 import georgii.sytnik.thothtasks.security.SessionStore;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -46,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText etPassword;
     private CheckBox cbAskPassword;
     private MaterialButton btnLogin;
-    private MaterialButton btnLogout;
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
     private Runnable pendingLookup;
     private int lookupSeq = 0;
@@ -62,13 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         cbAskPassword = findViewById(R.id.cbAskPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        btnLogout = findViewById(R.id.btnLogout);
-
-// Solo mostramos Logout si hay sesión guardada
-        btnLogout.setVisibility(SessionStore.loadLastUserId(this) != null ? View.VISIBLE : View.GONE);
-
-        btnLogout.setOnClickListener(v -> onLogoutClicked());
-
         loadUsernamesIntoAutocomplete();
 
         wireUsernameListeners();
@@ -123,7 +116,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 // Register TaskChange create_task
                 TaskChangeEntity ch = new TaskChangeEntity();
-                ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+                ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 ch.taskId = root.taskId;
                 ch.newTaskId = null;
                 ch.type = "create_task";
@@ -173,19 +166,14 @@ public class LoginActivity extends AppCompatActivity {
         }).start();
     }
 
-    private void onLogoutClicked() {
-        byte[] lastUserId = SessionStore.loadLastUserId(this);
-        if (lastUserId == null) {
-            // Nada que cerrar
-            btnLogout.setVisibility(View.GONE);
-            return;
-        }
-
+    private void doLogout(byte[] lastUserId) {
         new Thread(() -> {
             UserEntity u = db.userDao().findById(lastUserId);
             if (u != null) {
                 try {
-                    JSONObject obj = u.ajustesJson != null ? new JSONObject(u.ajustesJson) : new JSONObject();
+                    JSONObject obj = u.ajustesJson != null
+                            ? new JSONObject(u.ajustesJson)
+                            : new JSONObject();
                     obj.put("explicitLogout", true);
                     obj.put("explicitLogoutUtcMs", System.currentTimeMillis());
                     u.ajustesJson = obj.toString();
@@ -193,16 +181,12 @@ public class LoginActivity extends AppCompatActivity {
                 } catch (Exception ignored) {}
             }
 
-            // Limpia prefs (la sesión local)
             SessionStore.clear(this);
 
             runOnUiThread(() -> {
-                // Limpieza visual
                 if (etPassword.getText() != null) etPassword.getText().clear();
                 actvUsername.setText("");
                 cbAskPassword.setChecked(true);
-
-                btnLogout.setVisibility(View.GONE);
                 Toast.makeText(this, R.string.toast_logged_out, Toast.LENGTH_SHORT).show();
             });
         }).start();
@@ -216,7 +200,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private UserEntity createNewUser(String userName, String pass) {
         UserEntity u = new UserEntity();
-        u.userId = uuidToBytes(UuidV7.newUuid());
+        u.userId = UuidBytes.uuidToBytes(UuidV7.newUuid());
         u.userName = userName;
 
         // If empty password, still hash it (could enforce non-empty later)
@@ -238,24 +222,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private TaskEntity createTaskRoot() {
         TaskEntity t = new TaskEntity();
-        t.taskId = uuidToBytes(UuidV7.newUuid());
+        t.taskId = UuidBytes.uuidToBytes(UuidV7.newUuid());
         t.taskFather = null;
         t.taskName = "ROOT";
         t.type = "Empty";
         t.state = true;
         t.muted = false;
         return t;
-    }
-
-    private static byte[] uuidToBytes(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        return new byte[] {
-                (byte)(msb >>> 56), (byte)(msb >>> 48), (byte)(msb >>> 40), (byte)(msb >>> 32),
-                (byte)(msb >>> 24), (byte)(msb >>> 16), (byte)(msb >>>  8), (byte)(msb),
-                (byte)(lsb >>> 56), (byte)(lsb >>> 48), (byte)(lsb >>> 40), (byte)(lsb >>> 32),
-                (byte)(lsb >>> 24), (byte)(lsb >>> 16), (byte)(lsb >>>  8), (byte)(lsb)
-        };
     }
 
     private String guessLocalIp() {
@@ -320,7 +293,7 @@ public class LoginActivity extends AppCompatActivity {
     private void syncAskPasswordCheckbox(String userName) {
         if (userName == null || userName.isEmpty()) {
             // Default seguro: pedir contraseña siempre
-            runOnUiThread(() -> cbAskPassword.setChecked(true));
+            runOnUiThread(() -> { cbAskPassword.setChecked(true); cbAskPassword.setEnabled(true); cbAskPassword.setAlpha(1f); });
             return;
         }
 
@@ -336,7 +309,12 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             final boolean finalAsk = askPassword;
-            runOnUiThread(() -> cbAskPassword.setChecked(finalAsk));
+            final boolean editable = (u == null);
+            runOnUiThread(() -> {
+                cbAskPassword.setChecked(finalAsk);
+                cbAskPassword.setEnabled(editable);
+                cbAskPassword.setAlpha(editable ? 1f : 0.6f);
+            });
         }).start();
     }
 

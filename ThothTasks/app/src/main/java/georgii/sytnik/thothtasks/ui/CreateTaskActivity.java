@@ -4,6 +4,8 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
@@ -41,13 +42,14 @@ import georgii.sytnik.thothtasks.domain.action.ActionKeys;
 import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
 import georgii.sytnik.thothtasks.domain.validation.TaskHierarchyValidator;
 import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
-import georgii.sytnik.thothtasks.security.ActionSettingsReader;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
+import georgii.sytnik.thothtasks.util.TaskTypeUi;
+import georgii.sytnik.thothtasks.util.TimeText;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class CreateTaskActivity extends AppCompatActivity {
 
-    public static final String EXTRA_FATHER_ID = "father_id";
     public static final int REQ_PICK_FATHER = 1001;
 
     private AppDatabase db;
@@ -56,17 +58,14 @@ public class CreateTaskActivity extends AppCompatActivity {
     private CheckBox cbUninterrupted;
     private Spinner spType;
     private TextInputLayout tilPeriodD;
-    private MaterialButton btnPickFather, btnCreate;
-    private TextView tvFather;
+    private MaterialButton btnPickFather, btnCreate, btnWhenApply;
+    private TextView tvFather, tvWhenApply;
 
-    private byte[] selectedFatherId; // nullable
-    private String selectedFatherName;
-
-    private MaterialButton btnWhenApply;
-    private TextView tvWhenApply;
-    private Long whenApplyUtcMs = null; // null => aplica ahora
     private FrameLayout typeInfoContainer;
     private View typeInfoView;
+
+    private byte[] selectedFatherId;
+    private Long whenApplyUtcMs = null;
 
     // Weekly
     private CheckBox cbMon, cbTue, cbWed, cbThu, cbFri, cbSat, cbSun;
@@ -79,15 +78,24 @@ public class CreateTaskActivity extends AppCompatActivity {
     private EditText etMonthDay;
     private MaterialButton btnAdd;
     private TextView tvList;
-    private final List<int[]> yearlyPairs = new ArrayList<>(); // {m,d}
+    private final List<int[]> yearlyPairs = new ArrayList<>();
 
     // Place
     private byte[] selectedPlaceId = null;
-    private String selectedPlaceName = "(cualquier lugar)";
     private TextView tvPlace;
 
-    // ✅ Actions switches
+    // Actions
     private SwitchCompat swAlarm, swDnd, swNotifyMonth, swNotifyWeek, swNotifyDay, swNotifyOnDay, swNotify1h, swNotify10m, swNotify1m;
+
+    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceLauncher =
+            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
+                if (res.getResultCode() == RESULT_OK && res.getData() != null) {
+                    selectedPlaceId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
+                    String placeName = res.getData().getStringExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_NAME);
+                    if (placeName == null) placeName = getString(R.string.place_anywhere);
+                    tvPlace.setText(placeName);
+                }
+            });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,7 +122,9 @@ public class CreateTaskActivity extends AppCompatActivity {
         btnWhenApply = findViewById(R.id.btnWhenApply);
         tvWhenApply = findViewById(R.id.tvWhenApply);
 
-        // Place UI
+        tilPeriodD = findViewById(R.id.tilPeriodD);
+
+        // Place
         tvPlace = findViewById(R.id.tvPlace);
         MaterialButton btnPickPlace = findViewById(R.id.btnPickPlace);
         btnPickPlace.setOnClickListener(v -> {
@@ -123,7 +133,7 @@ public class CreateTaskActivity extends AppCompatActivity {
             pickPlaceLauncher.launch(i);
         });
 
-        // ✅ Action switches (must exist in XML)
+        // Actions
         swAlarm = findViewById(R.id.swAlarm);
         swDnd = findViewById(R.id.swDnd);
         swNotifyMonth = findViewById(R.id.swNotifyMonth);
@@ -134,22 +144,20 @@ public class CreateTaskActivity extends AppCompatActivity {
         swNotify10m = findViewById(R.id.swNotify10m);
         swNotify1m = findViewById(R.id.swNotify1m);
 
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.task_type_labels,
+                android.R.layout.simple_spinner_dropdown_item
+        );
+        spType.setAdapter(typeAdapter);
+
+        btnPickFather.setOnClickListener(v -> startActivityForResult(new Intent(this, TaskPickerActivity.class), REQ_PICK_FATHER));
         btnWhenApply.setOnClickListener(v -> pickWhenApply());
 
-        // Types
-        String[] types = new String[] {"Unique", "Daily", "Weekly", "Yearly", "Periodic", "Empty"};
-        spType.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, types));
-
-        // Father picker
-        btnPickFather.setOnClickListener(v -> startActivityForResult(new Intent(this, TaskPickerActivity.class), REQ_PICK_FATHER));
-
-        // Time picker
         etStart.setOnClickListener(v -> showTimePicker(etStart));
         etFinish.setOnClickListener(v -> showTimePicker(etFinish));
 
-        tilPeriodD = findViewById(R.id.tilPeriodD);
-
-        // Type info + PeriodD
+        // Update type info + PeriodD rule
         spType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String type = (String) parent.getItemAtPosition(position);
@@ -165,10 +173,36 @@ public class CreateTaskActivity extends AppCompatActivity {
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        // init
         updateTypeInfoUI((String) spType.getSelectedItem());
 
+        // Live availability of timed actions (Alarm/DND/1h/10m/1m)
+        TextWatcher availabilityWatcher = new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                updateTimedActionsAvailability();
+            }
+        };
+        etStart.addTextChangedListener(availabilityWatcher);
+        etFinish.addTextChangedListener(availabilityWatcher);
+        etTimeM.addTextChangedListener(availabilityWatcher);
+        updateTimedActionsAvailability();
+
         btnCreate.setOnClickListener(v -> createTask());
+    }
+
+    private void updateTimedActionsAvailability() {
+        Integer startMin = TimeText.parseTimeToMinutes(textOf(etStart));
+        Integer finishMin = TimeText.parseTimeToMinutes(textOf(etFinish));
+        Integer timeM = parseIntOrNull(textOf(etTimeM));
+
+        boolean canTimedActions = (timeM != null) || (startMin != null && finishMin != null);
+
+        swAlarm.setEnabled(canTimedActions);
+        swDnd.setEnabled(canTimedActions);          // DND treated like Alarm
+        swNotify1h.setEnabled(canTimedActions);
+        swNotify10m.setEnabled(canTimedActions);
+        swNotify1m.setEnabled(canTimedActions);
     }
 
     private void showTimePicker(TextInputEditText target) {
@@ -183,30 +217,27 @@ public class CreateTaskActivity extends AppCompatActivity {
     }
 
     private void createTask() {
-        String name = etName.getText() != null ? etName.getText().toString().trim() : "";
-        if (name.isEmpty()) name = "NewTask";
+        String name = textOf(etName);
+        if (name.isEmpty()) name = getString(R.string.default_new_task_name);
 
-        String type = (String) spType.getSelectedItem();
+        String type = TaskTypeUi.valueAt(this, spType.getSelectedItemPosition());
 
-        Integer startMin = parseTimeToMinutes(etStart.getText() != null ? etStart.getText().toString().trim() : "");
-        Integer finishMin = parseTimeToMinutes(etFinish.getText() != null ? etFinish.getText().toString().trim() : "");
+        Integer startMin = TimeText.parseTimeToMinutes(textOf(etStart));
+        Integer finishMin = TimeText.parseTimeToMinutes(textOf(etFinish));
 
-        // no crossing midnight
         if (startMin != null && finishMin != null && startMin >= finishMin) {
             Toast.makeText(this, R.string.toast_invalid_time_order, Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // exact time exists only if both exist (your rule)
-        final boolean hasExactTime = (startMin != null && finishMin != null);
-
-        Integer timeM = parseInt(etTimeM.getText() != null ? etTimeM.getText().toString().trim() : "");
-        Integer weight = parseInt(etWeight.getText() != null ? etWeight.getText().toString().trim() : "");
-        Integer periodD = parseInt(etPeriodD.getText() != null ? etPeriodD.getText().toString().trim() : "");
-
+        Integer timeM = parseIntOrNull(textOf(etTimeM));
+        Integer weight = parseIntOrNull(textOf(etWeight));
+        Integer periodD = parseIntOrNull(textOf(etPeriodD));
         boolean uninterrupted = cbUninterrupted.isChecked();
 
-        // build type-specific JSON
+        boolean canTimedActions = (timeM != null) || (startMin != null && finishMin != null);
+
+        // Weekly/Periodic/Yearly JSON
         String daysOfJson = null;
         String periodicJson = null;
 
@@ -225,12 +256,20 @@ public class CreateTaskActivity extends AppCompatActivity {
                 obj.put("values", arr);
                 daysOfJson = obj.toString();
             } else if ("Periodic".equals(type)) {
-                JSONObject obj = new JSONObject();
-                obj.put("unit", spUnit != null ? (String) spUnit.getSelectedItem() : "day");
-                obj.put("amount", safeInt(etAmount, 1));
-                obj.put("streakDays", safeInt(etStreak, 1));
-                periodicJson = obj.toString();
-            } else if ("Yearly".equals(type)) {
+            JSONObject obj = new JSONObject();
+
+            String unitValue = "day";
+            if (spUnit != null) {
+                int pos = spUnit.getSelectedItemPosition();
+                String[] values = getResources().getStringArray(R.array.periodic_units_values);
+                if (pos >= 0 && pos < values.length) unitValue = values[pos];
+            }
+
+            obj.put("unit", unitValue);
+            obj.put("amount", safeInt(etAmount, 1));
+            obj.put("streakDays", safeInt(etStreak, 1));
+            periodicJson = obj.toString();
+        } else if ("Yearly".equals(type)) {
                 JSONObject obj = new JSONObject();
                 obj.put("kind", "monthdays");
                 JSONArray arr = new JSONArray();
@@ -245,20 +284,21 @@ public class CreateTaskActivity extends AppCompatActivity {
             }
         } catch (Exception ignored) {}
 
-        // Snapshot actions (read on UI thread)
-        final boolean aAlarm = swAlarm != null && swAlarm.isChecked();
-        final boolean aDnd = swDnd != null && swDnd.isChecked();
-        final boolean aMonth = swNotifyMonth != null && swNotifyMonth.isChecked();
-        final boolean aWeek = swNotifyWeek != null && swNotifyWeek.isChecked();
-        final boolean aDay = swNotifyDay != null && swNotifyDay.isChecked();
-        final boolean aOnDay = swNotifyOnDay != null && swNotifyOnDay.isChecked();
-        final boolean a1h = swNotify1h != null && swNotify1h.isChecked();
-        final boolean a10m = swNotify10m != null && swNotify10m.isChecked();
-        final boolean a1m = swNotify1m != null && swNotify1m.isChecked();
+        // Snapshot Actions (timed ones will be stored only if canTimedActions)
+        boolean aAlarm = canTimedActions && swAlarm.isChecked();
+        boolean aDnd = canTimedActions && swDnd.isChecked();
+        boolean a1h = canTimedActions && swNotify1h.isChecked();
+        boolean a10m = canTimedActions && swNotify10m.isChecked();
+        boolean a1m = canTimedActions && swNotify1m.isChecked();
 
-        String finalName = name;
+        boolean aMonth = swNotifyMonth.isChecked();
+        boolean aWeek = swNotifyWeek.isChecked();
+        boolean aDay = swNotifyDay.isChecked();
+        boolean aOnDay = swNotifyOnDay.isChecked();
+
         String finalDaysOfJson = daysOfJson;
         String finalPeriodicJson = periodicJson;
+        String finalName = name;
 
         new Thread(() -> {
             byte[] userId = SessionStore.loadLastUserId(this);
@@ -266,10 +306,10 @@ public class CreateTaskActivity extends AppCompatActivity {
             UserEntity u = db.userDao().findById(userId);
             if (u == null) return;
 
-            byte[] fatherId = selectedFatherId != null ? selectedFatherId : u.taskRoot;
+            byte[] fatherId = (selectedFatherId != null) ? selectedFatherId : u.taskRoot;
 
             TaskEntity t = new TaskEntity();
-            t.taskId = uuidToBytes(UuidV7.newUuid());
+            t.taskId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             t.taskFather = fatherId;
             t.taskName = finalName;
             t.type = type;
@@ -285,18 +325,12 @@ public class CreateTaskActivity extends AppCompatActivity {
             t.state = true;
             t.muted = false;
 
-            // ✅ Action JSON
-            t.actionJson = buildActionJson(hasExactTime, aAlarm, aDnd, aMonth, aWeek, aDay, aOnDay, a1h, a10m, a1m);
+            t.actionJson = buildActionJson(aAlarm, aDnd, aMonth, aWeek, aDay, aOnDay, a1h, a10m, a1m);
 
             if (!validateCreateTask(t.type, t.periodicJson, t.periodD)) return;
 
             TaskHierarchyValidator.ValidationResult vr =
-                    TaskHierarchyValidator.canChildExistInsideParent(
-                            db,
-                            t,
-                            whenApplyUtcMs,
-                            fatherId
-                    );
+                    TaskHierarchyValidator.canChildExistInsideParent(db, t, whenApplyUtcMs, fatherId);
 
             if (!vr.ok) {
                 runOnUiThread(() -> Toast.makeText(this, vr.message, Toast.LENGTH_LONG).show());
@@ -307,17 +341,15 @@ public class CreateTaskActivity extends AppCompatActivity {
 
             long now = System.currentTimeMillis();
 
-            // TaskChange: create_task
-            TaskChangeEntity ch = new TaskChangeEntity();
-            ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
-            ch.taskId = t.taskId;
-            ch.newTaskId = null;
-            ch.type = "create_task";
-            ch.createAtUtcMs = now;
-            ch.whenApplyUtcMs = whenApplyUtcMs;
-            db.taskChangeDao().insert(ch);
+            TaskChangeEntity create = new TaskChangeEntity();
+            create.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
+            create.taskId = t.taskId;
+            create.newTaskId = null;
+            create.type = "create_task";
+            create.createAtUtcMs = now;
+            create.whenApplyUtcMs = whenApplyUtcMs;
+            db.taskChangeDao().insert(create);
 
-            // TaskChange(s) for enabled actions at creation (one per action)
             insertActionTaskChanges(t.taskId, t.actionJson, whenApplyUtcMs);
 
             int horizon = ActionPlanHorizon.getDaysAhead(this, db);
@@ -330,26 +362,20 @@ public class CreateTaskActivity extends AppCompatActivity {
         }).start();
     }
 
-    private String buildActionJson(boolean hasExactTime,
-                                   boolean alarm, boolean dnd,
+    private String buildActionJson(boolean alarm, boolean dnd,
                                    boolean nMonth, boolean nWeek, boolean nDay, boolean nOnDay,
                                    boolean n1h, boolean n10m, boolean n1m) {
         try {
             JSONObject o = new JSONObject();
-
-            // general actions
+            o.put(ActionKeys.ALARM, alarm);
+            o.put(ActionKeys.DND, dnd);
             o.put(ActionKeys.NOTIFY_MONTH, nMonth);
             o.put(ActionKeys.NOTIFY_WEEK, nWeek);
             o.put(ActionKeys.NOTIFY_DAY, nDay);
             o.put(ActionKeys.NOTIFY_ON_DAY, nOnDay);
-            o.put(ActionKeys.DND, dnd);
-
-            // timed actions only if start+finish exist
-            o.put(ActionKeys.ALARM, hasExactTime && alarm);
-            o.put(ActionKeys.NOTIFY_1H, hasExactTime && n1h);
-            o.put(ActionKeys.NOTIFY_10M, hasExactTime && n10m);
-            o.put(ActionKeys.NOTIFY_1M, hasExactTime && n1m);
-
+            o.put(ActionKeys.NOTIFY_1H, n1h);
+            o.put(ActionKeys.NOTIFY_10M, n10m);
+            o.put(ActionKeys.NOTIFY_1M, n1m);
             return o.toString();
         } catch (Exception e) {
             return "{}";
@@ -359,17 +385,10 @@ public class CreateTaskActivity extends AppCompatActivity {
     private void insertActionTaskChanges(byte[] taskId, String actionJson, Long whenApplyUtcMs) {
         try {
             JSONObject o = new JSONObject(actionJson);
-
             String[] keys = new String[] {
-                    ActionKeys.ALARM,
-                    ActionKeys.DND,
-                    ActionKeys.NOTIFY_MONTH,
-                    ActionKeys.NOTIFY_WEEK,
-                    ActionKeys.NOTIFY_DAY,
-                    ActionKeys.NOTIFY_ON_DAY,
-                    ActionKeys.NOTIFY_1H,
-                    ActionKeys.NOTIFY_10M,
-                    ActionKeys.NOTIFY_1M
+                    ActionKeys.ALARM, ActionKeys.DND,
+                    ActionKeys.NOTIFY_MONTH, ActionKeys.NOTIFY_WEEK, ActionKeys.NOTIFY_DAY, ActionKeys.NOTIFY_ON_DAY,
+                    ActionKeys.NOTIFY_1H, ActionKeys.NOTIFY_10M, ActionKeys.NOTIFY_1M
             };
 
             long now = System.currentTimeMillis();
@@ -378,44 +397,15 @@ public class CreateTaskActivity extends AppCompatActivity {
                 if (!o.optBoolean(k, false)) continue;
 
                 TaskChangeEntity ch = new TaskChangeEntity();
-                ch.taskChangeId = uuidToBytes(UuidV7.newUuid());
+                ch.taskChangeId = UuidBytes.uuidToBytes(UuidV7.newUuid());
                 ch.taskId = taskId;
                 ch.newTaskId = null;
-                ch.type = ActionChangeTypes.on(k); // e.g. alarm_on
+                ch.type = ActionChangeTypes.on(k);
                 ch.createAtUtcMs = now;
-                ch.whenApplyUtcMs = whenApplyUtcMs; // align with create_task start date
+                ch.whenApplyUtcMs = whenApplyUtcMs;
                 db.taskChangeDao().insert(ch);
             }
         } catch (Exception ignored) {}
-    }
-
-    private static Integer parseTimeToMinutes(String hhmm) {
-        if (hhmm == null || hhmm.isEmpty()) return null;
-        try {
-            String[] p = hhmm.split(":");
-            int h = Integer.parseInt(p[0]);
-            int m = Integer.parseInt(p[1]);
-            if (h < 0 || h > 23 || m < 0 || m > 59) return null;
-            return h * 60 + m;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static Integer parseInt(String s) {
-        if (s == null || s.isEmpty()) return null;
-        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
-    }
-
-    private static byte[] uuidToBytes(UUID uuid) {
-        long msb = uuid.getMostSignificantBits();
-        long lsb = uuid.getLeastSignificantBits();
-        return new byte[] {
-                (byte)(msb >>> 56), (byte)(msb >>> 48), (byte)(msb >>> 40), (byte)(msb >>> 32),
-                (byte)(msb >>> 24), (byte)(msb >>> 16), (byte)(msb >>>  8), (byte)(msb),
-                (byte)(lsb >>> 56), (byte)(lsb >>> 48), (byte)(lsb >>> 40), (byte)(lsb >>> 32),
-                (byte)(lsb >>> 24), (byte)(lsb >>> 16), (byte)(lsb >>>  8), (byte)(lsb)
-        };
     }
 
     @Override
@@ -423,8 +413,8 @@ public class CreateTaskActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_PICK_FATHER && resultCode == RESULT_OK && data != null) {
             selectedFatherId = data.getByteArrayExtra(TaskPickerActivity.RESULT_TASK_ID);
-            selectedFatherName = data.getStringExtra(TaskPickerActivity.RESULT_TASK_NAME);
-            if (selectedFatherName != null) tvFather.setText(selectedFatherName);
+            String fatherName = data.getStringExtra(TaskPickerActivity.RESULT_TASK_NAME);
+            if (fatherName != null) tvFather.setText(fatherName);
         }
     }
 
@@ -484,8 +474,12 @@ public class CreateTaskActivity extends AppCompatActivity {
         etAmount = v.findViewById(R.id.etAmount);
         etStreak = v.findViewById(R.id.etStreak);
 
-        String[] units = new String[] {"day","week","month","year"};
-        spUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, units));
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.periodic_units_labels,
+                android.R.layout.simple_spinner_dropdown_item
+        );
+        spUnit.setAdapter(adapter);
     }
 
     private void bindYearly(View v) {
@@ -509,13 +503,11 @@ public class CreateTaskActivity extends AppCompatActivity {
     private void renderYearlyList() {
         if (tvList == null) return;
         if (yearlyPairs.isEmpty()) {
-            tvList.setText("(empty)");
+            tvList.setText(getString(R.string.empty));
             return;
         }
         StringBuilder sb = new StringBuilder();
-        for (int[] md : yearlyPairs) {
-            sb.append(String.format("%02d-%02d", md[0], md[1])).append("  ");
-        }
+        for (int[] md : yearlyPairs) sb.append(String.format("%02d-%02d", md[0], md[1])).append("  ");
         tvList.setText(sb.toString().trim());
     }
 
@@ -527,7 +519,7 @@ public class CreateTaskActivity extends AppCompatActivity {
             int d = Integer.parseInt(p[1]);
             if (m < 1 || m > 12) return null;
             if (d < 1 || d > 31) return null;
-            return new int[]{m,d};
+            return new int[]{m, d};
         } catch (Exception e) {
             return null;
         }
@@ -572,13 +564,12 @@ public class CreateTaskActivity extends AppCompatActivity {
         return true;
     }
 
-    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceLauncher =
-            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
-                if (res.getResultCode() == RESULT_OK && res.getData() != null) {
-                    selectedPlaceId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
-                    selectedPlaceName = res.getData().getStringExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_NAME);
-                    if (selectedPlaceName == null) selectedPlaceName = "(cualquier lugar)";
-                    tvPlace.setText(selectedPlaceName);
-                }
-            });
+    private static String textOf(TextInputEditText et) {
+        return et.getText() == null ? "" : et.getText().toString().trim();
+    }
+
+    private static Integer parseIntOrNull(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
+    }
 }

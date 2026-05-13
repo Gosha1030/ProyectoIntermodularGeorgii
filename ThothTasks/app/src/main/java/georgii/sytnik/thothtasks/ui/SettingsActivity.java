@@ -1,5 +1,6 @@
 package georgii.sytnik.thothtasks.ui;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,9 +10,12 @@ import android.provider.Settings;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -23,10 +27,13 @@ import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
+import georgii.sytnik.thothtasks.security.ActionSettingsKeys;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.security.SettingsJson;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private static final int REQ_NOTIF = 3001;
 
     private AppDatabase db;
 
@@ -48,6 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setTitle(R.string.settings_title);
 
         tvDndStatus = findViewById(R.id.tvDndStatus);
         tvNotifStatus = findViewById(R.id.tvNotifStatus);
@@ -63,17 +71,9 @@ public class SettingsActivity extends AppCompatActivity {
         etTravelMandatory = findViewById(R.id.etTravelMandatory);
         etTravelOptional = findViewById(R.id.etTravelOptional);
 
-        btnGrantDnd.setOnClickListener(v -> {
-            if (Build.VERSION.SDK_INT >= 23) {
-                startActivity(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
-            } else {
-                Toast.makeText(this, "DND no disponible", Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        btnGrantDnd.setOnClickListener(v -> grantDndAccess());
         btnGrantNotif.setOnClickListener(v -> requestNotifPermissionIfNeeded());
-
-        btnSave.setOnClickListener(v -> saveSettings());
+        btnSave.setOnClickListener(v -> save());
 
         load();
     }
@@ -81,114 +81,138 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updatePermissionLabels();
+        refreshPermissionStatus();
     }
 
     private void load() {
         new Thread(() -> {
             userId = SessionStore.loadLastUserId(this);
             if (userId == null) return;
+
             user = db.userDao().findById(userId);
             if (user == null) return;
 
             settings = SettingsJson.parseOrEmpty(user.ajustesJson);
 
-            // Defaults
-            boolean alarmSound = SettingsJson.getBool(settings, "alarmEnabledSound", true);
-            boolean alarmVib = SettingsJson.getBool(settings, "alarmVibrate", true);
-            int planDays = SettingsJson.getInt(settings, "actionPlanDaysAhead", 60);
-
-            int mand = SettingsJson.getInt(settings, "travelExtraMandatoryM", 0);
-            int opt = SettingsJson.getInt(settings, "travelExtraOptionalM", 0);
-
-            boolean askPass = SettingsJson.getBool(settings, "askPassword", true);
-
             runOnUiThread(() -> {
+                // Defaults
+                boolean alarmSound = SettingsJson.getBool(settings, ActionSettingsKeys.ALARM_ENABLED_SOUND, true);
+                boolean alarmVibrate = SettingsJson.getBool(settings, ActionSettingsKeys.ALARM_VIBRATE, true);
+
+                int daysAhead = SettingsJson.getInt(settings, ActionSettingsKeys.ACTION_PLAN_DAYS_AHEAD, 60);
+                int travelMandatory = SettingsJson.getInt(settings, ActionSettingsKeys.TRAVEL_EXTRA_MANDATORY_M, 0);
+                int travelOptional = SettingsJson.getInt(settings, ActionSettingsKeys.TRAVEL_EXTRA_OPTIONAL_M, 0);
+
+                boolean askPassword = SettingsJson.getBool(settings, ActionSettingsKeys.ASK_PASSWORD, false);
+
                 swAlarmSound.setChecked(alarmSound);
-                swAlarmVibrate.setChecked(alarmVib);
-                etPlanDays.setText(String.valueOf(planDays));
+                swAlarmVibrate.setChecked(alarmVibrate);
+                swAskPassword.setChecked(askPassword);
 
-                etTravelMandatory.setText(String.valueOf(mand));
-                etTravelOptional.setText(String.valueOf(opt));
+                etPlanDays.setText(String.valueOf(daysAhead));
+                etTravelMandatory.setText(String.valueOf(travelMandatory));
+                etTravelOptional.setText(String.valueOf(travelOptional));
 
-                swAskPassword.setChecked(askPass);
-
-                updatePermissionLabels();
+                refreshPermissionStatus();
             });
         }).start();
     }
 
-    private void updatePermissionLabels() {
-        // DND
-        boolean dndGranted = false;
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= 23 && nm != null) {
-            dndGranted = nm.isNotificationPolicyAccessGranted();
-        }
-        tvDndStatus.setText(dndGranted ? "DND access: GRANTED" : "DND access: NOT GRANTED");
+    private void refreshPermissionStatus() {
+        tvDndStatus.setText(isDndGranted() ? R.string.dnd_granted : R.string.dnd_not_granted);
+        tvNotifStatus.setText(isNotifGranted() ? R.string.notif_granted : R.string.notif_not_granted);
+    }
 
-        // Notifications permission (Android 13+)
-        boolean notifGranted = true;
-        if (Build.VERSION.SDK_INT >= 33) {
-            notifGranted = checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+    private boolean isDndGranted() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false;
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        return nm != null && nm.isNotificationPolicyAccessGranted();
+    }
+
+    private boolean isNotifGranted() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true; // no runtime permission before 33
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void grantDndAccess() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Toast.makeText(this, R.string.toast_dnd_not_available, Toast.LENGTH_SHORT).show();
+            return;
         }
-        tvNotifStatus.setText(notifGranted ? "Notificaciones: GRANTED" : "Notificaciones: NOT GRANTED");
+        if (isDndGranted()) {
+            Toast.makeText(this, R.string.toast_already_granted, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        startActivity(new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS));
     }
 
     private void requestNotifPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= 33) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 9001);
-            } else {
-                Toast.makeText(this, "Ya concedido", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(this, "No requerido en esta versión", Toast.LENGTH_SHORT).show();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Toast.makeText(this, R.string.toast_not_required, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (isNotifGranted()) {
+            Toast.makeText(this, R.string.toast_already_granted, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                REQ_NOTIF);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQ_NOTIF) {
+            refreshPermissionStatus();
         }
     }
 
-    private void saveSettings() {
+    private void save() {
         if (user == null || settings == null) return;
 
         boolean alarmSound = swAlarmSound.isChecked();
-        boolean alarmVib = swAlarmVibrate.isChecked();
-        boolean askPass = swAskPassword.isChecked();
+        boolean alarmVibrate = swAlarmVibrate.isChecked();
+        boolean askPassword = swAskPassword.isChecked();
 
-        int planDays = parseIntOrDefault(etPlanDays, 60);
-        int mand = parseIntOrDefault(etTravelMandatory, 0);
-        int opt = parseIntOrDefault(etTravelOptional, 0);
+        Integer daysAhead = parseIntOrNull(textOf(etPlanDays));
+        Integer travelMandatory = parseIntOrNull(textOf(etTravelMandatory));
+        Integer travelOptional = parseIntOrNull(textOf(etTravelOptional));
 
-        SettingsJson.putBool(settings, "alarmEnabledSound", alarmSound);
-        SettingsJson.putBool(settings, "alarmVibrate", alarmVib);
-        SettingsJson.putInt(settings, "actionPlanDaysAhead", clamp(planDays, 1, 365));
-        SettingsJson.putInt(settings, "travelExtraMandatoryM", Math.max(0, mand));
-        SettingsJson.putInt(settings, "travelExtraOptionalM", Math.max(0, opt));
-        SettingsJson.putBool(settings, "askPassword", askPass);
+        // Defaults if empty
+        int finalDaysAhead = (daysAhead != null && daysAhead > 0) ? daysAhead : 60;
+        int finalTravelMandatory = (travelMandatory != null && travelMandatory >= 0) ? travelMandatory : 0;
+        int finalTravelOptional = (travelOptional != null && travelOptional >= 0) ? travelOptional : 0;
 
-        user.ajustesJson = settings.toString();
+        SettingsJson.putBool(settings, ActionSettingsKeys.ALARM_ENABLED_SOUND, alarmSound);
+        SettingsJson.putBool(settings, ActionSettingsKeys.ALARM_VIBRATE, alarmVibrate);
+        SettingsJson.putInt(settings, ActionSettingsKeys.ACTION_PLAN_DAYS_AHEAD, finalDaysAhead);
+
+        SettingsJson.putInt(settings, ActionSettingsKeys.TRAVEL_EXTRA_MANDATORY_M, finalTravelMandatory);
+        SettingsJson.putInt(settings, ActionSettingsKeys.TRAVEL_EXTRA_OPTIONAL_M, finalTravelOptional);
+
+        SettingsJson.putBool(settings, ActionSettingsKeys.ASK_PASSWORD, askPassword);
 
         new Thread(() -> {
-            db.userDao().update(user);
+            user.ajustesJson = settings.toString();
+            db.userDao().update(user); // same persistence method you used before [1](blob:https://www.microsoft365.com/f4f275ef-97e2-4835-a3b5-82f9562625f7)
 
-            // Replan actions with new horizon
-            int horizon = SettingsJson.getInt(settings, "actionPlanDaysAhead", 60);
-            ActionPlanner.scheduleNextDays(getApplicationContext(), db, horizon);
+            // Replan with new horizon immediately
+            ActionPlanner.scheduleNextDays(getApplicationContext(), db, finalDaysAhead);
 
-            runOnUiThread(() -> Toast.makeText(this, "Guardado", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_SHORT).show());
         }).start();
     }
 
-    private int parseIntOrDefault(TextInputEditText et, int def) {
-        try {
-            String s = et.getText() != null ? et.getText().toString().trim() : "";
-            if (s.isEmpty()) return def;
-            return Integer.parseInt(s);
-        } catch (Exception e) {
-            return def;
-        }
+    private static String textOf(TextInputEditText et) {
+        return et.getText() == null ? "" : et.getText().toString().trim();
     }
 
-    private int clamp(int v, int lo, int hi) {
-        return Math.max(lo, Math.min(hi, v));
+    private static Integer parseIntOrNull(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
     }
 }

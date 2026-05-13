@@ -178,7 +178,7 @@ public class ScheduleDayFragment extends Fragment {
                         String sName = placeName(a.travelPlace);
                         String fName = placeName(b.travelPlace);
                         warnings.add(new TaskLineAdapter.Line(
-                                "⚠ No Travel definido: " + (sName != null ? sName : "?") + " → " + (fName != null ? fName : "?") + " (tocar para crear)",
+                                getString(R.string.schedule_warn_no_travel_defined, (sName != null ? sName : getString(R.string.unknown_short)), (fName != null ? fName : getString(R.string.unknown_short)), getString(R.string.schedule_tap_to_create)),
                                 false,
                                 true,
                                 new TravelPrefill(a.travelPlace, b.travelPlace)
@@ -206,8 +206,7 @@ public class ScheduleDayFragment extends Fragment {
                     String sName = placeName(a.travelPlace);
                     String fName = placeName(b.travelPlace);
                     warnings.add(new TaskLineAdapter.Line(
-                            "⚠ No hay tiempo para Travel (" + mandatory + "m): " +
-                                    (sName != null ? sName : "?") + " → " + (fName != null ? fName : "?"),
+                            getString(R.string.schedule_warn_no_time_for_travel, mandatory, (sName != null ? sName : getString(R.string.unknown_short)), (fName != null ? fName : getString(R.string.unknown_short))),
                             false
                     ));
                     continue; // option 1A
@@ -218,7 +217,7 @@ public class ScheduleDayFragment extends Fragment {
 
                 String sName = placeName(a.travelPlace);
                 String fName = placeName(b.travelPlace);
-                String line3 = (sName != null ? sName : "?") + " → " + (fName != null ? fName : "?");
+                String line3 = (sName != null ? sName : getString(R.string.unknown_short)) + " → " + (fName != null ? fName : getString(R.string.unknown_short));
 
                 // Travel block occupies time in the gap starting at end of previous task
                 travelBlocks.add(new DayBlock(a.block.endMin, a.block.endMin + dur, line3));
@@ -339,13 +338,13 @@ public class ScheduleDayFragment extends Fragment {
     private String placeNameOrAny(byte[] placeId) {
         if (placeId == null) return "(Cualquier lugar)";
         PlaceEntity p = db.placeDao().findById(placeId);
-        return p != null ? p.placeName : "(?)";
+        return p != null ? p.placeName : getString(R.string.unknown_short);
     }
 
     private String placeName(byte[] placeId) {
         if (placeId == null) return null;
         PlaceEntity p = db.placeDao().findById(placeId);
-        return p != null ? p.placeName : "(?)";
+        return p != null ? p.placeName : getString(R.string.unknown_short);
     }
 
     private static boolean equalBytes(byte[] a, byte[] b) {

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="periodic_units_labels">
+        <item>día</item>
+        <item>semana</item>
+        <item>mes</item>
+        <item>año</item>
+    </string-array>
+
+    <string-array name="periodic_units_values">
+        <item>day</item>
+        <item>week</item>
+        <item>month</item>
+        <item>year</item>
+    </string-array>
+
+    <string-array name="task_type_labels">
+        <item>Única</item>
+        <item>Diaria</item>
+        <item>Semanal</item>
+        <item>Anual</item>
+        <item>Periódica</item>
+        <item>Vacía</item>
+    </string-array>
+
+    <string-array name="task_type_values">
+        <item>Unique</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Yearly</item>
+        <item>Periodic</item>
+        <item>Empty</item>
+    </string-array>
+
+</resources>

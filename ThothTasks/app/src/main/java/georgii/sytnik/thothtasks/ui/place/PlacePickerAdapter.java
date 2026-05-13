@@ -15,7 +15,9 @@ import georgii.sytnik.thothtasks.db.entities.PlaceEntity;
 
 public class PlacePickerAdapter extends RecyclerView.Adapter<PlacePickerAdapter.VH> {
 
-    public interface Listener { void onPick(PlaceEntity p); }
+    public interface Listener {
+        void onPick(PlaceEntity p);
+    }
 
     private final List<PlaceEntity> items;
     private final Listener listener;
@@ -25,7 +27,8 @@ public class PlacePickerAdapter extends RecyclerView.Adapter<PlacePickerAdapter.
         this.listener = listener;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_place_picker, parent, false);
         return new VH(v);
@@ -34,14 +37,26 @@ public class PlacePickerAdapter extends RecyclerView.Adapter<PlacePickerAdapter.
     @Override
     public void onBindViewHolder(@NonNull VH h, int position) {
         PlaceEntity p = items.get(position);
-        h.tv.setText(p.placeName);
-        h.itemView.setOnClickListener(v -> listener.onPick(p));
+
+        String name = (p.placeName == null || p.placeName.trim().isEmpty())
+                ? h.itemView.getContext().getString(R.string.place_placeholder)
+                : p.placeName;
+
+        h.tv.setText(name);
+
+        h.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onPick(p);
+        });
     }
 
-    @Override public int getItemCount() { return items.size(); }
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
 
     static class VH extends RecyclerView.ViewHolder {
-        TextView tv;
+        final TextView tv;
+
         VH(@NonNull View itemView) {
             super(itemView);
             tv = itemView.findViewById(R.id.tvPlace);

@@ -38,15 +38,11 @@ public class TaskEntity {
     @ColumnInfo(name = "PeriodD")
     public Integer periodD;
 
-    /**
-     * JSON TEXT (DaysOf)
-     */
+    /** JSON TEXT (DaysOf) */
     @ColumnInfo(name = "DaysOf")
     public String daysOfJson;
 
-    /**
-     * JSON TEXT (Periodic rule)
-     */
+    /** JSON TEXT (Periodic rule) */
     @ColumnInfo(name = "Periodic")
     public String periodicJson;
 
@@ -54,9 +50,7 @@ public class TaskEntity {
     @ColumnInfo(name = "State")
     public boolean state = true;
 
-    /**
-     * StartTime/FinishTime in minutes 0..1439 (INTEGER).
-     */
+    /** StartTime/FinishTime in minutes 0..1439 */
     @ColumnInfo(name = "StartTime")
     public Integer startTimeMin;
 
@@ -75,6 +69,10 @@ public class TaskEntity {
 
     /**
      * JSON TEXT (Action)
+     *
+     * IMPORTANT:
+     * Column name is "Action" which is a reserved keyword in SQLite.
+     * Do NOT reference it unquoted in @Query strings (use "Action").
      */
     @NonNull
     @ColumnInfo(name = "Action")
