@@ -4,24 +4,31 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.os.LocaleListCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONObject;
+
+import java.util.Locale;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
@@ -38,7 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
     private AppDatabase db;
 
     private TextView tvDndStatus, tvNotifStatus;
-    private MaterialButton btnGrantDnd, btnGrantNotif, btnSave;
+    private MaterialButton btnGrantDnd, btnGrantNotif, btnEn, btnEs, btnSave;
     private SwitchCompat swAlarmSound, swAlarmVibrate, swAskPassword;
     private TextInputEditText etPlanDays, etTravelMandatory, etTravelOptional;
 
@@ -61,6 +68,8 @@ public class SettingsActivity extends AppCompatActivity {
         tvNotifStatus = findViewById(R.id.tvNotifStatus);
         btnGrantDnd = findViewById(R.id.btnGrantDnd);
         btnGrantNotif = findViewById(R.id.btnGrantNotif);
+        btnEn = findViewById(R.id.btnEng);
+        btnEs = findViewById(R.id.btnEsp);
         btnSave = findViewById(R.id.btnSave);
 
         swAlarmSound = findViewById(R.id.swAlarmSound);
@@ -74,6 +83,10 @@ public class SettingsActivity extends AppCompatActivity {
         btnGrantDnd.setOnClickListener(v -> grantDndAccess());
         btnGrantNotif.setOnClickListener(v -> requestNotifPermissionIfNeeded());
         btnSave.setOnClickListener(v -> save());
+
+        btnEs.setOnClickListener(v -> setLocale("es"));
+        btnEn.setOnClickListener(v -> setLocale("en"));
+
 
         load();
     }
@@ -214,5 +227,16 @@ public class SettingsActivity extends AppCompatActivity {
     private static Integer parseIntOrNull(String s) {
         if (s == null || s.isEmpty()) return null;
         try { return Integer.parseInt(s); } catch (Exception e) { return null; }
+    }
+
+    private void setLocale(String lang) {
+        String current = AppCompatDelegate.getApplicationLocales().toLanguageTags();
+
+        if (current.equals(lang)) return; // evita reload innecesario
+
+        AppCompatDelegate.setApplicationLocales(
+                LocaleListCompat.forLanguageTags(lang)
+        );
+
     }
 }

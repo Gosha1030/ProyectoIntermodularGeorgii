@@ -226,4 +226,5 @@
     <string name="no_time_section">Sin tiempo</string>
     <string name="no_tasks">Sin tareas</string>
     <string name="add">Añadir</string>
+    <string name="lenguege">Idioma</string>
 </resources>
