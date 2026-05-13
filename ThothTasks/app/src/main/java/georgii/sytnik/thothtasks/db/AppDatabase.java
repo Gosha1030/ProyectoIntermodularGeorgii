@@ -54,8 +54,8 @@ import georgii.sytnik.thothtasks.db.entities.UserEntity;
                 ReceivedInboxEntity.class
 
         },
-        version = 2,
-        exportSchema = false
+        version = 1,
+        exportSchema = true
 )
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {

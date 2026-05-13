@@ -1,0 +1,212 @@
+<mxfile host="app.diagrams.net" pages="3">
+  <diagram name="UseCase" id="jul65B_MojIEGKFoWyiY">
+    <mxGraphModel dx="1559" dy="805" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="A1" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Owner user" vertex="1">
+          <mxGeometry height="80" width="40" x="40" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="A2" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="External user" vertex="1">
+          <mxGeometry height="80" width="40" x="40" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="A3" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="System" vertex="1">
+          <mxGeometry height="80" width="40" x="40" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="SYS" parent="1" style="swimlane;startSize=0;html=1;rounded=0;" value="" vertex="1">
+          <mxGeometry height="760" width="1120" x="180" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="UC3" parent="SYS" style="ellipse;whiteSpace=wrap;html=1;" value="Share resource" vertex="1">
+          <mxGeometry height="50" width="170" x="80" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="UC5" parent="SYS" style="ellipse;whiteSpace=wrap;html=1;" value="Manage permissions" vertex="1">
+          <mxGeometry height="50" width="190" x="610" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="UC4" parent="SYS" style="ellipse;whiteSpace=wrap;html=1;" value="Manage external users" vertex="1">
+          <mxGeometry height="50" width="210" x="340" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="INC1" edge="1" parent="SYS" source="UC5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;" target="UC4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="INC1-lab" connectable="0" parent="INC1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Include" vertex="1">
+          <mxGeometry relative="1" x="0.2" as="geometry" />
+        </mxCell>
+        <mxCell id="SYS-title" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="ThothTasks (use cases)" vertex="1">
+          <mxGeometry height="30" width="1120" x="180" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="UC1" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Manage tasks" vertex="1">
+          <mxGeometry height="50" width="170" x="260" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="UC2" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Manage places &amp; travel" vertex="1">
+          <mxGeometry height="50" width="200" x="260" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="UC6" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Sync external source" vertex="1">
+          <mxGeometry height="50" width="220" x="520" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="UC7" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="Notify actions" vertex="1">
+          <mxGeometry height="50" width="170" x="520" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="AS1" edge="1" parent="1" source="A1" style="endArrow=none;html=1;rounded=0;" target="UC1" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AS2" edge="1" parent="1" source="A1" style="endArrow=none;html=1;rounded=0;" target="UC2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AS3" edge="1" parent="1" source="A1" style="endArrow=none;html=1;rounded=0;" target="UC3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AS4" edge="1" parent="1" source="A1" style="endArrow=none;html=1;rounded=0;" target="UC4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AS5" edge="1" parent="1" source="A1" style="endArrow=none;html=1;rounded=0;" target="UC5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AS6" edge="1" parent="1" source="A2" style="endArrow=none;html=1;rounded=0;" target="UC6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="AS7" edge="1" parent="1" source="A3" style="endArrow=none;html=1;rounded=0;" target="UC7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="INC2" edge="1" parent="1" source="UC6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;" target="UC5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="INC2-lab" connectable="0" parent="INC2" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Include" vertex="1">
+          <mxGeometry relative="1" x="0.1" as="geometry" />
+        </mxCell>
+        <mxCell id="ur5fkCQYhMPoQuF4Bedq-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;" value="Notas:&lt;br&gt;- &quot;Share resource&quot; crea ShareResource (RootTaskId + reglas).&lt;br&gt;- &quot;Sync external source&quot; usa SyncState, PendingOutbox y ReceivedInbox." vertex="1">
+          <mxGeometry height="120" width="520" x="710" y="740" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="AccessFlow" id="nyfsPP_tNqKjmja5UdJ1">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="T" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;" value="Access flow (ConfirmRequired + persistent pending request)" vertex="1">
+          <mxGeometry height="30" width="1760" x="20" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="L1" parent="1" style="swimlane;startSize=28;html=1;rounded=0;container=1;collapsible=0;childLayout=stackLayout;horizontal=1;fillColor=#FFFFFF;strokeColor=#666666;" value="External peer" vertex="1">
+          <mxGeometry height="960" width="360" x="20" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="L2" parent="1" style="swimlane;startSize=28;html=1;rounded=0;container=1;collapsible=0;childLayout=stackLayout;horizontal=1;fillColor=#FFFFFF;strokeColor=#666666;" value="Owner device" vertex="1">
+          <mxGeometry height="960" width="1340" x="420" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="S1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="UDP request (ResourceId)" vertex="1">
+          <mxGeometry height="50" width="280" x="60" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="S2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="UdpOwnerService" vertex="1">
+          <mxGeometry height="50" width="240" x="480" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="S3" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="Check AccessGrant active?" vertex="1">
+          <mxGeometry height="80" width="260" x="780" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="S4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;" value="ALLOW: send data" vertex="1">
+          <mxGeometry height="60" width="260" x="1120" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="S5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;" value="Create/keep AccessRequest(PENDING)&#xa;Notify once per (ExternalUserId, ResourceId)" vertex="1">
+          <mxGeometry height="90" width="360" x="1120" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="S6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Notification: Allow / Reject / Block" vertex="1">
+          <mxGeometry height="70" width="320" x="1120" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="S7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="AccessDecisionReceiver" vertex="1">
+          <mxGeometry height="60" width="260" x="1120" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="S8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Update DB: AccessGrant / AccessRequest" vertex="1">
+          <mxGeometry height="70" width="320" x="1120" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="S9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;" value="Send ACCESS_RESULT" vertex="1">
+          <mxGeometry height="60" width="260" x="1120" y="600" as="geometry" />
+        </mxCell>
+        <mxCell id="E1" edge="1" parent="1" source="S1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E2" edge="1" parent="1" source="S2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E3" edge="1" parent="1" source="S3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S4" value="YES">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E4" edge="1" parent="1" source="S3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S5" value="NO">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E5" edge="1" parent="1" source="S5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E6" edge="1" parent="1" source="S6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E7" edge="1" parent="1" source="S7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E8" edge="1" parent="1" source="S8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="S9" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Bre10ElWDhsgJ26XGzZx-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;" value="Detalles:&#xa;- AccessRequest tiene UNIQUE(ExternalUserId, ResourceId) y campos de notificación (LastNotifiedAtUtcMs).&#xa;- AccessGrant tiene UNIQUE(ExternalUserId, ResourceId) para el permiso activo." vertex="1">
+          <mxGeometry height="100" width="1000" x="640" y="830" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="SyncFlow" id="E2yL2sxdLg8DyNpUm8Tb">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="T" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;" value="Sync flow (ExternalSource + SyncState + PendingOutbox + ReceivedInbox + TaskOverlay)" vertex="1">
+          <mxGeometry height="30" width="1760" x="20" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="B1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ExternalSource configured&#xa;(ResourceId + peer address)" vertex="1">
+          <mxGeometry height="80" width="320" x="60" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="B2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Periodic sync tick / manual sync" vertex="1">
+          <mxGeometry height="80" width="320" x="670" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="B3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Queue outgoing messages&#xa;(PendingOutbox)" vertex="1">
+          <mxGeometry height="90" width="320" x="1050" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="B4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Retry worker&#xa;(Attempts / NextRetryUtcMs)" vertex="1">
+          <mxGeometry height="90" width="320" x="1430" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="B5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Deduplicate incoming MsgId&#xa;(ReceivedInbox)" vertex="1">
+          <mxGeometry height="90" width="320" x="1050" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="B6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Update SyncState&#xa;(versions, last seen, hasUpdate)" vertex="1">
+          <mxGeometry height="90" width="320" x="670" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="B7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Apply remote changes&#xa;(store imported tasks) + overlays" vertex="1">
+          <mxGeometry height="90" width="320" x="60" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="B8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;" value="TaskOverlay per (SourceId, TaskId)&#xa;local overrides (MutedLocal, ActionLocalJson, PlaceLocalId)" vertex="1">
+          <mxGeometry height="110" width="660" x="60" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="E1" edge="1" parent="1" source="B1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="B2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E2" edge="1" parent="1" source="B2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="B3" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E3" edge="1" parent="1" source="B3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="B4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E4" edge="1" parent="1" source="B3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="B5" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E5" edge="1" parent="1" source="B2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="B6" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E6" edge="1" parent="1" source="B2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="B7" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="E7" edge="1" parent="1" source="B7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;" target="B8" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p8Vm5_CeEdhHWUYvFEnZ-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#999999;" value="Idea clave: PendingOutbox permite reintentos seguros; ReceivedInbox evita reprocesar mensajes. SyncState guarda versiones y estado del peer." vertex="1">
+          <mxGeometry height="90" width="700" x="800" y="380" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,1146 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "529c47c27d4e48584ded6b7d7f8288e0",
+    "entities": [
+      {
+        "tableName": "User",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`UserId` BLOB NOT NULL, `TaskRoot` BLOB NOT NULL, `UserName` TEXT NOT NULL, `Password` TEXT NOT NULL, `Type` TEXT NOT NULL, `Ip` TEXT NOT NULL, `Port` INTEGER, `PasswordRequired` INTEGER NOT NULL, `ConfirmRequired` INTEGER NOT NULL, `Ajustes` TEXT, PRIMARY KEY(`UserId`))",
+        "fields": [
+          {
+            "fieldPath": "userId",
+            "columnName": "UserId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskRoot",
+            "columnName": "TaskRoot",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userName",
+            "columnName": "UserName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "password",
+            "columnName": "Password",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "Type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ip",
+            "columnName": "Ip",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "port",
+            "columnName": "Port",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "passwordRequired",
+            "columnName": "PasswordRequired",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "confirmRequired",
+            "columnName": "ConfirmRequired",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ajustesJson",
+            "columnName": "Ajustes",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "UserId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_User_UserName",
+            "unique": true,
+            "columnNames": [
+              "UserName"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_User_UserName` ON `${TABLE_NAME}` (`UserName`)"
+          },
+          {
+            "name": "index_User_TaskRoot",
+            "unique": true,
+            "columnNames": [
+              "TaskRoot"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_User_TaskRoot` ON `${TABLE_NAME}` (`TaskRoot`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Task",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`TaskId` BLOB NOT NULL, `TaskFather` BLOB, `TaskName` TEXT NOT NULL, `Type` TEXT NOT NULL, `PeriodD` INTEGER, `DaysOf` TEXT, `Periodic` TEXT, `State` INTEGER NOT NULL, `StartTime` INTEGER, `FinishTime` INTEGER, `TimeM` INTEGER, `Uninterrupted` INTEGER NOT NULL, `Weight` INTEGER, `Action` TEXT NOT NULL, `Muted` INTEGER NOT NULL, `Place` BLOB, PRIMARY KEY(`TaskId`))",
+        "fields": [
+          {
+            "fieldPath": "taskId",
+            "columnName": "TaskId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskFather",
+            "columnName": "TaskFather",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "taskName",
+            "columnName": "TaskName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "Type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "periodD",
+            "columnName": "PeriodD",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "daysOfJson",
+            "columnName": "DaysOf",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "periodicJson",
+            "columnName": "Periodic",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "State",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startTimeMin",
+            "columnName": "StartTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "finishTimeMin",
+            "columnName": "FinishTime",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeM",
+            "columnName": "TimeM",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "uninterrupted",
+            "columnName": "Uninterrupted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weight",
+            "columnName": "Weight",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "actionJson",
+            "columnName": "Action",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "muted",
+            "columnName": "Muted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeId",
+            "columnName": "Place",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "TaskId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Task_TaskFather",
+            "unique": false,
+            "columnNames": [
+              "TaskFather"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Task_TaskFather` ON `${TABLE_NAME}` (`TaskFather`)"
+          },
+          {
+            "name": "index_Task_State_Muted_Type",
+            "unique": false,
+            "columnNames": [
+              "State",
+              "Muted",
+              "Type"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Task_State_Muted_Type` ON `${TABLE_NAME}` (`State`, `Muted`, `Type`)"
+          },
+          {
+            "name": "index_Task_Place",
+            "unique": false,
+            "columnNames": [
+              "Place"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Task_Place` ON `${TABLE_NAME}` (`Place`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "TaskChange",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`TaskChangeId` BLOB NOT NULL, `Task` BLOB NOT NULL, `NewTask` BLOB, `Type` TEXT NOT NULL, `CreateAt` INTEGER NOT NULL, `WhenApply` INTEGER, PRIMARY KEY(`TaskChangeId`))",
+        "fields": [
+          {
+            "fieldPath": "taskChangeId",
+            "columnName": "TaskChangeId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "Task",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "newTaskId",
+            "columnName": "NewTask",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "Type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createAtUtcMs",
+            "columnName": "CreateAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "whenApplyUtcMs",
+            "columnName": "WhenApply",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "TaskChangeId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_TaskChange_Task",
+            "unique": false,
+            "columnNames": [
+              "Task"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TaskChange_Task` ON `${TABLE_NAME}` (`Task`)"
+          },
+          {
+            "name": "index_TaskChange_WhenApply",
+            "unique": false,
+            "columnNames": [
+              "WhenApply"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TaskChange_WhenApply` ON `${TABLE_NAME}` (`WhenApply`)"
+          },
+          {
+            "name": "index_TaskChange_Task_CreateAt",
+            "unique": false,
+            "columnNames": [
+              "Task",
+              "CreateAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_TaskChange_Task_CreateAt` ON `${TABLE_NAME}` (`Task`, `CreateAt`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ExternalUser",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ExternalId` BLOB NOT NULL, `User` BLOB NOT NULL, `ExternalUserName` TEXT NOT NULL, `ExternalUserNickname` TEXT, `Ip` TEXT NOT NULL, `Port` INTEGER NOT NULL, `Blocked` INTEGER NOT NULL, PRIMARY KEY(`ExternalId`))",
+        "fields": [
+          {
+            "fieldPath": "externalId",
+            "columnName": "ExternalId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ownerUserId",
+            "columnName": "User",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "externalUserName",
+            "columnName": "ExternalUserName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "externalUserNickname",
+            "columnName": "ExternalUserNickname",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "ip",
+            "columnName": "Ip",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "port",
+            "columnName": "Port",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blocked",
+            "columnName": "Blocked",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ExternalId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ExternalUser_User",
+            "unique": false,
+            "columnNames": [
+              "User"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExternalUser_User` ON `${TABLE_NAME}` (`User`)"
+          },
+          {
+            "name": "index_ExternalUser_Ip_Port",
+            "unique": false,
+            "columnNames": [
+              "Ip",
+              "Port"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExternalUser_Ip_Port` ON `${TABLE_NAME}` (`Ip`, `Port`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Place",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`PlaceId` BLOB NOT NULL, `PlaceName` TEXT NOT NULL, `GoogleMapsData` TEXT, PRIMARY KEY(`PlaceId`))",
+        "fields": [
+          {
+            "fieldPath": "placeId",
+            "columnName": "PlaceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeName",
+            "columnName": "PlaceName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "googleMapsDataJson",
+            "columnName": "GoogleMapsData",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "PlaceId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Place_PlaceName",
+            "unique": true,
+            "columnNames": [
+              "PlaceName"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Place_PlaceName` ON `${TABLE_NAME}` (`PlaceName`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "Travel",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`TravelId` BLOB NOT NULL, `Start` BLOB NOT NULL, `Finish` BLOB NOT NULL, `Type` TEXT, `TimeM` INTEGER NOT NULL, `UserTimeM` INTEGER, `GoogleTimeM` INTEGER, `GoogleData` TEXT, PRIMARY KEY(`TravelId`))",
+        "fields": [
+          {
+            "fieldPath": "travelId",
+            "columnName": "TravelId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startPlaceId",
+            "columnName": "Start",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finishPlaceId",
+            "columnName": "Finish",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "Type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "timeM",
+            "columnName": "TimeM",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userTimeM",
+            "columnName": "UserTimeM",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "googleTimeM",
+            "columnName": "GoogleTimeM",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "googleDataJson",
+            "columnName": "GoogleData",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "TravelId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Travel_Start_Finish",
+            "unique": true,
+            "columnNames": [
+              "Start",
+              "Finish"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Travel_Start_Finish` ON `${TABLE_NAME}` (`Start`, `Finish`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ShareResource",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ResourceId` BLOB NOT NULL, `OwnerUserId` BLOB NOT NULL, `Type` TEXT NOT NULL, `Name` TEXT NOT NULL, `RootTaskId` BLOB NOT NULL, `Port` INTEGER, `PasswordRequired` INTEGER NOT NULL, `ConfirmRequired` INTEGER NOT NULL, `Active` INTEGER NOT NULL, PRIMARY KEY(`ResourceId`))",
+        "fields": [
+          {
+            "fieldPath": "resourceId",
+            "columnName": "ResourceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ownerUserId",
+            "columnName": "OwnerUserId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "Type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rootTaskId",
+            "columnName": "RootTaskId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "port",
+            "columnName": "Port",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "passwordRequired",
+            "columnName": "PasswordRequired",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "confirmRequired",
+            "columnName": "ConfirmRequired",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "Active",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "ResourceId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ShareResource_OwnerUserId",
+            "unique": false,
+            "columnNames": [
+              "OwnerUserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ShareResource_OwnerUserId` ON `${TABLE_NAME}` (`OwnerUserId`)"
+          },
+          {
+            "name": "index_ShareResource_Type",
+            "unique": false,
+            "columnNames": [
+              "Type"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ShareResource_Type` ON `${TABLE_NAME}` (`Type`)"
+          },
+          {
+            "name": "index_ShareResource_RootTaskId",
+            "unique": false,
+            "columnNames": [
+              "RootTaskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ShareResource_RootTaskId` ON `${TABLE_NAME}` (`RootTaskId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ExternalSource",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`SourceId` BLOB NOT NULL, `DisplayName` TEXT NOT NULL, `Ip` TEXT NOT NULL, `Port` INTEGER NOT NULL, `ResourceId` BLOB NOT NULL, `RemotePubKeyB64` TEXT, `Blocked` INTEGER NOT NULL, `IncludedInSchedule` INTEGER NOT NULL, `ImportedRootTaskId` BLOB, PRIMARY KEY(`SourceId`))",
+        "fields": [
+          {
+            "fieldPath": "sourceId",
+            "columnName": "SourceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "DisplayName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ip",
+            "columnName": "Ip",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "port",
+            "columnName": "Port",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resourceId",
+            "columnName": "ResourceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "remotePubKeyB64",
+            "columnName": "RemotePubKeyB64",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "blocked",
+            "columnName": "Blocked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "includedInSchedule",
+            "columnName": "IncludedInSchedule",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "importedRootTaskId",
+            "columnName": "ImportedRootTaskId",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "SourceId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ExternalSource_Ip_Port",
+            "unique": false,
+            "columnNames": [
+              "Ip",
+              "Port"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExternalSource_Ip_Port` ON `${TABLE_NAME}` (`Ip`, `Port`)"
+          },
+          {
+            "name": "index_ExternalSource_ResourceId",
+            "unique": false,
+            "columnNames": [
+              "ResourceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ExternalSource_ResourceId` ON `${TABLE_NAME}` (`ResourceId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AccessGrant",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`GrantId` BLOB NOT NULL, `ExternalUserId` BLOB NOT NULL, `ResourceId` BLOB NOT NULL, `Granted` INTEGER NOT NULL, `GrantedAtUtcMs` INTEGER NOT NULL, `RevokedAtUtcMs` INTEGER, PRIMARY KEY(`GrantId`))",
+        "fields": [
+          {
+            "fieldPath": "grantId",
+            "columnName": "GrantId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "externalUserId",
+            "columnName": "ExternalUserId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resourceId",
+            "columnName": "ResourceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "granted",
+            "columnName": "Granted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "grantedAtUtcMs",
+            "columnName": "GrantedAtUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revokedAtUtcMs",
+            "columnName": "RevokedAtUtcMs",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "GrantId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_AccessGrant_ExternalUserId",
+            "unique": false,
+            "columnNames": [
+              "ExternalUserId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AccessGrant_ExternalUserId` ON `${TABLE_NAME}` (`ExternalUserId`)"
+          },
+          {
+            "name": "index_AccessGrant_ResourceId",
+            "unique": false,
+            "columnNames": [
+              "ResourceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AccessGrant_ResourceId` ON `${TABLE_NAME}` (`ResourceId`)"
+          },
+          {
+            "name": "index_AccessGrant_ExternalUserId_ResourceId",
+            "unique": true,
+            "columnNames": [
+              "ExternalUserId",
+              "ResourceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_AccessGrant_ExternalUserId_ResourceId` ON `${TABLE_NAME}` (`ExternalUserId`, `ResourceId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "AccessRequest",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`RequestId` BLOB NOT NULL, `ExternalUserId` BLOB NOT NULL, `ResourceId` BLOB NOT NULL, `State` TEXT NOT NULL, `CreatedAtUtcMs` INTEGER NOT NULL, `LastNotifiedAtUtcMs` INTEGER, `DecidedAtUtcMs` INTEGER, `PeerIp` TEXT, `PeerPort` INTEGER, `RequestMsgIdHex` TEXT, `ExternalName` TEXT, PRIMARY KEY(`RequestId`))",
+        "fields": [
+          {
+            "fieldPath": "requestId",
+            "columnName": "RequestId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "externalUserId",
+            "columnName": "ExternalUserId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resourceId",
+            "columnName": "ResourceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "State",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtUtcMs",
+            "columnName": "CreatedAtUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastNotifiedAtUtcMs",
+            "columnName": "LastNotifiedAtUtcMs",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "decidedAtUtcMs",
+            "columnName": "DecidedAtUtcMs",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "peerIp",
+            "columnName": "PeerIp",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "peerPort",
+            "columnName": "PeerPort",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "requestMsgIdHex",
+            "columnName": "RequestMsgIdHex",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "externalName",
+            "columnName": "ExternalName",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "RequestId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_AccessRequest_ExternalUserId_ResourceId",
+            "unique": true,
+            "columnNames": [
+              "ExternalUserId",
+              "ResourceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_AccessRequest_ExternalUserId_ResourceId` ON `${TABLE_NAME}` (`ExternalUserId`, `ResourceId`)"
+          },
+          {
+            "name": "index_AccessRequest_State",
+            "unique": false,
+            "columnNames": [
+              "State"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AccessRequest_State` ON `${TABLE_NAME}` (`State`)"
+          },
+          {
+            "name": "index_AccessRequest_CreatedAtUtcMs",
+            "unique": false,
+            "columnNames": [
+              "CreatedAtUtcMs"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AccessRequest_CreatedAtUtcMs` ON `${TABLE_NAME}` (`CreatedAtUtcMs`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "SyncState",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`SyncId` BLOB NOT NULL, `PeerKey` TEXT NOT NULL, `ResourceId` BLOB NOT NULL, `LastSeenUtcMs` INTEGER NOT NULL, `LastSyncUtcMs` INTEGER NOT NULL, `LastRemoteVersion` INTEGER NOT NULL, `LastAppliedVersion` INTEGER NOT NULL, `HasUpdate` INTEGER NOT NULL, `LastError` TEXT, `LastNotifiedVersion` INTEGER NOT NULL, PRIMARY KEY(`SyncId`))",
+        "fields": [
+          {
+            "fieldPath": "syncId",
+            "columnName": "SyncId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "peerKey",
+            "columnName": "PeerKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resourceId",
+            "columnName": "ResourceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSeenUtcMs",
+            "columnName": "LastSeenUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSyncUtcMs",
+            "columnName": "LastSyncUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastRemoteVersion",
+            "columnName": "LastRemoteVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAppliedVersion",
+            "columnName": "LastAppliedVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasUpdate",
+            "columnName": "HasUpdate",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastError",
+            "columnName": "LastError",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastNotifiedVersion",
+            "columnName": "LastNotifiedVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "SyncId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_SyncState_PeerKey_ResourceId",
+            "unique": true,
+            "columnNames": [
+              "PeerKey",
+              "ResourceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_SyncState_PeerKey_ResourceId` ON `${TABLE_NAME}` (`PeerKey`, `ResourceId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "TaskOverlay",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`OverlayId` BLOB NOT NULL, `SourceId` BLOB NOT NULL, `TaskId` BLOB NOT NULL, `MutedLocal` INTEGER, `ActionLocalJson` TEXT, `UpdatedAtUtcMs` INTEGER NOT NULL, `PlaceLocalId` BLOB, PRIMARY KEY(`OverlayId`))",
+        "fields": [
+          {
+            "fieldPath": "overlayId",
+            "columnName": "OverlayId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceId",
+            "columnName": "SourceId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "TaskId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mutedLocal",
+            "columnName": "MutedLocal",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "actionLocalJson",
+            "columnName": "ActionLocalJson",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "updatedAtUtcMs",
+            "columnName": "UpdatedAtUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeLocalId",
+            "columnName": "PlaceLocalId",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "OverlayId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_TaskOverlay_SourceId_TaskId",
+            "unique": true,
+            "columnNames": [
+              "SourceId",
+              "TaskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_TaskOverlay_SourceId_TaskId` ON `${TABLE_NAME}` (`SourceId`, `TaskId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "PendingOutbox",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`MsgId` BLOB NOT NULL, `PeerKey` TEXT NOT NULL, `PayloadJson` TEXT NOT NULL, `Attempts` INTEGER NOT NULL, `NextRetryUtcMs` INTEGER NOT NULL, `CreatedUtcMs` INTEGER NOT NULL, PRIMARY KEY(`MsgId`))",
+        "fields": [
+          {
+            "fieldPath": "msgId",
+            "columnName": "MsgId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "peerKey",
+            "columnName": "PeerKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payloadJson",
+            "columnName": "PayloadJson",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attempts",
+            "columnName": "Attempts",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nextRetryUtcMs",
+            "columnName": "NextRetryUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdUtcMs",
+            "columnName": "CreatedUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "MsgId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_PendingOutbox_PeerKey",
+            "unique": false,
+            "columnNames": [
+              "PeerKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PendingOutbox_PeerKey` ON `${TABLE_NAME}` (`PeerKey`)"
+          },
+          {
+            "name": "index_PendingOutbox_NextRetryUtcMs",
+            "unique": false,
+            "columnNames": [
+              "NextRetryUtcMs"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_PendingOutbox_NextRetryUtcMs` ON `${TABLE_NAME}` (`NextRetryUtcMs`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "ReceivedInbox",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`MsgId` BLOB NOT NULL, `ReceivedAtUtcMs` INTEGER NOT NULL, PRIMARY KEY(`MsgId`))",
+        "fields": [
+          {
+            "fieldPath": "msgId",
+            "columnName": "MsgId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "receivedAtUtcMs",
+            "columnName": "ReceivedAtUtcMs",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "MsgId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ReceivedInbox_ReceivedAtUtcMs",
+            "unique": false,
+            "columnNames": [
+              "ReceivedAtUtcMs"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ReceivedInbox_ReceivedAtUtcMs` ON `${TABLE_NAME}` (`ReceivedAtUtcMs`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '529c47c27d4e48584ded6b7d7f8288e0')"
+    ]
+  }
+}
