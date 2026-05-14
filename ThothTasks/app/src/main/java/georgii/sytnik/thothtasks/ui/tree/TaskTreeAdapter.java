@@ -85,8 +85,12 @@ public class TaskTreeAdapter extends RecyclerView.Adapter<TaskTreeAdapter.VH> {
 
         // Expand/collapse on icon click (delegated to activity to rebuild list)
         h.ivExpand.setOnClickListener(v -> {
-            row.expanded = !row.expanded;
-            if (listener != null) listener.onClick(row);
+            if (listener != null) {
+                int pos = h.getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    listener.onToggle(row, pos);
+                }
+            }
         });
     }
 

@@ -153,6 +153,8 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
             UserEntity u = db.userDao().findById(userId);
             if (u == null) return;
             rootId = u.taskRoot;
+
+            runOnUiThread(this::render);
         }).start();
     }
 

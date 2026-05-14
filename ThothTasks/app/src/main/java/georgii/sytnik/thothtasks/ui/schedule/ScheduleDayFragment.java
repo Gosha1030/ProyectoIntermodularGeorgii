@@ -296,6 +296,7 @@ public class ScheduleDayFragment extends Fragment {
     }
     private static TaskEntity copyTask(TaskEntity t) {
         TaskEntity c = new TaskEntity();
+        c.taskId = t.taskId;
         c.taskFather = t.taskFather;
         c.taskName = t.taskName;
         c.type = t.type;
