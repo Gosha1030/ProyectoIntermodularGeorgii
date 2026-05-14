@@ -28,8 +28,6 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONObject;
 
-import java.util.Locale;
-
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
