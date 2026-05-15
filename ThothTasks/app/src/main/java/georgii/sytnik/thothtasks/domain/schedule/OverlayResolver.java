@@ -5,7 +5,8 @@ import georgii.sytnik.thothtasks.db.entities.TaskOverlayEntity;
 
 public final class OverlayResolver {
 
-    private OverlayResolver() {}
+    private OverlayResolver() {
+    }
 
     public static boolean effectiveMuted(AppDatabase db, byte[] sourceIdOrNull, byte[] taskId, boolean baseMuted) {
         if (sourceIdOrNull == null) return baseMuted;

@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.ui;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -29,19 +31,14 @@ public class TaskPickerActivity extends AppCompatActivity {
 
     public static final String RESULT_TASK_ID = "result_task_id";
     public static final String RESULT_TASK_NAME = "result_task_name";
-
-    // NEW: exclude a whole subtree (the edited task and its descendants)
     public static final String EXTRA_EXCLUDE_ROOT_ID = "exclude_root_id";
-
-    private AppDatabase db;
     private final List<NodeRow> rows = new ArrayList<>();
+    private AppDatabase db;
     private TaskTreeAdapter adapter;
-
     private byte[] rootId;
     private NodeRow selected;
-
     private byte[] excludeRootId;
-    private Set<String> excludedSet; // store as hex strings for simplicity
+    private Set<String> excludedSet;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,7 +64,6 @@ public class TaskPickerActivity extends AppCompatActivity {
 
             @Override
             public void onLongPress(NodeRow row, View anchor) {
-                // no-op
             }
         });
         rv.setAdapter(adapter);
@@ -99,7 +95,6 @@ public class TaskPickerActivity extends AppCompatActivity {
 
             excludedSet = new HashSet<>();
             if (excludeRootId != null) {
-                // build a set of taskIds that are in the excluded subtree
                 collectSubtree(excludeRootId);
             }
 
@@ -162,7 +157,6 @@ public class TaskPickerActivity extends AppCompatActivity {
     }
 
     private void collectSubtree(byte[] subtreeRoot) {
-        // DFS with stack
         List<byte[]> stack = new ArrayList<>();
         stack.add(subtreeRoot);
         while (!stack.isEmpty()) {
@@ -178,12 +172,5 @@ public class TaskPickerActivity extends AppCompatActivity {
 
     private boolean isExcluded(byte[] id) {
         return excludedSet != null && excludedSet.contains(hex(id));
-    }
-
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
     }
 }

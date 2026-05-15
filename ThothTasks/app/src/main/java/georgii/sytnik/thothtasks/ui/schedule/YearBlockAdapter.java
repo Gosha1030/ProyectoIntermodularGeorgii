@@ -16,18 +16,6 @@ import georgii.sytnik.thothtasks.R;
 
 public class YearBlockAdapter extends RecyclerView.Adapter<YearBlockAdapter.VH> {
 
-    public static class MonthBlock {
-        public final String header;
-        public final Calendar firstDayOfMonth;
-        public final List<TaskLineAdapter.Line> lines;
-
-        public MonthBlock(String header, Calendar firstDayOfMonth, List<TaskLineAdapter.Line> lines) {
-            this.header = header;
-            this.firstDayOfMonth = firstDayOfMonth;
-            this.lines = lines;
-        }
-    }
-
     private final List<MonthBlock> blocks;
     private final ScheduleNavigator nav;
 
@@ -36,7 +24,8 @@ public class YearBlockAdapter extends RecyclerView.Adapter<YearBlockAdapter.VH> 
         this.nav = nav;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_year_month_block, parent, false);
         return new VH(v);
@@ -54,11 +43,19 @@ public class YearBlockAdapter extends RecyclerView.Adapter<YearBlockAdapter.VH> 
         h.itemView.setOnClickListener(v -> nav.navigateToMonth(b.firstDayOfMonth));
     }
 
-    @Override public int getItemCount() { return blocks.size(); }
+    @Override
+    public int getItemCount() {
+        return blocks.size();
+    }
+
+    public record MonthBlock(String header, Calendar firstDayOfMonth,
+                             List<TaskLineAdapter.Line> lines) {
+    }
 
     static class VH extends RecyclerView.ViewHolder {
         TextView tvHeader, tvEmpty;
         RecyclerView rv;
+
         VH(@NonNull View itemView) {
             super(itemView);
             tvHeader = itemView.findViewById(R.id.tvMonthHeader);

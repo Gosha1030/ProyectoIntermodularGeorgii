@@ -2,9 +2,12 @@ package georgii.sytnik.thothtasks.util;
 
 import java.util.Calendar;
 
-/** Time helpers used across UI and scheduling. */
+/**
+ * Time helpers used across UI and scheduling.
+ */
 public final class TimeText {
-    private TimeText() {}
+    private TimeText() {
+    }
 
     public static String minutesToText(Integer min) {
         if (min == null) return "";

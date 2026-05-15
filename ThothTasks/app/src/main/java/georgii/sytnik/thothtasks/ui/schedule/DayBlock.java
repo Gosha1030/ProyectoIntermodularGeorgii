@@ -2,14 +2,13 @@ package georgii.sytnik.thothtasks.ui.schedule;
 
 public class DayBlock {
     public final boolean isTravel;
-    public final String taskIdHex; // null for travel
+    public final String taskIdHex;
     public final String title;
     public final int startMin;
     public final int endMin;
     public final boolean muted;
     public String placeText;
 
-    // TASK
     public DayBlock(String taskIdHex, String title, int startMin, int endMin, boolean muted) {
         this.isTravel = false;
         this.taskIdHex = taskIdHex;
@@ -20,7 +19,6 @@ public class DayBlock {
         this.placeText = null;
     }
 
-    // TRAVEL
     public DayBlock(int startMin, int endMin, String line3) {
         this.isTravel = true;
         this.taskIdHex = null;

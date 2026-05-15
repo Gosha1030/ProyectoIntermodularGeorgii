@@ -1,12 +1,12 @@
 package georgii.sytnik.thothtasks.net;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hexToBytes;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
 import org.json.JSONObject;
-
-import java.util.UUID;
 
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.AccessGrantEntity;
@@ -17,6 +17,18 @@ import georgii.sytnik.thothtasks.time.UuidV7;
 import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class AccessDecisionReceiver extends BroadcastReceiver {
+
+    private static void sendAccessResult(Context ctx, String ip, int port, String resourceIdHex, boolean granted, String reason, String ackOfHex) throws Exception {
+
+        JSONObject body = new JSONObject();
+        body.put("resourceId", resourceIdHex);
+        body.put("granted", granted);
+        body.put("reason", reason);
+
+        JSONObject env = MessageCodec.envelope(Protocol.ACCESS_RESULT, "owner", 1, ackOfHex, body);
+
+        UdpOwnerService.sendRaw(ctx, ip, port, env);
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -31,16 +43,13 @@ public class AccessDecisionReceiver extends BroadcastReceiver {
 
         new Thread(() -> {
             try {
-                // ✅ OwnerUserId requerido por la nueva firma
                 byte[] ownerUserId = SessionStore.loadLastUserId(context);
                 if (ownerUserId == null) {
-                    // No hay sesión => no se puede decidir correctamente
                     sendAccessResult(context, ip, port, resourceIdHex, false, "NO_OWNER_SESSION", reqMsgIdHex);
                     return;
                 }
 
-                // Resolver ExternalUser + ResourceId + ackOfHex desde DB (para soportar reintentos)
-                byte[] resourceId = MessageCodec.hexToBytes(resourceIdHex);
+                byte[] resourceId = hexToBytes(resourceIdHex);
                 ExternalUserEntity eu = UdpOwnerService.findOrCreateExternalUser(db, ownerUserId, ip, port, externalName);
 
                 String ackOfHex = reqMsgIdHex;
@@ -53,7 +62,6 @@ public class AccessDecisionReceiver extends BroadcastReceiver {
 
 
                 if (Protocol.ACTION_BLOCK.equals(action)) {
-                    // ✅ usa la firma nueva
                     db.externalUserDao().setBlocked(eu.externalId, true);
                     db.accessRequestDao().setDecision(eu.externalId, resourceId, AccessRequestEntity.STATE_BLOCKED, now);
                     sendAccessResult(context, ip, port, resourceIdHex, false, "BLOCKED", ackOfHex);
@@ -67,8 +75,6 @@ public class AccessDecisionReceiver extends BroadcastReceiver {
                 }
 
                 if (Protocol.ACTION_ACCEPT.equals(action)) {
-                    // ✅ usa la firma nueva
-                    // create / update grant
                     AccessGrantEntity g = db.accessGrantDao().find(eu.externalId, resourceId);
 
                     if (g == null) {
@@ -88,31 +94,7 @@ public class AccessDecisionReceiver extends BroadcastReceiver {
                 }
 
             } catch (Exception ignored) {
-                // opcional: log
             }
         }).start();
     }
-
-    private static void sendAccessResult(Context ctx, String ip, int port,
-                                         String resourceIdHex,
-                                         boolean granted,
-                                         String reason,
-                                         String ackOfHex) throws Exception {
-
-        JSONObject body = new JSONObject();
-        body.put("resourceId", resourceIdHex);
-        body.put("granted", granted);
-        body.put("reason", reason);
-
-        JSONObject env = MessageCodec.envelope(
-                Protocol.ACCESS_RESULT,
-                "owner", // v1 placeholder
-                1,
-                ackOfHex,
-                body
-        );
-
-        UdpOwnerService.sendRaw(ctx, ip, port, env);
-    }
-
 }

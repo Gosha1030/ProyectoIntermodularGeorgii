@@ -1,10 +1,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="none">
-        <item android:id="@+id/nav_tasks" android:title="@string/nav_tasks" android:icon="@android:drawable/ic_menu_agenda"/>
-        <item android:id="@+id/nav_user_manager" android:title="@string/nav_user_manager" android:icon="@android:drawable/ic_menu_manage"/>
-        <item android:id="@+id/nav_external_users" android:title="@string/nav_external_users" android:icon="@android:drawable/ic_menu_share"/>
-        <item android:id="@+id/nav_places_travels" android:title="@string/nav_places_travels" android:icon="@android:drawable/ic_menu_mapmode"/>
-        <item android:id="@+id/nav_settings" android:title="@string/nav_settings" android:icon="@android:drawable/ic_menu_preferences"/>
-        <item android:id="@+id/nav_logout" android:title="@string/nav_logout" android:icon="@android:drawable/ic_lock_power_off"/>
+        <item
+            android:id="@+id/nav_tasks"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="@string/nav_tasks" />
+        <item
+            android:id="@+id/nav_user_manager"
+            android:icon="@android:drawable/ic_menu_manage"
+            android:title="@string/nav_user_manager" />
+        <item
+            android:id="@+id/nav_external_users"
+            android:icon="@android:drawable/ic_menu_share"
+            android:title="@string/nav_external_users" />
+        <item
+            android:id="@+id/nav_places_travels"
+            android:icon="@android:drawable/ic_menu_mapmode"
+            android:title="@string/nav_places_travels" />
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@android:drawable/ic_menu_preferences"
+            android:title="@string/nav_settings" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@android:drawable/ic_lock_power_off"
+            android:title="@string/nav_logout" />
     </group>
 </menu>

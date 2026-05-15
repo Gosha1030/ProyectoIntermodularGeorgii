@@ -4,12 +4,9 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,6 +47,19 @@ public class SettingsActivity extends AppCompatActivity {
     private byte[] userId;
     private UserEntity user;
     private JSONObject settings;
+
+    private static String textOf(TextInputEditText et) {
+        return et.getText() == null ? "" : et.getText().toString().trim();
+    }
+
+    private static Integer parseIntOrNull(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,7 +116,6 @@ public class SettingsActivity extends AppCompatActivity {
             settings = SettingsJson.parseOrEmpty(user.ajustesJson);
 
             runOnUiThread(() -> {
-                // Defaults
                 boolean alarmSound = SettingsJson.getBool(settings, ActionSettingsKeys.ALARM_ENABLED_SOUND, true);
                 boolean alarmVibrate = SettingsJson.getBool(settings, ActionSettingsKeys.ALARM_VIBRATE, true);
 
@@ -141,9 +150,9 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private boolean isNotifGranted() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true; // no runtime permission before 33
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                == PackageManager.PERMISSION_GRANTED;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU)
+            return true;
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void grantDndAccess() {
@@ -167,15 +176,11 @@ public class SettingsActivity extends AppCompatActivity {
             Toast.makeText(this, R.string.toast_already_granted, Toast.LENGTH_SHORT).show();
             return;
         }
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                REQ_NOTIF);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQ_NOTIF);
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQ_NOTIF) {
             refreshPermissionStatus();
@@ -193,7 +198,6 @@ public class SettingsActivity extends AppCompatActivity {
         Integer travelMandatory = parseIntOrNull(textOf(etTravelMandatory));
         Integer travelOptional = parseIntOrNull(textOf(etTravelOptional));
 
-        // Defaults if empty
         int finalDaysAhead = (daysAhead != null && daysAhead > 0) ? daysAhead : 60;
         int finalTravelMandatory = (travelMandatory != null && travelMandatory >= 0) ? travelMandatory : 0;
         int finalTravelOptional = (travelOptional != null && travelOptional >= 0) ? travelOptional : 0;
@@ -201,40 +205,26 @@ public class SettingsActivity extends AppCompatActivity {
         SettingsJson.putBool(settings, ActionSettingsKeys.ALARM_ENABLED_SOUND, alarmSound);
         SettingsJson.putBool(settings, ActionSettingsKeys.ALARM_VIBRATE, alarmVibrate);
         SettingsJson.putInt(settings, ActionSettingsKeys.ACTION_PLAN_DAYS_AHEAD, finalDaysAhead);
-
         SettingsJson.putInt(settings, ActionSettingsKeys.TRAVEL_EXTRA_MANDATORY_M, finalTravelMandatory);
         SettingsJson.putInt(settings, ActionSettingsKeys.TRAVEL_EXTRA_OPTIONAL_M, finalTravelOptional);
-
         SettingsJson.putBool(settings, ActionSettingsKeys.ASK_PASSWORD, askPassword);
 
         new Thread(() -> {
             user.ajustesJson = settings.toString();
-            db.userDao().update(user); // same persistence method you used before [1](blob:https://www.microsoft365.com/f4f275ef-97e2-4835-a3b5-82f9562625f7)
+            db.userDao().update(user);
 
-            // Replan with new horizon immediately
             ActionPlanner.scheduleNextDays(getApplicationContext(), db, finalDaysAhead);
 
             runOnUiThread(() -> Toast.makeText(this, R.string.toast_saved, Toast.LENGTH_SHORT).show());
         }).start();
     }
 
-    private static String textOf(TextInputEditText et) {
-        return et.getText() == null ? "" : et.getText().toString().trim();
-    }
-
-    private static Integer parseIntOrNull(String s) {
-        if (s == null || s.isEmpty()) return null;
-        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
-    }
-
     private void setLocale(String lang) {
         String current = AppCompatDelegate.getApplicationLocales().toLanguageTags();
 
-        if (current.equals(lang)) return; // evita reload innecesario
+        if (current.equals(lang)) return;
 
-        AppCompatDelegate.setApplicationLocales(
-                LocaleListCompat.forLanguageTags(lang)
-        );
+        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(lang));
 
     }
 }

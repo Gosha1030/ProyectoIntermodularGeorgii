@@ -6,7 +6,8 @@ public final class NetSessionStore {
 
     private static final ConcurrentHashMap<String, NetSession> SESSIONS = new ConcurrentHashMap<>();
 
-    private NetSessionStore() {}
+    private NetSessionStore() {
+    }
 
     public static NetSession get(String peerKey) {
         return SESSIONS.get(peerKey);

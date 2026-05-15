@@ -6,12 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "Place",
-        indices = {
-                @Index(value = {"PlaceName"}, unique = true)
-        }
-)
+@Entity(tableName = "Place", indices = {@Index(value = {"PlaceName"}, unique = true)})
 public class PlaceEntity {
 
     @PrimaryKey
@@ -23,9 +18,6 @@ public class PlaceEntity {
     @ColumnInfo(name = "PlaceName")
     public String placeName;
 
-    /**
-     * JSON TEXT (GoogleMapsData)
-     */
     @ColumnInfo(name = "GoogleMapsData")
     public String googleMapsDataJson;
 }

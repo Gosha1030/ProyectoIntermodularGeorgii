@@ -7,9 +7,12 @@ import georgii.sytnik.thothtasks.R;
 
 public final class TaskTypeUi {
 
-    private TaskTypeUi() {}
+    private TaskTypeUi() {
+    }
 
-    /** Returns localized label for a stable DB value: Unique/Daily/Weekly/Yearly/Periodic/Empty. */
+    /**
+     * Returns localized label for a stable DB value: Unique/Daily/Weekly/Yearly/Periodic/Empty.
+     */
     public static String label(Context ctx, String typeValue) {
         if (ctx == null || typeValue == null) return "";
 
@@ -19,19 +22,21 @@ public final class TaskTypeUi {
 
         int idx = indexOf(values, typeValue);
         if (idx >= 0 && idx < labels.length) return labels[idx];
-
-        // fallback to raw value (should not happen if arrays are correct)
         return typeValue;
     }
 
-    /** Returns stable DB value from spinner position (must use task_type_values). */
+    /**
+     * Returns stable DB value from spinner position (must use task_type_values).
+     */
     public static String valueAt(Context ctx, int spinnerPosition) {
         String[] values = ctx.getResources().getStringArray(R.array.task_type_values);
         if (spinnerPosition < 0 || spinnerPosition >= values.length) return values[0];
         return values[spinnerPosition];
     }
 
-    /** Returns spinner index for stable DB value. */
+    /**
+     * Returns spinner index for stable DB value.
+     */
     public static int indexOfValue(Context ctx, String typeValue) {
         String[] values = ctx.getResources().getStringArray(R.array.task_type_values);
         int idx = indexOf(values, typeValue);

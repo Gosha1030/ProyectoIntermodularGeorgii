@@ -14,17 +14,6 @@ import georgii.sytnik.thothtasks.R;
 
 public class SimpleRowAdapter extends RecyclerView.Adapter<SimpleRowAdapter.VH> {
 
-    public interface Listener {
-        void onClick(int position);
-        void onDelete(int position);
-    }
-
-    public static class Row {
-        public final String title;
-        public final String sub;
-        public Row(String title, String sub) { this.title = title; this.sub = sub; }
-    }
-
     private final List<Row> rows;
     private final Listener listener;
 
@@ -33,7 +22,8 @@ public class SimpleRowAdapter extends RecyclerView.Adapter<SimpleRowAdapter.VH> 
         this.listener = listener;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_simple_row, parent, false);
         return new VH(v);
@@ -49,11 +39,24 @@ public class SimpleRowAdapter extends RecyclerView.Adapter<SimpleRowAdapter.VH> 
         h.btnDelete.setOnClickListener(v -> listener.onDelete(position));
     }
 
-    @Override public int getItemCount() { return rows.size(); }
+    @Override
+    public int getItemCount() {
+        return rows.size();
+    }
+
+    public interface Listener {
+        void onClick(int position);
+
+        void onDelete(int position);
+    }
+
+    public record Row(String title, String sub) {
+    }
 
     static class VH extends RecyclerView.ViewHolder {
         TextView tvTitle, tvSub;
         View btnDelete;
+
         VH(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvTitle);

@@ -6,13 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "ExternalSource",
-        indices = {
-                @Index(value = {"Ip", "Port"}),
-                @Index(value = {"ResourceId"})
-        }
-)
+@Entity(tableName = "ExternalSource", indices = {@Index(value = {"Ip", "Port"}), @Index(value = {"ResourceId"})})
 public class ExternalSourceEntity {
 
     @PrimaryKey
@@ -48,5 +42,5 @@ public class ExternalSourceEntity {
     public boolean includedInSchedule = true;
 
     @ColumnInfo(name = "ImportedRootTaskId", typeAffinity = ColumnInfo.BLOB)
-    public byte[] importedRootTaskId; // nullable until first sync completes
+    public byte[] importedRootTaskId;
 }

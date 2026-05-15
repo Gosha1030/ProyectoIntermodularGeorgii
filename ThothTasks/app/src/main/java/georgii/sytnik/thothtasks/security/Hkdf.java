@@ -2,11 +2,11 @@ package georgii.sytnik.thothtasks.security;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.util.Arrays;
 
 public final class Hkdf {
 
-    private Hkdf() {}
+    private Hkdf() {
+    }
 
     public static byte[] extract(byte[] salt, byte[] ikm) {
         return hmac(salt, ikm);

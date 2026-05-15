@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.net;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+
 import android.content.Context;
 
 import org.json.JSONObject;
@@ -12,13 +14,9 @@ import georgii.sytnik.thothtasks.db.entities.ExternalSourceEntity;
 
 public final class ScheduleSummaryClientSecure {
 
-    private ScheduleSummaryClientSecure() {}
+    private ScheduleSummaryClientSecure() {
+    }
 
-    /**
-     * Sends SCHEDULE_SUMMARY_REQUEST as AUTH and expects SCHEDULE_SUMMARY_RESPONSE as AEAD.
-     * Returns decrypted body JSON:
-     * { resourceId, startDayUtcMs, daysCount, days:[{offset, blocks:[{s,e}]}...] }
-     */
     public static JSONObject requestSummarySecure(
             Context ctx,
             ExternalSourceEntity src,
@@ -28,19 +26,16 @@ public final class ScheduleSummaryClientSecure {
             int timeoutMs
     ) throws Exception {
 
-        String ridHex = MessageCodec.hex(src.resourceId);
+        String ridHex = hex(src.resourceId);
 
-        // Auto-handshake if needed
         NetSession s = HandshakeClient.ensureSession(ctx, src.ip, src.port, ridHex, externalName);
 
-        // Build request body
         JSONObject body = new JSONObject();
         body.put("resourceId", ridHex);
         body.put("name", externalName);
         body.put("startDayUtcMs", startDayUtcMs);
         body.put("days", days);
 
-        // Envelope (AUTH)
         JSONObject env = MessageCodec.envelope(
                 Protocol.SCHEDULE_SUMMARY_REQUEST,
                 "consumer",
@@ -66,7 +61,6 @@ public final class ScheduleSummaryClientSecure {
 
             JSONObject respEnv = MessageCodec.decode(resp.getData(), resp.getLength());
 
-            // Ensure rid exists for AAD binding (your SecureCodec includes rid in AAD)
             if (!respEnv.has("rid")) respEnv.put("rid", ridHex);
 
             String type = respEnv.optString("type", "");
@@ -79,7 +73,6 @@ public final class ScheduleSummaryClientSecure {
                 throw new IllegalStateException("SUMMARY_RESPONSE is not AEAD");
             }
 
-            // Decrypt body
             return SecureCodec.unwrapAead(s, respEnv);
         }
     }

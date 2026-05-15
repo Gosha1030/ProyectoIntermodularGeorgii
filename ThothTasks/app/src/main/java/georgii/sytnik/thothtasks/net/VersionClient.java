@@ -8,27 +8,16 @@ import java.net.InetAddress;
 
 public final class VersionClient {
 
-    private VersionClient() {}
+    private VersionClient() {
+    }
 
-    public static long requestRemoteVersion(
-            String ip,
-            int port,
-            String resourceIdHex,
-            String externalName,
-            int timeoutMs
-    ) throws Exception {
+    public static long requestRemoteVersion(String ip, int port, String resourceIdHex, String externalName, int timeoutMs) throws Exception {
 
         JSONObject body = new JSONObject();
         body.put("resourceId", resourceIdHex);
         body.put("name", externalName);
 
-        JSONObject req = MessageCodec.envelope(
-                Protocol.VERSION_REQUEST,
-                "consumer",
-                System.currentTimeMillis(),
-                null,
-                body
-        );
+        JSONObject req = MessageCodec.envelope(Protocol.VERSION_REQUEST, "consumer", System.currentTimeMillis(), null, body);
 
         byte[] reqBytes = MessageCodec.encode(req);
 

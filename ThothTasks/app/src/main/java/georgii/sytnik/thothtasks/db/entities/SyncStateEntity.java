@@ -6,12 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "SyncState",
-        indices = {
-                @Index(value = {"PeerKey", "ResourceId"}, unique = true)
-        }
-)
+@Entity(tableName = "SyncState", indices = {@Index(value = {"PeerKey", "ResourceId"}, unique = true)})
 public class SyncStateEntity {
 
     @PrimaryKey
@@ -19,7 +14,6 @@ public class SyncStateEntity {
     @ColumnInfo(name = "SyncId", typeAffinity = ColumnInfo.BLOB)
     public byte[] syncId;
 
-    // peerKey = ip:port for LAN v1
     @NonNull
     @ColumnInfo(name = "PeerKey")
     public String peerKey;

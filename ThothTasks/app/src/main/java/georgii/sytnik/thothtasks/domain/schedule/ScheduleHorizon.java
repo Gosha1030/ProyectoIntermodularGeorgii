@@ -8,10 +8,10 @@ import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 
 public final class ScheduleHorizon {
 
-    private ScheduleHorizon() {}
+    private ScheduleHorizon() {
+    }
 
     public static long computeEndUtc(TaskEntity parent, long parentStartUtc, Long parentDeactivateUtc) {
-        // Empty: solo si tiene restricciones; si no, no se genera subhorario (pero esto se filtra antes)
         if ("Empty".equals(parent.type)) {
             if (parentDeactivateUtc != null) return parentDeactivateUtc;
             Calendar c = Calendar.getInstance();
@@ -44,14 +44,12 @@ public final class ScheduleHorizon {
                 return addThreePeriods(parent, parentStartUtc);
 
             default:
-                // fallback seguro
                 c.add(Calendar.YEAR, 1);
                 return c.getTimeInMillis();
         }
     }
 
     private static long addThreePeriods(TaskEntity parent, long startUtc) {
-        // “tres primeros periodos” depende de unit/amount del Periodic JSON
         String unit = "day";
         int amount = 1;
 
@@ -61,7 +59,8 @@ public final class ScheduleHorizon {
                 unit = o.optString("unit", "day");
                 amount = Math.max(1, o.optInt("amount", 1));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(startUtc);

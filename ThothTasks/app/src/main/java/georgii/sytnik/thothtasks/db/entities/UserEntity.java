@@ -6,13 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "User",
-        indices = {
-                @Index(value = {"UserName"}, unique = true),
-                @Index(value = {"TaskRoot"}, unique = true)
-        }
-)
+@Entity(tableName = "User", indices = {@Index(value = {"UserName"}, unique = true), @Index(value = {"TaskRoot"}, unique = true)})
 public class UserEntity {
 
     @PrimaryKey
@@ -32,9 +26,6 @@ public class UserEntity {
     @ColumnInfo(name = "Password")
     public String password;
 
-    /**
-     * USER / LOCAL / EXTERNAL
-     */
     @NonNull
     @ColumnInfo(name = "Type")
     public String type;
@@ -54,9 +45,6 @@ public class UserEntity {
     @ColumnInfo(name = "ConfirmRequired")
     public boolean confirmRequired = true;
 
-    /**
-     * JSON string (settings).
-     */
     @ColumnInfo(name = "Ajustes")
     public String ajustesJson;
 }

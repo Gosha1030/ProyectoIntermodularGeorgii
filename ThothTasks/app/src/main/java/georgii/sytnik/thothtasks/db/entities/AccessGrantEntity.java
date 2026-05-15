@@ -6,14 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "AccessGrant",
-        indices = {
-                @Index(value = {"ExternalUserId"}),
-                @Index(value = {"ResourceId"}),
-                @Index(value = {"ExternalUserId", "ResourceId"}, unique = true)
-        }
-)
+@Entity(tableName = "AccessGrant", indices = {@Index(value = {"ExternalUserId"}), @Index(value = {"ResourceId"}), @Index(value = {"ExternalUserId", "ResourceId"}, unique = true)})
 public class AccessGrantEntity {
 
     @PrimaryKey

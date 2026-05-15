@@ -1,4 +1,5 @@
 package georgii.sytnik.thothtasks.security;
+
 import org.json.JSONObject;
 
 import java.security.SecureRandom;
@@ -10,20 +11,9 @@ public final class UserSettingsCrypto {
     private static final String KEY_SALT_B64 = "netSaltB64";
     private static final String KEY_ITERS = "netKdfIters";
 
-    private UserSettingsCrypto() {}
-
-    public static class Params {
-        public final byte[] salt;
-        public final int iters;
-        public final boolean changed;
-        public Params(byte[] salt, int iters, boolean changed) {
-            this.salt = salt;
-            this.iters = iters;
-            this.changed = changed;
-        }
+    private UserSettingsCrypto() {
     }
 
-    /** Ensures salt+iters exist in User.Ajustes JSON. Updates u.ajustesJson if needed. */
     public static Params ensureParams(UserEntity u) {
         try {
             JSONObject o = (u.ajustesJson == null || u.ajustesJson.trim().isEmpty())
@@ -43,7 +33,7 @@ public final class UserSettingsCrypto {
                 changed = true;
             } else {
                 salt = B64.dec(saltB64);
-                if (salt.length < 8) { // sanity
+                if (salt.length < 8) {
                     salt = new byte[16];
                     new SecureRandom().nextBytes(salt);
                     o.put(KEY_SALT_B64, B64.enc(salt));
@@ -63,11 +53,13 @@ public final class UserSettingsCrypto {
             return new Params(salt, iters, changed);
 
         } catch (Exception e) {
-            // fallback
             byte[] salt = new byte[16];
             new SecureRandom().nextBytes(salt);
-            u.ajustesJson = null; // no change
+            u.ajustesJson = null;
             return new Params(salt, 200_000, false);
         }
+    }
+
+    public record Params(byte[] salt, int iters, boolean changed) {
     }
 }

@@ -14,22 +14,14 @@ public final class WorkScheduler {
 
     private static final String WORK_NAME = "update_check";
 
-    private WorkScheduler() {}
+    private WorkScheduler() {
+    }
 
     public static void ensureUpdateCheckScheduled(Context ctx) {
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
+        Constraints constraints = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
 
-        PeriodicWorkRequest req =
-                new PeriodicWorkRequest.Builder(UpdateCheckWorker.class, 15, TimeUnit.MINUTES)
-                        .setConstraints(constraints)
-                        .build();
+        PeriodicWorkRequest req = new PeriodicWorkRequest.Builder(UpdateCheckWorker.class, 15, TimeUnit.MINUTES).setConstraints(constraints).build();
 
-        WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
-                WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
-                req
-        );
+        WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, req);
     }
 }

@@ -6,14 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "Task",
-        indices = {
-                @Index(value = {"TaskFather"}),
-                @Index(value = {"State", "Muted", "Type"}),
-                @Index(value = {"Place"})
-        }
-)
+@Entity(tableName = "Task", indices = {@Index(value = {"TaskFather"}), @Index(value = {"State", "Muted", "Type"}), @Index(value = {"Place"})})
 public class TaskEntity {
 
     @PrimaryKey
@@ -22,15 +15,12 @@ public class TaskEntity {
     public byte[] taskId;
 
     @ColumnInfo(name = "TaskFather", typeAffinity = ColumnInfo.BLOB)
-    public byte[] taskFather; // nullable
+    public byte[] taskFather;
 
     @NonNull
     @ColumnInfo(name = "TaskName")
     public String taskName;
 
-    /**
-     * Unique, Daily, Weekly, Yearly, Periodic, Empty
-     */
     @NonNull
     @ColumnInfo(name = "Type")
     public String type;
@@ -38,11 +28,9 @@ public class TaskEntity {
     @ColumnInfo(name = "PeriodD")
     public Integer periodD;
 
-    /** JSON TEXT (DaysOf) */
     @ColumnInfo(name = "DaysOf")
     public String daysOfJson;
 
-    /** JSON TEXT (Periodic rule) */
     @ColumnInfo(name = "Periodic")
     public String periodicJson;
 
@@ -50,7 +38,6 @@ public class TaskEntity {
     @ColumnInfo(name = "State")
     public boolean state = true;
 
-    /** StartTime/FinishTime in minutes 0..1439 */
     @ColumnInfo(name = "StartTime")
     public Integer startTimeMin;
 
@@ -67,13 +54,6 @@ public class TaskEntity {
     @ColumnInfo(name = "Weight")
     public Integer weight;
 
-    /**
-     * JSON TEXT (Action)
-     *
-     * IMPORTANT:
-     * Column name is "Action" which is a reserved keyword in SQLite.
-     * Do NOT reference it unquoted in @Query strings (use "Action").
-     */
     @NonNull
     @ColumnInfo(name = "Action")
     public String actionJson = "{}";

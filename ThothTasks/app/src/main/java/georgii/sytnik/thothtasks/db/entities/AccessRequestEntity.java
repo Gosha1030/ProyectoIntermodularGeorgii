@@ -6,20 +6,13 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "AccessRequest",
-        indices = {
-                @Index(value = {"ExternalUserId", "ResourceId"}, unique = true),
-                @Index(value = {"State"}),
-                @Index(value = {"CreatedAtUtcMs"})
-        }
-)
+@Entity(tableName = "AccessRequest", indices = {@Index(value = {"ExternalUserId", "ResourceId"}, unique = true), @Index(value = {"State"}), @Index(value = {"CreatedAtUtcMs"})})
 public class AccessRequestEntity {
 
-    public static final String STATE_PENDING  = "PENDING";
+    public static final String STATE_PENDING = "PENDING";
     public static final String STATE_ACCEPTED = "ACCEPTED";
     public static final String STATE_REJECTED = "REJECTED";
-    public static final String STATE_BLOCKED  = "BLOCKED";
+    public static final String STATE_BLOCKED = "BLOCKED";
 
     @PrimaryKey
     @NonNull

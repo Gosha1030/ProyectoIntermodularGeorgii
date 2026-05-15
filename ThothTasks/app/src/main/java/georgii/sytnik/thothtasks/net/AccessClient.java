@@ -8,36 +8,16 @@ import java.net.InetAddress;
 
 public final class AccessClient {
 
-    public static class Result {
-        public final boolean granted;
-        public final String reason;
-        public Result(boolean granted, String reason) {
-            this.granted = granted;
-            this.reason = reason;
-        }
+    private AccessClient() {
     }
 
-    private AccessClient() {}
-
-    public static Result requestAccess(
-            String ip,
-            int port,
-            String resourceIdHex,
-            String externalName,
-            int timeoutMs
-    ) throws Exception {
+    public static Result requestAccess(String ip, int port, String resourceIdHex, String externalName, int timeoutMs) throws Exception {
 
         JSONObject body = new JSONObject();
         body.put("resourceId", resourceIdHex);
-        body.put("name", externalName); // helps owner display name / group requests
+        body.put("name", externalName);
 
-        JSONObject req = MessageCodec.envelope(
-                Protocol.ACCESS_REQUEST,
-                "consumer",
-                System.currentTimeMillis(),
-                null,
-                body
-        );
+        JSONObject req = MessageCodec.envelope(Protocol.ACCESS_REQUEST, "consumer", System.currentTimeMillis(), null, body);
 
         byte[] reqBytes = MessageCodec.encode(req);
 
@@ -63,5 +43,8 @@ public final class AccessClient {
             String reason = b.optString("reason", "UNKNOWN");
             return new Result(granted, reason);
         }
+    }
+
+    public record Result(boolean granted, String reason) {
     }
 }

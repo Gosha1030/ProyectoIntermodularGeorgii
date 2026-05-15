@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.domain.schedule;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,17 +12,13 @@ import georgii.sytnik.thothtasks.ui.schedule.DayBlock;
 
 public final class DayTimelinePlanner {
 
-    private DayTimelinePlanner() {}
+    private DayTimelinePlanner() {
+    }
 
     /**
-     * Build visible blocks for one day based on:
-     * - candidates covering each minute
-     * - deeper (child) wins
-     * - same depth => bigger Weight wins
+     * Build visible blocks for one day
      */
     public static List<DayBlock> buildBlocks(List<TaskEntity> tasks, Map<String, Integer> depthById) {
-
-        // visible task per minute (store index in tasks list, -1 if none)
         int[] visibleIdx = new int[1440];
         for (int i = 0; i < 1440; i++) visibleIdx[i] = -1;
 
@@ -50,7 +48,6 @@ public final class DayTimelinePlanner {
             visibleIdx[minute] = best;
         }
 
-        // compact consecutive minutes with same visible idx -> blocks
         List<DayBlock> blocks = new ArrayList<>();
         int curIdx = visibleIdx[0];
         int curStart = 0;
@@ -77,10 +74,6 @@ public final class DayTimelinePlanner {
         return blocks;
     }
 
-    /**
-     * Depth computation:
-     * If a task's father is not in map (e.g. Empty organizer not collected), we treat it as depth 1.
-     */
     public static Map<String, Integer> computeDepths(List<TaskEntity> tasks) {
         Map<String, TaskEntity> byId = new HashMap<>();
         for (TaskEntity t : tasks) byId.put(hex(t.taskId), t);
@@ -104,7 +97,6 @@ public final class DayTimelinePlanner {
 
         TaskEntity parent = byId.get(hex(t.taskFather));
         if (parent == null) {
-            // parent might be Empty organizer not collected -> do not increase depth
             memo.put(id, 1);
             return 1;
         }
@@ -112,12 +104,5 @@ public final class DayTimelinePlanner {
         int d = computeDepthFor(parent, byId, memo) + 1;
         memo.put(id, d);
         return d;
-    }
-
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
     }
 }

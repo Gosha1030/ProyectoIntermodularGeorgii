@@ -6,12 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "TaskOverlay",
-        indices = {
-                @Index(value = {"SourceId", "TaskId"}, unique = true)
-        }
-)
+@Entity(tableName = "TaskOverlay", indices = {@Index(value = {"SourceId", "TaskId"}, unique = true)})
 public class TaskOverlayEntity {
 
     @PrimaryKey

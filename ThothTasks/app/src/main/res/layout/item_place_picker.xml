@@ -5,5 +5,5 @@
     android:layout_height="wrap_content"
     android:minHeight="48dp"
     android:padding="12dp"
-    android:textAppearance="?attr/textAppearanceBodyLarge"
-    android:text="@string/place_placeholder"/>
+    android:text="@string/place_placeholder"
+    android:textAppearance="?attr/textAppearanceBodyLarge" />

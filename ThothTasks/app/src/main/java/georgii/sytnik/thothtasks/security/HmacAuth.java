@@ -1,12 +1,14 @@
 package georgii.sytnik.thothtasks.security;
 
+import java.security.MessageDigest;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.MessageDigest;
 
 public final class HmacAuth {
 
-    private HmacAuth() {}
+    private HmacAuth() {
+    }
 
     public static byte[] mac(byte[] key, byte[] data) {
         try {

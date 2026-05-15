@@ -6,13 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "PendingOutbox",
-        indices = {
-                @Index(value = {"PeerKey"}),
-                @Index(value = {"NextRetryUtcMs"})
-        }
-)
+@Entity(tableName = "PendingOutbox", indices = {@Index(value = {"PeerKey"}), @Index(value = {"NextRetryUtcMs"})})
 public class PendingOutboxEntity {
 
     @PrimaryKey
@@ -22,7 +16,7 @@ public class PendingOutboxEntity {
 
     @NonNull
     @ColumnInfo(name = "PeerKey")
-    public String peerKey; // "ip:port"
+    public String peerKey;
 
     @NonNull
     @ColumnInfo(name = "PayloadJson")

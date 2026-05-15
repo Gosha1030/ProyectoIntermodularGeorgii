@@ -25,10 +25,9 @@ public class PlacePickerActivity extends AppCompatActivity {
     public static final String EXTRA_ALLOW_ANY = "allowAny";
     public static final String EXTRA_RESULT_PLACE_ID = "placeId";
     public static final String EXTRA_RESULT_PLACE_NAME = "placeName";
-
-    private AppDatabase db;
     private final List<PlaceEntity> all = new ArrayList<>();
     private final List<PlaceEntity> filtered = new ArrayList<>();
+    private AppDatabase db;
     private PlacePickerAdapter adapter;
 
     @Override
@@ -55,9 +54,16 @@ public class PlacePickerActivity extends AppCompatActivity {
 
         TextInputEditText etSearch = findViewById(R.id.etSearch);
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
-            @Override public void afterTextChanged(Editable s) {}
-            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int st, int c, int a) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int st, int b, int c) {
                 applyFilter(s != null ? s.toString() : "");
             }
         });
@@ -66,7 +72,6 @@ public class PlacePickerActivity extends AppCompatActivity {
             all.clear();
             all.addAll(db.placeDao().listAll());
 
-            // Prepend getString(R.string.place_picker_any) option as a fake place
             if (allowAny) {
                 PlaceEntity any = new PlaceEntity();
                 any.placeId = null;

@@ -1,5 +1,9 @@
 package georgii.sytnik.thothtasks.ui.schedule;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+import static georgii.sytnik.thothtasks.util.HexBytes.hexToBytes;
+import static georgii.sytnik.thothtasks.util.TimeText.minutesToText;
+
 import android.os.Bundle;
 import android.view.View;
 
@@ -9,14 +13,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.text.DateFormatSymbols;
 import java.text.DateFormat;
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
@@ -33,6 +37,11 @@ public class ScheduleYearFragment extends Fragment {
 
     private static final String ARG_YEAR_UTC = "yearUtc";
     private static final String ARG_ROOT_ID = "rootIdHex";
+    private AppDatabase db;
+
+    public ScheduleYearFragment() {
+        super(R.layout.fragment_schedule_year);
+    }
 
     public static ScheduleYearFragment newInstance(long anyDayUtcMs, String rootIdHex) {
         ScheduleYearFragment f = new ScheduleYearFragment();
@@ -41,12 +50,6 @@ public class ScheduleYearFragment extends Fragment {
         b.putString(ARG_ROOT_ID, rootIdHex);
         f.setArguments(b);
         return f;
-    }
-
-    private AppDatabase db;
-
-    public ScheduleYearFragment() {
-        super(R.layout.fragment_schedule_year);
     }
 
     @Override
@@ -61,20 +64,20 @@ public class ScheduleYearFragment extends Fragment {
         int targetYear = anchor.get(Calendar.YEAR);
 
         new Thread(() -> {
-            byte[] rootId = MessageCodec.hexToBytes(requireArguments().getString(ARG_ROOT_ID));
+            byte[] rootId = hexToBytes(requireArguments().getString(ARG_ROOT_ID));
 
             List<TaskWithSource> tasksAll = TaskCollector.collect(db, rootId);
 
             List<TaskWithSource> tasks = new ArrayList<>();
             for (TaskWithSource tws : tasksAll) {
-                if (ScheduleFilters.showInYear(tws.task)) {
+                if (ScheduleFilters.showInYear(tws.task())) {
                     tasks.add(tws);
                 }
             }
 
             HashMap<String, Long> startMap = new HashMap<>();
             for (TaskWithSource tws : tasks) {
-                TaskEntity t = tws.task;
+                TaskEntity t = tws.task();
                 TaskChangeEntity create = db.taskChangeDao().findCreateTask(t.taskId);
                 long startUtc = (create != null && create.whenApplyUtcMs != null)
                         ? create.whenApplyUtcMs
@@ -103,14 +106,15 @@ public class ScheduleYearFragment extends Fragment {
                 while (!cur.after(last)) {
 
                     for (TaskWithSource tws : tasks) {
-                        TaskEntity t = tws.task;
+                        TaskEntity t = tws.task();
                         long sUtc = startMap.get(hex(t.taskId));
                         if (!OccurrenceEngine.isActiveOnDay(t, sUtc, cur)) continue;
 
-                        boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId, t.taskId, t.muted);
+                        boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId(), t.taskId, t.muted);
 
                         String line = getString(R.string.schedule_bullet_task_with_date, dfDay.format(cur.getTime()), t.taskName);
-                        if (t.startTimeMin != null) line += " " + getString(R.string.schedule_time_parens, minutesToText(t.startTimeMin));
+                        if (t.startTimeMin != null)
+                            line += " " + getString(R.string.schedule_time_parens, minutesToText(t.startTimeMin));
                         lines.add(new TaskLineAdapter.Line(line, effMuted));
                     }
 
@@ -131,18 +135,5 @@ public class ScheduleYearFragment extends Fragment {
                 rv.setAdapter(new YearBlockAdapter(blocks, nav));
             });
         }).start();
-    }
-
-    private static String minutesToText(int min) {
-        int h = min / 60;
-        int m = min % 60;
-        return String.format("%02d:%02d", h, m);
-    }
-
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
     }
 }

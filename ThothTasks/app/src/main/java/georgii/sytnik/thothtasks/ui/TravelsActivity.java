@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.ui;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -13,9 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,25 +34,17 @@ import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class TravelsActivity extends AppCompatActivity {
 
-    private AppDatabase db;
-
-    private final List<TravelEntity> travels = new ArrayList<>();
-    private final HashMap<String, String> placeNameByIdHex = new HashMap<>();
-    private TravelAdapter adapter;
-
-    // editor state
-    private TravelEntity editing; // null for new
-    private byte[] startPlaceId;
-    private byte[] finishPlaceId;
-    private TextView tvStart;
-    private TextView tvFinish;
     public static final String EXTRA_PREFILL_START = "prefillStartPlaceId";
     public static final String EXTRA_PREFILL_FINISH = "prefillFinishPlaceId";
     public static final String EXTRA_AUTO_OPEN = "autoOpenTravelEditor";
-    private boolean pendingAutoOpen = false;
-    private byte[] prefillStartId = null;
-    private byte[] prefillFinishId = null;
-
+    private final List<TravelEntity> travels = new ArrayList<>();
+    private final HashMap<String, String> placeNameByIdHex = new HashMap<>();
+    private AppDatabase db;
+    private TravelAdapter adapter;
+    private TravelEntity editing;
+    private byte[] startPlaceId;
+    private byte[] finishPlaceId;
+    private TextView tvStart;
     private final ActivityResultLauncher<Intent> pickStartLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), res -> {
                 if (res.getResultCode() == RESULT_OK && res.getData() != null) {
@@ -59,7 +53,7 @@ public class TravelsActivity extends AppCompatActivity {
                     if (tvStart != null) tvStart.setText(name != null ? name : "(?)");
                 }
             });
-
+    private TextView tvFinish;
     private final ActivityResultLauncher<Intent> pickFinishLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), res -> {
                 if (res.getResultCode() == RESULT_OK && res.getData() != null) {
@@ -68,6 +62,9 @@ public class TravelsActivity extends AppCompatActivity {
                     if (tvFinish != null) tvFinish.setText(name != null ? name : "(?)");
                 }
             });
+    private boolean pendingAutoOpen = false;
+    private byte[] prefillStartId = null;
+    private byte[] prefillFinishId = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -85,8 +82,15 @@ public class TravelsActivity extends AppCompatActivity {
         rv.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new TravelAdapter(travels, placeNameByIdHex, new TravelAdapter.Listener() {
-            @Override public void onClick(TravelEntity t) { editTravelDialog(t); }
-            @Override public void onDelete(TravelEntity t) { confirmDelete(t); }
+            @Override
+            public void onClick(TravelEntity t) {
+                editTravelDialog(t);
+            }
+
+            @Override
+            public void onDelete(TravelEntity t) {
+                confirmDelete(t);
+            }
         });
         rv.setAdapter(adapter);
 
@@ -102,11 +106,10 @@ public class TravelsActivity extends AppCompatActivity {
 
     private void load() {
         new Thread(() -> {
-            // load places map
             placeNameByIdHex.clear();
             List<PlaceEntity> places = db.placeDao().listAll();
             for (PlaceEntity p : places) {
-                placeNameByIdHex.put(MessageCodec.hex(p.placeId), p.placeName);
+                placeNameByIdHex.put(hex(p.placeId), p.placeName);
             }
 
             travels.clear();
@@ -117,7 +120,6 @@ public class TravelsActivity extends AppCompatActivity {
 
                 if (pendingAutoOpen && prefillStartId != null && prefillFinishId != null) {
                     pendingAutoOpen = false;
-                    // abrir editor "nuevo" con start/finish prefill
                     editing = null;
                     startPlaceId = prefillStartId;
                     finishPlaceId = prefillFinishId;
@@ -186,7 +188,6 @@ public class TravelsActivity extends AppCompatActivity {
 
         AlertDialog finalDlg = dlg;
         dlg.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(btn -> {
-            // validation
             if (startPlaceId == null || finishPlaceId == null) {
                 Toast.makeText(this, R.string.toast_travel_start_finish_required, Toast.LENGTH_SHORT).show();
                 return;
@@ -217,19 +218,19 @@ public class TravelsActivity extends AppCompatActivity {
 
     private void launchPickStart() {
         Intent i = new Intent(this, PlacePickerActivity.class);
-        i.putExtra(PlacePickerActivity.EXTRA_ALLOW_ANY, false); // Start must be real Place
+        i.putExtra(PlacePickerActivity.EXTRA_ALLOW_ANY, false);
         pickStartLauncher.launch(i);
     }
 
     private void launchPickFinish() {
         Intent i = new Intent(this, PlacePickerActivity.class);
-        i.putExtra(PlacePickerActivity.EXTRA_ALLOW_ANY, false); // Finish must be real Place
+        i.putExtra(PlacePickerActivity.EXTRA_ALLOW_ANY, false);
         pickFinishLauncher.launch(i);
     }
 
     private String nameOfPlace(byte[] placeId) {
         if (placeId == null) return getString(R.string.not_set);
-        return placeNameByIdHex.getOrDefault(MessageCodec.hex(placeId), "(?)");
+        return placeNameByIdHex.getOrDefault(hex(placeId), "(?)");
     }
 
     private Integer parseIntOrNull(TextInputEditText et) {
@@ -277,7 +278,7 @@ public class TravelsActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.confirm_delete_generic_title))
                 .setMessage(nameOfPlace(t.startPlaceId) + " → " + nameOfPlace(t.finishPlaceId))
-                .setPositiveButton(R.string.delete, (d,w) -> deleteTravel(t))
+                .setPositiveButton(R.string.delete, (d, w) -> deleteTravel(t))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }

@@ -6,10 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "ReceivedInbox",
-        indices = { @Index(value = {"ReceivedAtUtcMs"}) }
-)
+@Entity(tableName = "ReceivedInbox", indices = {@Index(value = {"ReceivedAtUtcMs"})})
 public class ReceivedInboxEntity {
 
     @PrimaryKey

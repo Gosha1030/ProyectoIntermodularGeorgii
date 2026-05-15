@@ -1,5 +1,27 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-    <TextView android:id="@+id/tvDayHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/schedule_day_label_placeholder" android:textAppearance="?attr/textAppearanceBodyLarge"/>
-    <TextView android:id="@+id/tvEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/no_tasks" android:visibility="gone" android:paddingTop="4dp"/>
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTasks" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/tvDayHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/schedule_day_label_placeholder"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp"
+        android:text="@string/no_tasks"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTasks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false" />
 </LinearLayout>

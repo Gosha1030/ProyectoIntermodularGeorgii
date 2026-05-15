@@ -9,7 +9,8 @@ import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 
 public final class TaskCollector {
 
-    private TaskCollector() {}
+    private TaskCollector() {
+    }
 
     public static List<TaskWithSource> collect(AppDatabase db, byte[] userTaskRootId) {
         List<TaskWithSource> out = new ArrayList<>();

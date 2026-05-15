@@ -18,15 +18,9 @@ import georgii.sytnik.thothtasks.util.HexBytes;
 
 public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.VH> {
 
-    public interface Listener {
-        void onClick(TravelEntity t);
-        void onDelete(TravelEntity t);
-    }
-
     private final List<TravelEntity> items;
     private final Map<String, String> placeNameByIdHex;
     private final Listener listener;
-
     public TravelAdapter(List<TravelEntity> items, Map<String, String> placeNameByIdHex, Listener listener) {
         this.items = items;
         this.placeNameByIdHex = placeNameByIdHex;
@@ -79,6 +73,12 @@ public class TravelAdapter extends RecyclerView.Adapter<TravelAdapter.VH> {
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public interface Listener {
+        void onClick(TravelEntity t);
+
+        void onDelete(TravelEntity t);
     }
 
     static class VH extends RecyclerView.ViewHolder {

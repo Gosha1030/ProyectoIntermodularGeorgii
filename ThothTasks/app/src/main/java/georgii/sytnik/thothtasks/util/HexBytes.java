@@ -1,8 +1,11 @@
 package georgii.sytnik.thothtasks.util;
 
-/** Hex utilities + byte[] equality. */
+/**
+ * Hex utilities + byte[] equality.
+ */
 public final class HexBytes {
-    private HexBytes() {}
+    private HexBytes() {
+    }
 
     public static String hex(byte[] b) {
         if (b == null) return "";

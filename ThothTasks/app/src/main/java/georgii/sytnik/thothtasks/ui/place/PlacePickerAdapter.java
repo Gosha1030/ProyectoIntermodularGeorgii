@@ -15,13 +15,8 @@ import georgii.sytnik.thothtasks.db.entities.PlaceEntity;
 
 public class PlacePickerAdapter extends RecyclerView.Adapter<PlacePickerAdapter.VH> {
 
-    public interface Listener {
-        void onPick(PlaceEntity p);
-    }
-
     private final List<PlaceEntity> items;
     private final Listener listener;
-
     public PlacePickerAdapter(List<PlaceEntity> items, Listener listener) {
         this.items = items;
         this.listener = listener;
@@ -52,6 +47,10 @@ public class PlacePickerAdapter extends RecyclerView.Adapter<PlacePickerAdapter.
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public interface Listener {
+        void onPick(PlaceEntity p);
     }
 
     static class VH extends RecyclerView.ViewHolder {

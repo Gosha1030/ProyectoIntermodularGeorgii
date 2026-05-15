@@ -16,22 +16,15 @@ import georgii.sytnik.thothtasks.db.entities.ExternalSourceEntity;
 
 public class ExternalSourceAdapter extends RecyclerView.Adapter<ExternalSourceAdapter.VH> {
 
-    public interface Listener {
-        void onToggle(ExternalSourceEntity src, boolean included);
-        void onDelete(ExternalSourceEntity src);
-        void onCheck(ExternalSourceEntity src);
-        void onSync(ExternalSourceEntity src);
-    }
-
     private final List<ExternalSourceEntity> sources;
     private final Listener listener;
-
     public ExternalSourceAdapter(List<ExternalSourceEntity> sources, Listener listener) {
         this.sources = sources;
         this.listener = listener;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_external_source, parent, false);
         return new VH(v);
@@ -67,12 +60,23 @@ public class ExternalSourceAdapter extends RecyclerView.Adapter<ExternalSourceAd
         return sources.size();
     }
 
+    public interface Listener {
+        void onToggle(ExternalSourceEntity src, boolean included);
+
+        void onDelete(ExternalSourceEntity src);
+
+        void onCheck(ExternalSourceEntity src);
+
+        void onSync(ExternalSourceEntity src);
+    }
+
     static class VH extends RecyclerView.ViewHolder {
         TextView tvTitle, tvSub;
         SwitchCompat swInclude;
         View btnDelete;
         View btnCheck;
         View btnSync;
+
         VH(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvTitle);

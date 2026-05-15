@@ -6,14 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "TaskChange",
-        indices = {
-                @Index(value = {"Task"}),
-                @Index(value = {"WhenApply"}),
-                @Index(value = {"Task", "CreateAt"})
-        }
-)
+@Entity(tableName = "TaskChange", indices = {@Index(value = {"Task"}), @Index(value = {"WhenApply"}), @Index(value = {"Task", "CreateAt"})})
 public class TaskChangeEntity {
 
     @PrimaryKey
@@ -26,25 +19,16 @@ public class TaskChangeEntity {
     public byte[] taskId;
 
     @ColumnInfo(name = "NewTask", typeAffinity = ColumnInfo.BLOB)
-    public byte[] newTaskId; // nullable
+    public byte[] newTaskId;
 
-    /**
-     * e.g. create_task, task_update, deactivate, mute_on, mute_off...
-     */
     @NonNull
     @ColumnInfo(name = "Type")
     public String type;
 
-    /**
-     * epochMillis UTC
-     */
     @NonNull
     @ColumnInfo(name = "CreateAt")
     public long createAtUtcMs;
 
-    /**
-     * epochMillis UTC nullable
-     */
     @ColumnInfo(name = "WhenApply")
     public Long whenApplyUtcMs;
 }

@@ -51,51 +51,58 @@ import georgii.sytnik.thothtasks.util.UuidBytes;
 public class CreateTaskActivity extends AppCompatActivity {
 
     public static final int REQ_PICK_FATHER = 1001;
-
+    private final List<int[]> yearlyPairs = new ArrayList<>();
     private AppDatabase db;
-
     private TextInputEditText etName, etStart, etFinish, etTimeM, etWeight, etPeriodD;
     private CheckBox cbUninterrupted;
     private Spinner spType;
     private TextInputLayout tilPeriodD;
     private MaterialButton btnPickFather, btnCreate, btnWhenApply;
     private TextView tvFather, tvWhenApply;
-
     private FrameLayout typeInfoContainer;
     private View typeInfoView;
-
     private byte[] selectedFatherId;
     private Long whenApplyUtcMs = null;
-
-    // Weekly
     private CheckBox cbMon, cbTue, cbWed, cbThu, cbFri, cbSat, cbSun;
-
-    // Periodic
     private Spinner spUnit;
     private EditText etAmount, etStreak;
-
-    // Yearly
     private EditText etMonthDay;
     private MaterialButton btnAdd;
     private TextView tvList;
-    private final List<int[]> yearlyPairs = new ArrayList<>();
-
-    // Place
     private byte[] selectedPlaceId = null;
     private TextView tvPlace;
-
-    // Actions
+    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceLauncher = registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
+        if (res.getResultCode() == RESULT_OK && res.getData() != null) {
+            selectedPlaceId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
+            String placeName = res.getData().getStringExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_NAME);
+            if (placeName == null) placeName = getString(R.string.place_anywhere);
+            tvPlace.setText(placeName);
+        }
+    });
     private SwitchCompat swAlarm, swDnd, swNotifyMonth, swNotifyWeek, swNotifyDay, swNotifyOnDay, swNotify1h, swNotify10m, swNotify1m;
 
-    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceLauncher =
-            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
-                if (res.getResultCode() == RESULT_OK && res.getData() != null) {
-                    selectedPlaceId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
-                    String placeName = res.getData().getStringExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_NAME);
-                    if (placeName == null) placeName = getString(R.string.place_anywhere);
-                    tvPlace.setText(placeName);
-                }
-            });
+    private static int safeInt(EditText et, int def) {
+        try {
+            String s = et.getText() == null ? "" : et.getText().toString().trim();
+            if (s.isEmpty()) return def;
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return def;
+        }
+    }
+
+    private static String textOf(TextInputEditText et) {
+        return et.getText() == null ? "" : et.getText().toString().trim();
+    }
+
+    private static Integer parseIntOrNull(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,7 +131,6 @@ public class CreateTaskActivity extends AppCompatActivity {
 
         tilPeriodD = findViewById(R.id.tilPeriodD);
 
-        // Place
         tvPlace = findViewById(R.id.tvPlace);
         MaterialButton btnPickPlace = findViewById(R.id.btnPickPlace);
         btnPickPlace.setOnClickListener(v -> {
@@ -133,7 +139,6 @@ public class CreateTaskActivity extends AppCompatActivity {
             pickPlaceLauncher.launch(i);
         });
 
-        // Actions
         swAlarm = findViewById(R.id.swAlarm);
         swDnd = findViewById(R.id.swDnd);
         swNotifyMonth = findViewById(R.id.swNotifyMonth);
@@ -144,11 +149,7 @@ public class CreateTaskActivity extends AppCompatActivity {
         swNotify10m = findViewById(R.id.swNotify10m);
         swNotify1m = findViewById(R.id.swNotify1m);
 
-        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.task_type_labels,
-                android.R.layout.simple_spinner_dropdown_item
-        );
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.task_type_labels, android.R.layout.simple_spinner_dropdown_item);
         spType.setAdapter(typeAdapter);
 
         btnPickFather.setOnClickListener(v -> startActivityForResult(new Intent(this, TaskPickerActivity.class), REQ_PICK_FATHER));
@@ -157,9 +158,9 @@ public class CreateTaskActivity extends AppCompatActivity {
         etStart.setOnClickListener(v -> showTimePicker(etStart));
         etFinish.setOnClickListener(v -> showTimePicker(etFinish));
 
-        // Update type info + PeriodD rule
         spType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String type = (String) parent.getItemAtPosition(position);
                 updateTypeInfoUI(type);
 
@@ -170,16 +171,25 @@ public class CreateTaskActivity extends AppCompatActivity {
                     tilPeriodD.setVisibility(View.VISIBLE);
                 }
             }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         updateTypeInfoUI((String) spType.getSelectedItem());
 
-        // Live availability of timed actions (Alarm/DND/1h/10m/1m)
         TextWatcher availabilityWatcher = new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void afterTextChanged(Editable s) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 updateTimedActionsAvailability();
             }
         };
@@ -199,7 +209,7 @@ public class CreateTaskActivity extends AppCompatActivity {
         boolean canTimedActions = (timeM != null) || (startMin != null && finishMin != null);
 
         swAlarm.setEnabled(canTimedActions);
-        swDnd.setEnabled(canTimedActions);          // DND treated like Alarm
+        swDnd.setEnabled(canTimedActions);
         swNotify1h.setEnabled(canTimedActions);
         swNotify10m.setEnabled(canTimedActions);
         swNotify1m.setEnabled(canTimedActions);
@@ -237,7 +247,6 @@ public class CreateTaskActivity extends AppCompatActivity {
 
         boolean canTimedActions = (timeM != null) || (startMin != null && finishMin != null);
 
-        // Weekly/Periodic/Yearly JSON
         String daysOfJson = null;
         String periodicJson = null;
 
@@ -256,20 +265,20 @@ public class CreateTaskActivity extends AppCompatActivity {
                 obj.put("values", arr);
                 daysOfJson = obj.toString();
             } else if ("Periodic".equals(type)) {
-            JSONObject obj = new JSONObject();
+                JSONObject obj = new JSONObject();
 
-            String unitValue = "day";
-            if (spUnit != null) {
-                int pos = spUnit.getSelectedItemPosition();
-                String[] values = getResources().getStringArray(R.array.periodic_units_values);
-                if (pos >= 0 && pos < values.length) unitValue = values[pos];
-            }
+                String unitValue = "day";
+                if (spUnit != null) {
+                    int pos = spUnit.getSelectedItemPosition();
+                    String[] values = getResources().getStringArray(R.array.periodic_units_values);
+                    if (pos >= 0 && pos < values.length) unitValue = values[pos];
+                }
 
-            obj.put("unit", unitValue);
-            obj.put("amount", safeInt(etAmount, 1));
-            obj.put("streakDays", safeInt(etStreak, 1));
-            periodicJson = obj.toString();
-        } else if ("Yearly".equals(type)) {
+                obj.put("unit", unitValue);
+                obj.put("amount", safeInt(etAmount, 1));
+                obj.put("streakDays", safeInt(etStreak, 1));
+                periodicJson = obj.toString();
+            } else if ("Yearly".equals(type)) {
                 JSONObject obj = new JSONObject();
                 obj.put("kind", "monthdays");
                 JSONArray arr = new JSONArray();
@@ -282,9 +291,9 @@ public class CreateTaskActivity extends AppCompatActivity {
                 obj.put("values", arr);
                 daysOfJson = obj.toString();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+        }
 
-        // Snapshot Actions (timed ones will be stored only if canTimedActions)
         boolean aAlarm = canTimedActions && swAlarm.isChecked();
         boolean aDnd = canTimedActions && swDnd.isChecked();
         boolean a1h = canTimedActions && swNotify1h.isChecked();
@@ -329,8 +338,7 @@ public class CreateTaskActivity extends AppCompatActivity {
 
             if (!validateCreateTask(t.type, t.periodicJson, t.periodD)) return;
 
-            TaskHierarchyValidator.ValidationResult vr =
-                    TaskHierarchyValidator.canChildExistInsideParent(db, t, whenApplyUtcMs, fatherId);
+            TaskHierarchyValidator.ValidationResult vr = TaskHierarchyValidator.canChildExistInsideParent(db, t, whenApplyUtcMs, fatherId);
 
             if (!vr.ok) {
                 runOnUiThread(() -> Toast.makeText(this, vr.message, Toast.LENGTH_LONG).show());
@@ -362,9 +370,7 @@ public class CreateTaskActivity extends AppCompatActivity {
         }).start();
     }
 
-    private String buildActionJson(boolean alarm, boolean dnd,
-                                   boolean nMonth, boolean nWeek, boolean nDay, boolean nOnDay,
-                                   boolean n1h, boolean n10m, boolean n1m) {
+    private String buildActionJson(boolean alarm, boolean dnd, boolean nMonth, boolean nWeek, boolean nDay, boolean nOnDay, boolean n1h, boolean n10m, boolean n1m) {
         try {
             JSONObject o = new JSONObject();
             o.put(ActionKeys.ALARM, alarm);
@@ -385,11 +391,7 @@ public class CreateTaskActivity extends AppCompatActivity {
     private void insertActionTaskChanges(byte[] taskId, String actionJson, Long whenApplyUtcMs) {
         try {
             JSONObject o = new JSONObject(actionJson);
-            String[] keys = new String[] {
-                    ActionKeys.ALARM, ActionKeys.DND,
-                    ActionKeys.NOTIFY_MONTH, ActionKeys.NOTIFY_WEEK, ActionKeys.NOTIFY_DAY, ActionKeys.NOTIFY_ON_DAY,
-                    ActionKeys.NOTIFY_1H, ActionKeys.NOTIFY_10M, ActionKeys.NOTIFY_1M
-            };
+            String[] keys = new String[]{ActionKeys.ALARM, ActionKeys.DND, ActionKeys.NOTIFY_MONTH, ActionKeys.NOTIFY_WEEK, ActionKeys.NOTIFY_DAY, ActionKeys.NOTIFY_ON_DAY, ActionKeys.NOTIFY_1H, ActionKeys.NOTIFY_10M, ActionKeys.NOTIFY_1M};
 
             long now = System.currentTimeMillis();
 
@@ -405,7 +407,8 @@ public class CreateTaskActivity extends AppCompatActivity {
                 ch.whenApplyUtcMs = whenApplyUtcMs;
                 db.taskChangeDao().insert(ch);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -474,11 +477,7 @@ public class CreateTaskActivity extends AppCompatActivity {
         etAmount = v.findViewById(R.id.etAmount);
         etStreak = v.findViewById(R.id.etStreak);
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.periodic_units_labels,
-                android.R.layout.simple_spinner_dropdown_item
-        );
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.periodic_units_labels, android.R.layout.simple_spinner_dropdown_item);
         spUnit.setAdapter(adapter);
     }
 
@@ -507,7 +506,8 @@ public class CreateTaskActivity extends AppCompatActivity {
             return;
         }
         StringBuilder sb = new StringBuilder();
-        for (int[] md : yearlyPairs) sb.append(String.format("%02d-%02d", md[0], md[1])).append("  ");
+        for (int[] md : yearlyPairs)
+            sb.append(String.format("%02d-%02d", md[0], md[1])).append("  ");
         tvList.setText(sb.toString().trim());
     }
 
@@ -522,16 +522,6 @@ public class CreateTaskActivity extends AppCompatActivity {
             return new int[]{m, d};
         } catch (Exception e) {
             return null;
-        }
-    }
-
-    private static int safeInt(EditText et, int def) {
-        try {
-            String s = et.getText() == null ? "" : et.getText().toString().trim();
-            if (s.isEmpty()) return def;
-            return Integer.parseInt(s);
-        } catch (Exception e) {
-            return def;
         }
     }
 
@@ -559,17 +549,9 @@ public class CreateTaskActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.err_periodic_month_12, Toast.LENGTH_LONG).show();
                     return false;
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return true;
-    }
-
-    private static String textOf(TextInputEditText et) {
-        return et.getText() == null ? "" : et.getText().toString().trim();
-    }
-
-    private static Integer parseIntOrNull(String s) {
-        if (s == null || s.isEmpty()) return null;
-        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
     }
 }

@@ -36,63 +36,48 @@ import georgii.sytnik.thothtasks.db.entities.TaskOverlayEntity;
 import georgii.sytnik.thothtasks.db.entities.TravelEntity;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 
-@Database(
-        entities = {
-                UserEntity.class,
-                TaskEntity.class,
-                TaskChangeEntity.class,
-                ExternalUserEntity.class,
-                PlaceEntity.class,
-                TravelEntity.class,
-                ShareResourceEntity.class,
-                ExternalSourceEntity.class,
-                AccessGrantEntity.class,
-                AccessRequestEntity.class,
-                SyncStateEntity.class,
-                TaskOverlayEntity.class,
-                PendingOutboxEntity.class,
-                ReceivedInboxEntity.class
-
-        },
-        version = 1,
-        exportSchema = true
-)
+@Database(entities = {UserEntity.class, TaskEntity.class, TaskChangeEntity.class, ExternalUserEntity.class, PlaceEntity.class, TravelEntity.class, ShareResourceEntity.class, ExternalSourceEntity.class, AccessGrantEntity.class, AccessRequestEntity.class, SyncStateEntity.class, TaskOverlayEntity.class, PendingOutboxEntity.class, ReceivedInboxEntity.class}, version = 1, exportSchema = true)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
     private static volatile AppDatabase INSTANCE;
 
-    public abstract UserDao userDao();
-    public abstract TaskDao taskDao();
-    public abstract TaskChangeDao taskChangeDao();
-
-    public abstract ShareResourceDao shareResourceDao();
-    public abstract ExternalSourceDao externalSourceDao();
-    public abstract AccessGrantDao accessGrantDao();
-    public abstract AccessRequestDao accessRequestDao();
-    public abstract SyncStateDao syncStateDao();
-    public abstract OutboxDao outboxDao();
-    public abstract InboxDao inboxDao();
-    public abstract ExternalUserDao externalUserDao();
-    public abstract PlaceDao placeDao();
-    public abstract TravelDao travelDao();
-    public abstract TaskOverlayDao taskOverlayDao(); // ya lo usas
-
-
     public static AppDatabase get(Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(
-                                    context.getApplicationContext(),
-                                    AppDatabase.class,
-                                    "thoth_tasks.db"
-                            )
-                            .fallbackToDestructiveMigration()
-                            .build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, "thoth_tasks.db").fallbackToDestructiveMigration().build();
                 }
             }
         }
         return INSTANCE;
     }
+
+    public abstract UserDao userDao();
+
+    public abstract TaskDao taskDao();
+
+    public abstract TaskChangeDao taskChangeDao();
+
+    public abstract ShareResourceDao shareResourceDao();
+
+    public abstract ExternalSourceDao externalSourceDao();
+
+    public abstract AccessGrantDao accessGrantDao();
+
+    public abstract AccessRequestDao accessRequestDao();
+
+    public abstract SyncStateDao syncStateDao();
+
+    public abstract OutboxDao outboxDao();
+
+    public abstract InboxDao inboxDao();
+
+    public abstract ExternalUserDao externalUserDao();
+
+    public abstract PlaceDao placeDao();
+
+    public abstract TravelDao travelDao();
+
+    public abstract TaskOverlayDao taskOverlayDao(); // ya lo usas
 }

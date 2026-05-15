@@ -1,10 +1,69 @@
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent">
-    <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar" android:layout_width="0dp" android:layout_height="wrap_content" android:title="@string/tasks_manager_title" app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
-    <com.google.android.material.textfield.TextInputLayout android:id="@+id/tilSearch" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_margin="12dp" app:layout_constraintTop_toBottomOf="@id/toolbar" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/etSearch" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="@string/search_hint" android:inputType="text"/>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:title="@string/tasks_manager_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_hint"
+            android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
-    <CheckBox android:id="@+id/cbShowInactive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/show_deactivated" app:layout_constraintTop_toBottomOf="@id/tilSearch" app:layout_constraintStart_toStartOf="parent"/>
-    <CheckBox android:id="@+id/cbShowHidden" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/show_hidden" app:layout_constraintTop_toBottomOf="@id/cbShowInactive" app:layout_constraintStart_toStartOf="parent"/>
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvTree" android:layout_width="0dp" android:layout_height="0dp" android:paddingBottom="80dp" app:layout_constraintTop_toBottomOf="@id/cbShowHidden" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton android:id="@+id/fabCreate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="16dp" android:contentDescription="@string/create" app:srcCompat="@android:drawable/ic_input_add" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"/>
+
+    <CheckBox
+        android:id="@+id/cbShowInactive"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:text="@string/show_deactivated"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tilSearch" />
+
+    <CheckBox
+        android:id="@+id/cbShowHidden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:text="@string/show_hidden"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cbShowInactive" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTree"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:paddingBottom="80dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cbShowHidden" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabCreate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/create"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_input_add" />
 </androidx.constraintlayout.widget.ConstraintLayout>

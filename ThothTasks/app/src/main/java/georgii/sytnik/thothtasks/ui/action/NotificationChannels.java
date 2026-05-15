@@ -7,16 +7,14 @@ import android.os.Build;
 
 import georgii.sytnik.thothtasks.R;
 
-/** Creates notification channels used by the actions planner (Android 8+). */
 public final class NotificationChannels {
 
-    /** Normal action notifications (DEFAULT importance). */
     public static final String CHANNEL_ACTIONS = "actions";
 
-    /** Alarm-style action notifications (HIGH importance). */
     public static final String CHANNEL_ALARMS = "actions_alarm";
 
-    private NotificationChannels() {}
+    private NotificationChannels() {
+    }
 
     public static void ensureCreated(Context ctx) {
         if (ctx == null) return;

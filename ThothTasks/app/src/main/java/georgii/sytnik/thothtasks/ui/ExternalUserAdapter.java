@@ -16,11 +16,6 @@ import georgii.sytnik.thothtasks.db.entities.ExternalUserEntity;
 
 public class ExternalUserAdapter extends RecyclerView.Adapter<ExternalUserAdapter.VH> {
 
-    public interface Listener {
-        void onToggleBlock(ExternalUserEntity user);
-        void onManagePerms(ExternalUserEntity user);
-    }
-
     private final List<ExternalUserEntity> users;
     private final Listener listener;
 
@@ -42,14 +37,12 @@ public class ExternalUserAdapter extends RecyclerView.Adapter<ExternalUserAdapte
 
         h.tvTitle.setText(u.externalUserName);
 
-        String nick = (u.externalUserNickname == null || u.externalUserNickname.trim().isEmpty())
-                ? "-"
-                : u.externalUserNickname.trim();
+        String nick = (u.externalUserNickname == null || u.externalUserNickname.trim().isEmpty()) ? "-" : u.externalUserNickname.trim();
 
         String sub = u.ip + ":" + u.port + " • " + nick + " • blocked=" + u.blocked;
         h.tvSub.setText(sub);
 
-        ((Button)h.btnBlock).setText(u.blocked ? "Unblock" : "Block");
+        ((Button) h.btnBlock).setText(u.blocked ? "Unblock" : "Block");
 
         h.btnBlock.setOnClickListener(v -> listener.onToggleBlock(u));
         h.btnPerms.setOnClickListener(v -> listener.onManagePerms(u));
@@ -60,6 +53,12 @@ public class ExternalUserAdapter extends RecyclerView.Adapter<ExternalUserAdapte
     @Override
     public int getItemCount() {
         return users.size();
+    }
+
+    public interface Listener {
+        void onToggleBlock(ExternalUserEntity user);
+
+        void onManagePerms(ExternalUserEntity user);
     }
 
     static class VH extends RecyclerView.ViewHolder {

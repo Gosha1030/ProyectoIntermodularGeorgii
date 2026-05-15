@@ -13,9 +13,9 @@
             android:id="@+id/tvActionsTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingBottom="6dp"
             android:text="@string/actions_title"
-            android:textStyle="bold"
-            android:paddingBottom="6dp" />
+            android:textStyle="bold" />
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swAlarm"

@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
@@ -26,9 +25,8 @@ import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class ExternalUserManagerActivity extends AppCompatActivity {
 
-    private AppDatabase db;
-
     private final List<ExternalUserEntity> users = new ArrayList<>();
+    private AppDatabase db;
     private ExternalUserAdapter adapter;
 
     private byte[] ownerUserId;
@@ -86,17 +84,12 @@ public class ExternalUserManagerActivity extends AppCompatActivity {
         }).start();
     }
 
-    /**
-     * Grants: ExternalUser -> ShareResource
-     * UI: multi-choice dialog with all ShareResources of this owner.
-     */
     private void openPermissionsDialog(ExternalUserEntity externalUser) {
         if (ownerUserId == null) return;
 
         new Thread(() -> {
             List<ShareResourceEntity> resources = db.shareResourceDao().listForOwner(ownerUserId);
 
-            // Current grants map by ResourceId hex
             HashMap<String, AccessGrantEntity> current = new HashMap<>();
             List<AccessGrantEntity> grants = db.accessGrantDao().grantsForExternal(externalUser.externalId);
             for (AccessGrantEntity g : grants) {
@@ -117,7 +110,6 @@ public class ExternalUserManagerActivity extends AppCompatActivity {
                 new AlertDialog.Builder(this)
                         .setTitle("Permisos: " + externalUser.externalUserName)
                         .setMultiChoiceItems(labels, checked, (dialog, which, isChecked) -> {
-                            // store in checked[] only; apply on Save
                             checked[which] = isChecked;
                         })
                         .setPositiveButton(getString(R.string.save), (d, w) -> {
@@ -158,8 +150,6 @@ public class ExternalUserManagerActivity extends AppCompatActivity {
                     } else {
                         existing.granted = true;
                         existing.revokedAtUtcMs = null;
-                        // keep original grantedAt if you want, or update:
-                        // existing.grantedAtUtcMs = now;
                         db.accessGrantDao().update(existing);
                     }
                 } else {

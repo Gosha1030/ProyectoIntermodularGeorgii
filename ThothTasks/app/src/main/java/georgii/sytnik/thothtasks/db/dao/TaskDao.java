@@ -31,11 +31,9 @@ public interface TaskDao {
     @Query("UPDATE Task SET 'Action' = :actionJson WHERE TaskId = :taskId")
     void setActionJson(byte[] taskId, String actionJson);
 
-    // --- Place maintenance (used on Place delete cascade) ---
     @Query("UPDATE Task SET Place = NULL WHERE Place = :placeId")
     void clearPlaceForTasks(byte[] placeId);
 
-    // --- Tree helpers (used by versioning / hide) ---
     @Query("UPDATE Task SET TaskFather = :newFatherId WHERE TaskFather = :oldFatherId")
     void reparentChildren(byte[] oldFatherId, byte[] newFatherId);
 
@@ -48,23 +46,9 @@ public interface TaskDao {
     @Query("SELECT * FROM Task WHERE TaskFather = :fatherId AND NOT (State = 0 AND Muted = 1) ORDER BY TaskName COLLATE NOCASE")
     List<TaskEntity> childrenNotHidden(byte[] fatherId);
 
-    @Query(
-            "SELECT * FROM Task " +
-                    "WHERE TaskFather = :fatherId " +
-                    "AND (State = 1 " +
-                    "     OR (:includeInactive = 1 AND State = 0 AND Muted = 0) " +
-                    "     OR (:includeHidden  = 1 AND State = 0 AND Muted = 1)) " +
-                    "ORDER BY TaskName COLLATE NOCASE"
-    )
+    @Query("SELECT * FROM Task " + "WHERE TaskFather = :fatherId " + "AND (State = 1 " + "     OR (:includeInactive = 1 AND State = 0 AND Muted = 0) " + "     OR (:includeHidden  = 1 AND State = 0 AND Muted = 1)) " + "ORDER BY TaskName COLLATE NOCASE")
     List<TaskEntity> childrenFiltered(byte[] fatherId, boolean includeInactive, boolean includeHidden);
 
-    @Query(
-            "SELECT * FROM Task " +
-                    "WHERE TaskName LIKE '%' || :q || '%' " +
-                    "AND (State = 1 " +
-                    "     OR (:includeInactive = 1 AND State = 0 AND Muted = 0) " +
-                    "     OR (:includeHidden  = 1 AND State = 0 AND Muted = 1)) " +
-                    "ORDER BY TaskName COLLATE NOCASE"
-    )
+    @Query("SELECT * FROM Task " + "WHERE TaskName LIKE '%' || :q || '%' " + "AND (State = 1 " + "     OR (:includeInactive = 1 AND State = 0 AND Muted = 0) " + "     OR (:includeHidden  = 1 AND State = 0 AND Muted = 1)) " + "ORDER BY TaskName COLLATE NOCASE")
     List<TaskEntity> searchFilteredByName(String q, boolean includeInactive, boolean includeHidden);
 }

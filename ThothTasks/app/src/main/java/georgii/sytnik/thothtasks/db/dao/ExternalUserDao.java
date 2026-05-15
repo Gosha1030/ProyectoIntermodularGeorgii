@@ -27,5 +27,4 @@ public interface ExternalUserDao {
 
     @Query("SELECT * FROM ExternalUser WHERE User = :ownerUserId AND Ip = :ip AND Port = :port LIMIT 1")
     ExternalUserEntity findByIpPort(byte[] ownerUserId, String ip, int port);
-
 }

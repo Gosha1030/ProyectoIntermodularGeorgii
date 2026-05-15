@@ -11,7 +11,8 @@ public final class NotifySync {
 
     private static final String CHANNEL_ID = "sync";
 
-    private NotifySync() {}
+    private NotifySync() {
+    }
 
     public static void ensureChannel(Context ctx) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

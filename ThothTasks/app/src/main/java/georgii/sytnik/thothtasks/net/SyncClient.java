@@ -13,53 +13,23 @@ import java.util.Set;
 
 public final class SyncClient {
 
-    public interface ProgressListener {
-        void onProgress(int receivedChunks, int totalChunks);
+    private SyncClient() {
     }
 
-    public static class SyncResult {
-        public final long remoteVersion;
-        public final JSONArray tasks;
-        public final JSONArray taskChanges;
-
-        public SyncResult(long remoteVersion, JSONArray tasks, JSONArray taskChanges) {
-            this.remoteVersion = remoteVersion;
-            this.tasks = tasks;
-            this.taskChanges = taskChanges;
-        }
-    }
-
-    private SyncClient() {}
-
-    public static SyncResult syncResource(
-            String ip,
-            int port,
-            String resourceIdHex,
-            String externalName,
-            long sinceVersion,
-            int timeoutMs,
-            ProgressListener progress
-    ) throws Exception {
+    public static SyncResult syncResource(String ip, int port, String resourceIdHex, String externalName, long sinceVersion, int timeoutMs, ProgressListener progress) throws Exception {
 
         JSONObject body = new JSONObject();
         body.put("resourceId", resourceIdHex);
         body.put("name", externalName);
         body.put("sinceVersion", sinceVersion);
 
-        JSONObject req = MessageCodec.envelope(
-                Protocol.SYNC_REQUEST,
-                "consumer",
-                System.currentTimeMillis(),
-                null,
-                body
-        );
+        JSONObject req = MessageCodec.envelope(Protocol.SYNC_REQUEST, "consumer", System.currentTimeMillis(), null, body);
 
         byte[] reqBytes = MessageCodec.encode(req);
 
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.setSoTimeout(timeoutMs);
 
-            // send SYNC_REQUEST (no need reliable on consumer side; owner will respond reliably)
             DatagramPacket p = new DatagramPacket(reqBytes, reqBytes.length, InetAddress.getByName(ip), port);
             socket.send(p);
 
@@ -73,7 +43,7 @@ public final class SyncClient {
             JSONArray changesAll = new JSONArray();
 
             long startWait = System.currentTimeMillis();
-            long overallTimeout = 60_000; // 60s overall for v1
+            long overallTimeout = 60_000;
 
             while (System.currentTimeMillis() - startWait < overallTimeout) {
                 byte[] buf = new byte[64 * 1024];
@@ -82,7 +52,6 @@ public final class SyncClient {
                 try {
                     socket.receive(resp);
                 } catch (Exception timeout) {
-                    // keep waiting; owner retries missing chunks
                     continue;
                 }
 
@@ -90,10 +59,8 @@ public final class SyncClient {
                 String type = env.optString("type", "");
                 String msgId = env.optString("msgId", "");
 
-                // Dedup (still ACK again below)
                 boolean firstTime = seenMsgIds.add(msgId);
 
-                // Always ACK any SYNC_CHUNK / SYNC_DONE to stop retries
                 if (Protocol.SYNC_CHUNK.equals(type) || Protocol.SYNC_DONE.equals(type)) {
                     sendAck(socket, resp.getAddress(), resp.getPort(), msgId);
                 }
@@ -117,23 +84,24 @@ public final class SyncClient {
 
                 if (Protocol.SYNC_DONE.equals(type)) {
                     JSONObject b = env.optJSONObject("body");
-                    if (b != null) remoteVersion = Math.max(remoteVersion, b.optLong("remoteVersion", 0));
+                    if (b != null)
+                        remoteVersion = Math.max(remoteVersion, b.optLong("remoteVersion", 0));
 
-                    // if complete, assemble and return
                     if (totalChunks > 0 && chunks.size() == totalChunks) {
                         for (int i = 0; i < totalChunks; i++) {
                             JSONObject ch = chunks.get(i);
                             if (ch == null) continue;
 
                             JSONArray tPart = ch.optJSONArray("tasks");
-                            if (tPart != null) for (int k = 0; k < tPart.length(); k++) tasksAll.put(tPart.get(k));
+                            if (tPart != null)
+                                for (int k = 0; k < tPart.length(); k++) tasksAll.put(tPart.get(k));
 
                             JSONArray cPart = ch.optJSONArray("taskChanges");
-                            if (cPart != null) for (int k = 0; k < cPart.length(); k++) changesAll.put(cPart.get(k));
+                            if (cPart != null) for (int k = 0; k < cPart.length(); k++)
+                                changesAll.put(cPart.get(k));
                         }
                         return new SyncResult(remoteVersion, tasksAll, changesAll);
                     }
-                    // else keep waiting; owner should resend missing chunks (because no ACK)
                 }
             }
 
@@ -143,16 +111,18 @@ public final class SyncClient {
 
     private static void sendAck(DatagramSocket socket, InetAddress addr, int port, String ackOfMsgId) {
         try {
-            JSONObject ack = MessageCodec.envelope(
-                    Protocol.ACK,
-                    "consumer",
-                    System.currentTimeMillis(),
-                    ackOfMsgId,
-                    null
-            );
+            JSONObject ack = MessageCodec.envelope(Protocol.ACK, "consumer", System.currentTimeMillis(), ackOfMsgId, null);
             byte[] bytes = MessageCodec.encode(ack);
             DatagramPacket p = new DatagramPacket(bytes, bytes.length, addr, port);
             socket.send(p);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
+    }
+
+    public interface ProgressListener {
+        void onProgress(int receivedChunks, int totalChunks);
+    }
+
+    public record SyncResult(long remoteVersion, JSONArray tasks, JSONArray taskChanges) {
     }
 }

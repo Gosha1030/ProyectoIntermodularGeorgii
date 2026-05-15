@@ -6,7 +6,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 public final class AesGcm {
 
-    private AesGcm() {}
+    private AesGcm() {
+    }
 
     public static byte[] encrypt(byte[] key32, byte[] nonce12, byte[] aad, byte[] plaintext) {
         try {

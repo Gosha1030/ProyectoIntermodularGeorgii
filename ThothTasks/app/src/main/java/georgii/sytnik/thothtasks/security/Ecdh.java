@@ -11,12 +11,13 @@ import javax.crypto.KeyAgreement;
 
 public final class Ecdh {
 
-    private Ecdh() {}
+    private Ecdh() {
+    }
 
     public static KeyPair generateEphemeral() {
         try {
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
-            kpg.initialize(new ECGenParameterSpec("secp256r1")); // P-256
+            kpg.initialize(new ECGenParameterSpec("secp256r1"));
             return kpg.generateKeyPair();
         } catch (Exception e) {
             throw new RuntimeException("ECDH keypair failed", e);

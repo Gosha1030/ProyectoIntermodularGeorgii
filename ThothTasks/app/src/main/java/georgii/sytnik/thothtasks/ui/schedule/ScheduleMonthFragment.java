@@ -1,5 +1,10 @@
 package georgii.sytnik.thothtasks.ui.schedule;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+import static georgii.sytnik.thothtasks.util.HexBytes.hexToBytes;
+import static georgii.sytnik.thothtasks.util.TimeText.minutesToText;
+import static georgii.sytnik.thothtasks.util.TimeText.zeroTime;
+
 import android.os.Bundle;
 import android.view.View;
 
@@ -10,12 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
@@ -32,6 +36,11 @@ public class ScheduleMonthFragment extends Fragment {
 
     private static final String ARG_MONTH_UTC = "monthUtc";
     private static final String ARG_ROOT_ID = "rootIdHex";
+    private AppDatabase db;
+
+    public ScheduleMonthFragment() {
+        super(R.layout.fragment_schedule_month);
+    }
 
     public static ScheduleMonthFragment newInstance(long anyDayUtcMs, String rootIdHex) {
         ScheduleMonthFragment f = new ScheduleMonthFragment();
@@ -42,10 +51,13 @@ public class ScheduleMonthFragment extends Fragment {
         return f;
     }
 
-    private AppDatabase db;
-
-    public ScheduleMonthFragment() {
-        super(R.layout.fragment_schedule_month);
+    private static Calendar startOfWeek(Calendar any) {
+        Calendar c = (Calendar) any.clone();
+        int dow = c.get(Calendar.DAY_OF_WEEK);
+        int diff = (dow == Calendar.SUNDAY) ? -6 : (Calendar.MONDAY - dow);
+        c.add(Calendar.DATE, diff);
+        zeroTime(c);
+        return c;
     }
 
     @Override
@@ -73,17 +85,17 @@ public class ScheduleMonthFragment extends Fragment {
         Calendar weekStart = startOfWeek(first);
 
         new Thread(() -> {
-            byte[] rootId = MessageCodec.hexToBytes(requireArguments().getString(ARG_ROOT_ID));
+            byte[] rootId = hexToBytes(requireArguments().getString(ARG_ROOT_ID));
 
             List<TaskWithSource> tasksAll = TaskCollector.collect(db, rootId);
 
-            // filtros mensuales
             List<TaskWithSource> tasks = new ArrayList<>();
-            for (TaskWithSource tws : tasksAll) if (ScheduleFilters.showInMonth(tws.task)) tasks.add(tws);
+            for (TaskWithSource tws : tasksAll)
+                if (ScheduleFilters.showInMonth(tws.task())) tasks.add(tws);
 
             HashMap<String, Long> startMap = new HashMap<>();
             for (TaskWithSource tws : tasks) {
-                TaskEntity t = tws.task;
+                TaskEntity t = tws.task();
                 TaskChangeEntity create = db.taskChangeDao().findCreateTask(t.taskId);
                 long startUtc = (create != null && create.whenApplyUtcMs != null)
                         ? create.whenApplyUtcMs
@@ -105,17 +117,19 @@ public class ScheduleMonthFragment extends Fragment {
                     Calendar day = (Calendar) ws.clone();
                     day.add(Calendar.DATE, i);
 
-                    if (day.get(Calendar.YEAR) != targetYear || day.get(Calendar.MONTH) != targetMonth) continue;
+                    if (day.get(Calendar.YEAR) != targetYear || day.get(Calendar.MONTH) != targetMonth)
+                        continue;
 
                     for (TaskWithSource tws : tasks) {
-                        TaskEntity t = tws.task;
+                        TaskEntity t = tws.task();
                         long sUtc = startMap.get(hex(t.taskId));
                         if (!OccurrenceEngine.isActiveOnDay(t, sUtc, day)) continue;
 
-                        boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId, t.taskId, t.muted);
+                        boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId(), t.taskId, t.muted);
 
                         String line = getString(R.string.schedule_bullet_task_with_date, df.format(day.getTime()), t.taskName);
-                        if (t.startTimeMin != null) line += " " + getString(R.string.schedule_time_parens, minutesToText(t.startTimeMin));
+                        if (t.startTimeMin != null)
+                            line += " " + getString(R.string.schedule_time_parens, minutesToText(t.startTimeMin));
                         lines.add(new TaskLineAdapter.Line(line, effMuted));
                     }
                 }
@@ -131,33 +145,5 @@ public class ScheduleMonthFragment extends Fragment {
                 rv.setAdapter(new MonthBlockAdapter(blocks, nav));
             });
         }).start();
-    }
-
-    private static Calendar startOfWeek(Calendar any) {
-        Calendar c = (Calendar) any.clone();
-        int dow = c.get(Calendar.DAY_OF_WEEK);
-        int diff = (dow == Calendar.SUNDAY) ? -6 : (Calendar.MONDAY - dow);
-        c.add(Calendar.DATE, diff);
-        zeroTime(c);
-        return c;
-    }
-
-    private static void zeroTime(Calendar c) {
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-    }
-
-    private static String minutesToText(int min) {
-        int h = min / 60;
-        int m = min % 60;
-        return String.format("%02d:%02d", h, m);
-    }
-
-    private static String hex(byte[] b) {
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
     }
 }

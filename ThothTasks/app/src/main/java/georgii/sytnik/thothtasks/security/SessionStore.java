@@ -9,7 +9,8 @@ public final class SessionStore {
     private static final String PREFS = "thoth_session";
     private static final String KEY_LAST_USER_ID = "last_user_id_b64";
 
-    private SessionStore() {}
+    private SessionStore() {
+    }
 
     public static void saveLastUserId(Context ctx, byte[] userId) {
         String b64 = Base64.encodeToString(userId, Base64.NO_WRAP);

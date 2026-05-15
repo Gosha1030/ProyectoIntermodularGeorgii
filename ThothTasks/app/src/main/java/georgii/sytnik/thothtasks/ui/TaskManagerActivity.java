@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.ui;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.equalBytes;
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -29,7 +31,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
@@ -43,27 +44,34 @@ import georgii.sytnik.thothtasks.domain.action.ActionKeys;
 import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
 import georgii.sytnik.thothtasks.domain.schedule.OverlayResolver;
 import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
-import georgii.sytnik.thothtasks.security.ActionSettingsReader;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
-import georgii.sytnik.thothtasks.util.UuidBytes;
 import georgii.sytnik.thothtasks.ui.tree.NodeRow;
 import georgii.sytnik.thothtasks.ui.tree.TaskTreeAdapter;
 import georgii.sytnik.thothtasks.util.HexBytes;
+import georgii.sytnik.thothtasks.util.UuidBytes;
 
 public class TaskManagerActivity extends AppCompatActivity {
 
+    private final List<NodeRow> rows = new ArrayList<>();
     private AppDatabase db;
     private RecyclerView rv;
     private TextInputEditText etSearch;
     private FloatingActionButton fab;
     private CheckBox cbShowInactive, cbShowHidden;
-
-    private final List<NodeRow> rows = new ArrayList<>();
     private TaskTreeAdapter adapter;
 
     private byte[] currentUserId;
     private byte[] currentRootId;
+    private NodeRow pendingImportedRowForPlace;
+    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceImportedLauncher = registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
+        if (pendingImportedRowForPlace == null) return;
+        if (res.getResultCode() == RESULT_OK && res.getData() != null) {
+            byte[] placeId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
+            setPlaceLocal(pendingImportedRowForPlace.sourceId, pendingImportedRowForPlace.task.taskId, placeId);
+        }
+        pendingImportedRowForPlace = null;
+    });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,8 +88,13 @@ public class TaskManagerActivity extends AppCompatActivity {
 
         rv.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TaskTreeAdapter(rows, new TaskTreeAdapter.Listener() {
-            @Override public void onToggle(NodeRow row, int position) { toggleRow(row, position); }
-            @Override public void onClick(NodeRow row) {
+            @Override
+            public void onToggle(NodeRow row, int position) {
+                toggleRow(row, position);
+            }
+
+            @Override
+            public void onClick(NodeRow row) {
                 if (row.sourceId == null) {
                     Intent i = new Intent(TaskManagerActivity.this, EditTaskActivity.class);
                     i.putExtra(EditTaskActivity.EXTRA_TASK_ID, row.task.taskId);
@@ -90,7 +103,11 @@ public class TaskManagerActivity extends AppCompatActivity {
                     showImportedOverlayDialog(row);
                 }
             }
-            @Override public void onLongPress(NodeRow row, View anchor) { showContextMenu(row, anchor); }
+
+            @Override
+            public void onLongPress(NodeRow row, View anchor) {
+                showContextMenu(row, anchor);
+            }
         });
         rv.setAdapter(adapter);
 
@@ -100,16 +117,24 @@ public class TaskManagerActivity extends AppCompatActivity {
         cbShowHidden.setOnCheckedChangeListener((b, checked) -> reloadTree());
 
         etSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void afterTextChanged(Editable s) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { reloadTree(); }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                reloadTree();
+            }
         });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Mantener DB sincronizada con cambios de estado programados
         new Thread(() -> {
             TaskChangeApplier.applyDueStateChanges(db, System.currentTimeMillis());
             runOnUiThread(this::reloadTree);
@@ -149,13 +174,14 @@ public class TaskManagerActivity extends AppCompatActivity {
                 List<ExternalSourceEntity> allSources = db.externalSourceDao().listAll();
                 Map<String, byte[]> importedRootToSource = new HashMap<>();
                 for (ExternalSourceEntity s : allSources) {
-                    if (s.importedRootTaskId != null) importedRootToSource.put(HexBytes.hex(s.importedRootTaskId), s.sourceId);
+                    if (s.importedRootTaskId != null)
+                        importedRootToSource.put(HexBytes.hex(s.importedRootTaskId), s.sourceId);
                 }
                 List<TaskEntity> top = db.taskDao().childrenFiltered(currentRootId, includeInactive, includeHidden);
                 for (TaskEntity t : top) {
                     NodeRow r = new NodeRow(t, 0);
                     byte[] sourceId = importedRootToSource.get(HexBytes.hex(t.taskId));
-                    r.sourceId = sourceId; // if null => local
+                    r.sourceId = sourceId;
                     r.effectiveMuted = OverlayResolver.effectiveMuted(db, r.sourceId, t.taskId, t.muted);
                     r.hasChildren = !db.taskDao().childrenFiltered(t.taskId, includeInactive, includeHidden).isEmpty();
                     rows.add(r);
@@ -273,8 +299,6 @@ public class TaskManagerActivity extends AppCompatActivity {
         pm.show();
     }
 
-    // ---------------- MUTE (immediate) ----------------
-
     private void toggleMuteNow(TaskEntity task) {
         new Thread(() -> {
             boolean newMuted = !task.muted;
@@ -310,13 +334,9 @@ public class TaskManagerActivity extends AppCompatActivity {
         }).start();
     }
 
-    // ---------------- STATE (immediate) ----------------
-
     private void setStateNow(TaskEntity task, boolean state) {
         new Thread(() -> {
             long now = System.currentTimeMillis();
-
-            // regla: si desactivas => Muted=false (desactivar != ocultar)
             boolean muted = task.muted;
             if (!state) muted = false;
 
@@ -334,10 +354,6 @@ public class TaskManagerActivity extends AppCompatActivity {
             runOnUiThread(this::reloadTree);
         }).start();
     }
-
-    // ---------------- STATE (scheduled) ----------------
-
-    private interface LongConsumer { void accept(long utcMs); }
 
     private void pickWhenApply(LongConsumer cb) {
         Calendar c = Calendar.getInstance();
@@ -375,54 +391,30 @@ public class TaskManagerActivity extends AppCompatActivity {
         }).start();
     }
 
-    // ---------------- helpers ----------------
-
-    private static boolean equalBytes(byte[] a, byte[] b) {
-        if (a == null || b == null || a.length != b.length) return false;
-        for (int i = 0; i < a.length; i++) if (a[i] != b[i]) return false;
-        return true;
-    }
-
     private void showImportedOverlayDialog(NodeRow row) {
-        // row.sourceId != null siempre aquí
         if (row.sourceId == null) return;
 
-        String[] options = new String[] {
-                "Mute (local)",
-                "Action (local)",
-                "Clear Action (local)"
-        };
+        String[] options = new String[]{"Mute (local)", "Action (local)", "Clear Action (local)"};
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle(row.task.taskName)
-                .setItems(options, (dlg, which) -> {
-                    if (which == 0) {
-                        // toggle mute local
-                        toggleMuteLocal(row.sourceId, row.task, row.effectiveMuted);
-                    } else if (which == 1) {
-                        // set action local
-                        showActionLocalDialog(row.sourceId, row.task);
-                    } else if (which == 2) {
-                        clearActionLocal(row.sourceId, row.task);
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        new androidx.appcompat.app.AlertDialog.Builder(this).setTitle(row.task.taskName).setItems(options, (dlg, which) -> {
+            if (which == 0) {
+                toggleMuteLocal(row.sourceId, row.task, row.effectiveMuted);
+            } else if (which == 1) {
+                showActionLocalDialog(row.sourceId, row.task);
+            } else if (which == 2) {
+                clearActionLocal(row.sourceId, row.task);
+            }
+        }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private void showActionLocalDialog(byte[] sourceId, TaskEntity task) {
         com.google.android.material.textfield.TextInputEditText et = new com.google.android.material.textfield.TextInputEditText(this);
         et.setHint("{\"type\":\"notify\",\"beforeMin\":60}");
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Action (local) • " + task.taskName)
-                .setView(et)
-                .setPositiveButton("Save", (d, w) -> {
-                    String json = et.getText() != null ? et.getText().toString().trim() : "";
-                    setActionLocal(sourceId, task, json.isEmpty() ? null : json);
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        new androidx.appcompat.app.AlertDialog.Builder(this).setTitle("Action (local) • " + task.taskName).setView(et).setPositiveButton("Save", (d, w) -> {
+            String json = et.getText() != null ? et.getText().toString().trim() : "";
+            setActionLocal(sourceId, task, json.isEmpty() ? null : json);
+        }).setNegativeButton(android.R.string.cancel, null).show();
     }
 
     private void setActionLocal(byte[] sourceId, TaskEntity task, String actionJsonOrNull) {
@@ -445,17 +437,6 @@ public class TaskManagerActivity extends AppCompatActivity {
     private void clearActionLocal(byte[] sourceId, TaskEntity task) {
         setActionLocal(sourceId, task, null);
     }
-
-    private NodeRow pendingImportedRowForPlace;
-    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceImportedLauncher =
-            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
-                if (pendingImportedRowForPlace == null) return;
-                if (res.getResultCode() == RESULT_OK && res.getData() != null) {
-                    byte[] placeId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
-                    setPlaceLocal(pendingImportedRowForPlace.sourceId, pendingImportedRowForPlace.task.taskId, placeId);
-                }
-                pendingImportedRowForPlace = null;
-            });
 
     private void pickPlaceForImported(NodeRow row) {
         pendingImportedRowForPlace = row;
@@ -482,9 +463,7 @@ public class TaskManagerActivity extends AppCompatActivity {
     }
 
     private void showImportedActionDialog(NodeRow row) {
-        if (row.sourceId == null) return; // solo importadas
-
-        // carga overlay actual (si existe)
+        if (row.sourceId == null) return;
         new Thread(() -> {
             TaskOverlayEntity ov = db.taskOverlayDao().find(row.sourceId, row.task.taskId);
             String overlayJson = (ov != null && ov.actionLocalJson != null) ? ov.actionLocalJson : null;
@@ -502,7 +481,6 @@ public class TaskManagerActivity extends AppCompatActivity {
                 SwitchCompat swNotify10m = v.findViewById(R.id.swNotify10m);
                 SwitchCompat swNotify1m = v.findViewById(R.id.swNotify1m);
 
-                // init switches from overlayJson (si null -> todo false)
                 JSONObject o = georgii.sytnik.thothtasks.domain.action.ActionJson.parseOrEmpty(overlayJson);
 
                 swAlarm.setChecked(o.optBoolean(ActionKeys.ALARM, false));
@@ -515,34 +493,16 @@ public class TaskManagerActivity extends AppCompatActivity {
                 swNotify10m.setChecked(o.optBoolean(ActionKeys.NOTIFY_10M, false));
                 swNotify1m.setChecked(o.optBoolean(ActionKeys.NOTIFY_1M, false));
 
-                // si la task no tiene hora definida, deshabilitar acciones de hora (opcional UX)
                 boolean hasExactTime = (row.task.startTimeMin != null && row.task.finishTimeMin != null);
                 swAlarm.setEnabled(hasExactTime);
                 swNotify1h.setEnabled(hasExactTime);
                 swNotify10m.setEnabled(hasExactTime);
                 swNotify1m.setEnabled(hasExactTime);
 
-                AlertDialog dlg = new AlertDialog.Builder(this)
-                        .setTitle("Action (local) • " + row.task.taskName)
-                        .setView(v)
-                        .setPositiveButton("Save", null)
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .show();
+                AlertDialog dlg = new AlertDialog.Builder(this).setTitle("Action (local) • " + row.task.taskName).setView(v).setPositiveButton("Save", null).setNegativeButton(android.R.string.cancel, null).show();
 
                 dlg.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(btn -> {
-                    // build full overlay json (sin herencia, sin base)
-                    String json = buildOverlayActionJson(
-                            hasExactTime,
-                            swAlarm.isChecked(),
-                            swDnd.isChecked(),
-                            swNotifyMonth.isChecked(),
-                            swNotifyWeek.isChecked(),
-                            swNotifyDay.isChecked(),
-                            swNotifyOnDay.isChecked(),
-                            swNotify1h.isChecked(),
-                            swNotify10m.isChecked(),
-                            swNotify1m.isChecked()
-                    );
+                    String json = buildOverlayActionJson(hasExactTime, swAlarm.isChecked(), swDnd.isChecked(), swNotifyMonth.isChecked(), swNotifyWeek.isChecked(), swNotifyDay.isChecked(), swNotifyOnDay.isChecked(), swNotify1h.isChecked(), swNotify10m.isChecked(), swNotify1m.isChecked());
 
                     saveActionLocal(row.sourceId, row.task.taskId, json);
                     dlg.dismiss();
@@ -551,10 +511,7 @@ public class TaskManagerActivity extends AppCompatActivity {
         }).start();
     }
 
-    private String buildOverlayActionJson(boolean hasExactTime,
-                                          boolean alarm, boolean dnd,
-                                          boolean nMonth, boolean nWeek, boolean nDay, boolean nOnDay,
-                                          boolean n1h, boolean n10m, boolean n1m) {
+    private String buildOverlayActionJson(boolean hasExactTime, boolean alarm, boolean dnd, boolean nMonth, boolean nWeek, boolean nDay, boolean nOnDay, boolean n1h, boolean n10m, boolean n1m) {
         try {
             JSONObject o = new JSONObject();
 
@@ -563,8 +520,6 @@ public class TaskManagerActivity extends AppCompatActivity {
             o.put(ActionKeys.NOTIFY_DAY, nDay);
             o.put(ActionKeys.NOTIFY_ON_DAY, nOnDay);
             o.put(ActionKeys.DND, dnd);
-
-            // acciones “de hora” solo si Start+Finish existen
             o.put(ActionKeys.ALARM, hasExactTime && alarm);
             o.put(ActionKeys.NOTIFY_1H, hasExactTime && n1h);
             o.put(ActionKeys.NOTIFY_10M, hasExactTime && n10m);
@@ -607,5 +562,9 @@ public class TaskManagerActivity extends AppCompatActivity {
             ActionPlanner.scheduleNextDays(getApplicationContext(), db, ActionPlanHorizon.getDaysAhead(this, db));
             runOnUiThread(this::reloadTree);
         }).start();
+    }
+
+    private interface LongConsumer {
+        void accept(long utcMs);
     }
 }

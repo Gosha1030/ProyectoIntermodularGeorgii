@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.domain;
 
+import static georgii.sytnik.thothtasks.util.TimeText.zeroTime;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,12 +18,16 @@ import georgii.sytnik.thothtasks.domain.schedule.OccurrenceEngine;
 import georgii.sytnik.thothtasks.domain.schedule.TaskCollector;
 import georgii.sytnik.thothtasks.domain.schedule.TaskWithSource;
 import georgii.sytnik.thothtasks.ui.schedule.DayBlock;
+import georgii.sytnik.thothtasks.util.HexBytes;
 
 public final class ConflictChecker {
 
-    private ConflictChecker() {}
+    private ConflictChecker() {
+    }
 
-    /** Returns true if there is ANY overlap between external summary and local schedule blocks. */
+    /**
+     * Returns true if there is ANY overlap between external summary and local schedule blocks.
+     */
     public static boolean hasConflictWithLocal(AppDatabase db, byte[] localRootTaskId, long startDayUtcMs, JSONObject externalSummaryBody) {
 
         if (externalSummaryBody == null) return true;
@@ -31,10 +37,9 @@ public final class ConflictChecker {
         JSONArray daysArr = externalSummaryBody.optJSONArray("days");
         if (daysArr == null) return true;
 
-        // TaskCollector now returns TaskWithSource -> unwrap tasks
         List<TaskWithSource> localAllWS = TaskCollector.collect(db, localRootTaskId);
         List<TaskEntity> localAll = new ArrayList<>();
-        for (TaskWithSource tws : localAllWS) localAll.add(tws.task);
+        for (TaskWithSource tws : localAllWS) localAll.add(tws.task());
 
         HashMap<String, Long> startMap = new HashMap<>();
         for (TaskEntity t : localAll) {
@@ -42,10 +47,9 @@ public final class ConflictChecker {
             long startUtc = (create != null && create.whenApplyUtcMs != null)
                     ? create.whenApplyUtcMs
                     : (create != null ? create.createAtUtcMs : System.currentTimeMillis());
-            startMap.put(hex(t.taskId), startUtc);
+            startMap.put(HexBytes.hex(t.taskId), startUtc);
         }
 
-        // only fixed tasks for conflict (Start/Finish)
         List<TaskEntity> fixed = new ArrayList<>();
         for (TaskEntity t : localAll) {
             if (!"Empty".equals(t.type) && t.startTimeMin != null && t.finishTimeMin != null) {
@@ -70,7 +74,7 @@ public final class ConflictChecker {
 
             List<TaskEntity> today = new ArrayList<>();
             for (TaskEntity t : fixed) {
-                long sUtc = startMap.get(hex(t.taskId));
+                long sUtc = startMap.get(HexBytes.hex(t.taskId));
                 if (OccurrenceEngine.isActiveOnDay(t, sUtc, day)) today.add(t);
             }
 
@@ -96,19 +100,5 @@ public final class ConflictChecker {
             }
         }
         return false;
-    }
-
-    private static void zeroTime(Calendar c) {
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-    }
-
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
     }
 }

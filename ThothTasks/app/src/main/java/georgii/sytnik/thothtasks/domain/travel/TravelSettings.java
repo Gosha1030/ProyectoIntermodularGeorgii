@@ -6,15 +6,7 @@ import georgii.sytnik.thothtasks.db.entities.UserEntity;
 
 public final class TravelSettings {
 
-    private TravelSettings() {}
-
-    public static class Params {
-        public final int mandatoryExtraM;
-        public final int optionalExtraM;
-        public Params(int mandatoryExtraM, int optionalExtraM) {
-            this.mandatoryExtraM = Math.max(0, mandatoryExtraM);
-            this.optionalExtraM = Math.max(0, optionalExtraM);
-        }
+    private TravelSettings() {
     }
 
     public static Params read(UserEntity u) {
@@ -31,17 +23,10 @@ public final class TravelSettings {
         }
     }
 
-    public static void writeDefaultsIfMissing(UserEntity u) {
-        try {
-            JSONObject o = (u.ajustesJson == null || u.ajustesJson.trim().isEmpty())
-                    ? new JSONObject()
-                    : new JSONObject(u.ajustesJson);
-
-            boolean changed = false;
-            if (!o.has("travelExtraMandatoryM")) { o.put("travelExtraMandatoryM", 0); changed = true; }
-            if (!o.has("travelExtraOptionalM")) { o.put("travelExtraOptionalM", 0); changed = true; }
-
-            if (changed) u.ajustesJson = o.toString();
-        } catch (Exception ignored) {}
+    public record Params(int mandatoryExtraM, int optionalExtraM) {
+        public Params(int mandatoryExtraM, int optionalExtraM) {
+            this.mandatoryExtraM = Math.max(0, mandatoryExtraM);
+            this.optionalExtraM = Math.max(0, optionalExtraM);
+        }
     }
 }

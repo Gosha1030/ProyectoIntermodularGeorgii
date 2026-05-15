@@ -3,7 +3,8 @@ package georgii.sytnik.thothtasks.domain.action;
 import org.json.JSONObject;
 
 public final class ActionJson {
-    private ActionJson() {}
+    private ActionJson() {
+    }
 
     public static JSONObject parseOrEmpty(String json) {
         try {
@@ -20,7 +21,10 @@ public final class ActionJson {
 
     public static String set(String json, String key, boolean value) {
         JSONObject o = parseOrEmpty(json);
-        try { o.put(key, value); } catch (Exception ignored) {}
+        try {
+            o.put(key, value);
+        } catch (Exception ignored) {
+        }
         return o.toString();
     }
 }

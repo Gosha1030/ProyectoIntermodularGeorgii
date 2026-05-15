@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.domain.action;
 
+import static georgii.sytnik.thothtasks.util.TimeText.zeroTime;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -19,7 +21,8 @@ public final class ActionPlanner {
     private static final String PREFS = "actions";
     private static final String KEY_LAST_PLAN_UTC = "lastPlanUtc";
 
-    private ActionPlanner() {}
+    private ActionPlanner() {
+    }
 
     public static void scheduleNextDays(Context ctx, AppDatabase db, int daysAhead) {
         long now = System.currentTimeMillis();
@@ -68,10 +71,4 @@ public final class ActionPlanner {
         return h & 0x7fffffff;
     }
 
-    private static void zeroTime(Calendar c) {
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-    }
 }

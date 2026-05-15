@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.domain.schedule;
 
+import static georgii.sytnik.thothtasks.util.TimeText.zeroTime;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,10 +17,12 @@ import georgii.sytnik.thothtasks.db.entities.ShareResourceEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskChangeEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 import georgii.sytnik.thothtasks.ui.schedule.DayBlock;
+import georgii.sytnik.thothtasks.util.HexBytes;
 
 public final class ScheduleSummaryBuilder {
 
-    private ScheduleSummaryBuilder() {}
+    private ScheduleSummaryBuilder() {
+    }
 
     public static JSONObject buildFixedSummary(AppDatabase db, byte[] resourceId, long startDayUtcMs, int days) throws JSONException {
 
@@ -31,10 +35,9 @@ public final class ScheduleSummaryBuilder {
             return o;
         }
 
-        // TaskCollector -> TaskWithSource; unwrap tasks
         List<TaskWithSource> allWS = TaskCollector.collect(db, res.rootTaskId);
         List<TaskEntity> all = new ArrayList<>();
-        for (TaskWithSource tws : allWS) all.add(tws.task);
+        for (TaskWithSource tws : allWS) all.add(tws.task());
 
         HashMap<String, Long> startMap = new HashMap<>();
         for (TaskEntity t : all) {
@@ -42,7 +45,7 @@ public final class ScheduleSummaryBuilder {
             long startUtc = (create != null && create.whenApplyUtcMs != null)
                     ? create.whenApplyUtcMs
                     : (create != null ? create.createAtUtcMs : System.currentTimeMillis());
-            startMap.put(hex(t.taskId), startUtc);
+            startMap.put(HexBytes.hex(t.taskId), startUtc);
         }
 
         List<TaskEntity> fixed = new ArrayList<>();
@@ -70,7 +73,7 @@ public final class ScheduleSummaryBuilder {
 
             List<TaskEntity> today = new ArrayList<>();
             for (TaskEntity t : fixed) {
-                long sUtc = startMap.get(hex(t.taskId));
+                long sUtc = startMap.get(HexBytes.hex(t.taskId));
                 if (OccurrenceEngine.isActiveOnDay(t, sUtc, cur)) today.add(t);
             }
 
@@ -92,19 +95,5 @@ public final class ScheduleSummaryBuilder {
 
         out.put("days", daysArr);
         return out;
-    }
-
-    private static void zeroTime(Calendar c) {
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-    }
-
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
     }
 }

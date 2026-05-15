@@ -1,7 +1,9 @@
 package georgii.sytnik.thothtasks.ui.schedule;
 
-import static georgii.sytnik.thothtasks.domain.place.PlaceResolver.effectivePlaceId;
-import static georgii.sytnik.thothtasks.domain.place.PlaceResolver.placeNameOrAny;
+import static georgii.sytnik.thothtasks.util.HexBytes.equalBytes;
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+import static georgii.sytnik.thothtasks.util.HexBytes.hexToBytes;
+import static georgii.sytnik.thothtasks.util.TimeText.zeroTime;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,20 +23,19 @@ import java.util.Map;
 
 import georgii.sytnik.thothtasks.R;
 import georgii.sytnik.thothtasks.db.AppDatabase;
+import georgii.sytnik.thothtasks.db.entities.PlaceEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskChangeEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskEntity;
-import georgii.sytnik.thothtasks.db.entities.PlaceEntity;
 import georgii.sytnik.thothtasks.db.entities.TaskOverlayEntity;
 import georgii.sytnik.thothtasks.db.entities.TravelEntity;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.domain.place.PlaceResolver;
-import georgii.sytnik.thothtasks.domain.travel.TravelSettings;
-import georgii.sytnik.thothtasks.net.MessageCodec;
 import georgii.sytnik.thothtasks.domain.schedule.DayTimelinePlanner;
 import georgii.sytnik.thothtasks.domain.schedule.OccurrenceEngine;
 import georgii.sytnik.thothtasks.domain.schedule.OverlayResolver;
 import georgii.sytnik.thothtasks.domain.schedule.TaskCollector;
 import georgii.sytnik.thothtasks.domain.schedule.TaskWithSource;
+import georgii.sytnik.thothtasks.domain.travel.TravelSettings;
 import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.time.UuidV7;
 
@@ -42,6 +43,11 @@ public class ScheduleDayFragment extends Fragment {
 
     private static final String ARG_DAY_UTC = "dayUtc";
     private static final String ARG_ROOT_ID = "rootIdHex";
+    private AppDatabase db;
+
+    public ScheduleDayFragment() {
+        super(R.layout.fragment_schedule_day);
+    }
 
     public static ScheduleDayFragment newInstance(long dayUtcMs, String rootIdHex) {
         ScheduleDayFragment f = new ScheduleDayFragment();
@@ -52,10 +58,25 @@ public class ScheduleDayFragment extends Fragment {
         return f;
     }
 
-    private AppDatabase db;
-
-    public ScheduleDayFragment() {
-        super(R.layout.fragment_schedule_day);
+    private static TaskEntity copyTask(TaskEntity t) {
+        TaskEntity c = new TaskEntity();
+        c.taskId = t.taskId;
+        c.taskFather = t.taskFather;
+        c.taskName = t.taskName;
+        c.type = t.type;
+        c.periodD = t.periodD;
+        c.daysOfJson = t.daysOfJson;
+        c.periodicJson = t.periodicJson;
+        c.state = t.state;
+        c.startTimeMin = t.startTimeMin;
+        c.finishTimeMin = t.finishTimeMin;
+        c.timeM = t.timeM;
+        c.uninterrupted = t.uninterrupted;
+        c.weight = t.weight;
+        c.actionJson = t.actionJson;
+        c.muted = t.muted;
+        c.placeId = t.placeId;
+        return c;
     }
 
     @Override
@@ -78,7 +99,7 @@ public class ScheduleDayFragment extends Fragment {
 
             HashMap<String, Long> startMap = new HashMap<>();
             for (TaskWithSource tws : all) {
-                TaskEntity t = tws.task;
+                TaskEntity t = tws.task();
                 TaskChangeEntity create = db.taskChangeDao().findCreateTask(t.taskId);
                 long startUtc = (create != null && create.whenApplyUtcMs != null)
                         ? create.whenApplyUtcMs
@@ -90,11 +111,11 @@ public class ScheduleDayFragment extends Fragment {
             List<TaskLineAdapter.Line> noTime = new ArrayList<>();
 
             for (TaskWithSource tws : all) {
-                TaskEntity t = tws.task;
+                TaskEntity t = tws.task();
                 long sUtc = startMap.get(hex(t.taskId));
                 if (!OccurrenceEngine.isActiveOnDay(t, sUtc, day)) continue;
 
-                boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId, t.taskId, t.muted);
+                boolean effMuted = OverlayResolver.effectiveMuted(db, tws.sourceId(), t.taskId, t.muted);
 
                 if (t.startTimeMin == null || t.finishTimeMin == null) {
                     String text = "• " + t.taskName + (t.timeM != null ? (" (" + t.timeM + "m)") : "");
@@ -108,10 +129,9 @@ public class ScheduleDayFragment extends Fragment {
 
             Map<String, Integer> depth = DayTimelinePlanner.computeDepths(today);
             List<DayBlock> blocks = DayTimelinePlanner.buildBlocks(today, depth);
-            // --- Place text for TASK blocks (UI only: show "(Cualquier lugar)" if none) ---
             HashMap<String, TaskWithSource> byId = new HashMap<>();
             for (TaskWithSource tws : all) {
-                byId.put(hex(tws.task.taskId), tws);
+                byId.put(hex(tws.task().taskId), tws);
             }
 
             for (DayBlock b : blocks) {
@@ -121,11 +141,10 @@ public class ScheduleDayFragment extends Fragment {
                     b.placeText = "(Cualquier lugar)";
                     continue;
                 }
-                byte[] placeId = effectivePlaceId(tws.sourceId, tws.task);
+                byte[] placeId = effectivePlaceId(tws.sourceId(), tws.task());
                 b.placeText = placeNameOrAny(placeId);
             }
 
-// --- Travel generation (logic only: uses "carry-over" place for travelPlace) ---
             UserEntity ownerUser = db.userDao().findById(SessionStore.loadLastUserId(requireContext()));
             TravelSettings.Params tp = (ownerUser != null) ? TravelSettings.read(ownerUser) : new TravelSettings.Params(0, 0);
 
@@ -135,9 +154,13 @@ public class ScheduleDayFragment extends Fragment {
             byte[] lastKnownPlace = null;
 
             class TravelPoint {
-                DayBlock block;
-                byte[] travelPlace;
-                TravelPoint(DayBlock b, byte[] p) { block=b; travelPlace=p; }
+                final DayBlock block;
+                final byte[] travelPlace;
+
+                TravelPoint(DayBlock b, byte[] p) {
+                    block = b;
+                    travelPlace = p;
+                }
             }
 
             List<TravelPoint> points = new ArrayList<>();
@@ -149,13 +172,12 @@ public class ScheduleDayFragment extends Fragment {
                     points.add(new TravelPoint(b, lastKnownPlace));
                     continue;
                 }
-                byte[] eff = effectivePlaceId(tws.sourceId, tws.task);
+                byte[] eff = effectivePlaceId(tws.sourceId(), tws.task());
                 byte[] travelPlace = (eff != null) ? eff : lastKnownPlace;
                 points.add(new TravelPoint(b, travelPlace));
                 if (eff != null) lastKnownPlace = eff;
             }
 
-// Generate travel between consecutive visible tasks
             for (int i = 0; i < points.size() - 1; i++) {
                 TravelPoint a = points.get(i);
                 TravelPoint b = points.get(i + 1);
@@ -166,13 +188,10 @@ public class ScheduleDayFragment extends Fragment {
                 int gap = b.block.startMin - a.block.endMin;
                 if (gap <= 0) continue;
 
-                // Find travel in DB
                 TravelEntity tr = db.travelDao().findByStartFinish(a.travelPlace, b.travelPlace);
 
-                // If not exist, try auto-create based on userTimeM/googleTimeM (future) else warn
                 if (tr == null) {
-                    Integer base = null; // user/google not available in v1 unless you already store them somewhere
-                    // If someday you store default googleTimeM in another table, you can set base here.
+                    Integer base = null;
 
                     if (base == null) {
                         String sName = placeName(a.travelPlace);
@@ -195,13 +214,13 @@ public class ScheduleDayFragment extends Fragment {
                     tr.googleTimeM = base;
                     tr.googleDataJson = null;
 
-                    tr.timeM = base + tp.mandatoryExtraM;
+                    tr.timeM = base + tp.mandatoryExtraM();
                     if (tr.timeM <= 0) tr.timeM = 1;
 
                     db.travelDao().insert(tr);
                 }
 
-                int mandatory = tr.timeM; // already includes mandatory extra
+                int mandatory = tr.timeM;
                 if (gap < mandatory) {
                     String sName = placeName(a.travelPlace);
                     String fName = placeName(b.travelPlace);
@@ -209,21 +228,19 @@ public class ScheduleDayFragment extends Fragment {
                             getString(R.string.schedule_warn_no_time_for_travel, mandatory, (sName != null ? sName : getString(R.string.unknown_short)), (fName != null ? fName : getString(R.string.unknown_short))),
                             false
                     ));
-                    continue; // option 1A
+                    continue;
                 }
 
-                int optionalAdd = Math.min(tp.optionalExtraM, gap - mandatory);
+                int optionalAdd = Math.min(tp.optionalExtraM(), gap - mandatory);
                 int dur = mandatory + Math.max(0, optionalAdd);
 
                 String sName = placeName(a.travelPlace);
                 String fName = placeName(b.travelPlace);
                 String line3 = (sName != null ? sName : getString(R.string.unknown_short)) + " → " + (fName != null ? fName : getString(R.string.unknown_short));
 
-                // Travel block occupies time in the gap starting at end of previous task
                 travelBlocks.add(new DayBlock(a.block.endMin, a.block.endMin + dur, line3));
             }
 
-// Merge blocks (tasks + travels) sorted by time
             List<DayBlock> allBlocks = new ArrayList<>();
             allBlocks.addAll(blocks);
             allBlocks.addAll(travelBlocks);
@@ -232,15 +249,12 @@ public class ScheduleDayFragment extends Fragment {
                 return Integer.compare(x.endMin, y.endMin);
             });
 
-// Add warnings under "Sin hora" list (without affecting task list)
             noTime.addAll(warnings);
-
-// Replace blocks variable used by UI
             blocks.clear();
             blocks.addAll(allBlocks);
 
             for (TaskWithSource tws : all) {
-                byId.put(hex(tws.task.taskId), tws);
+                byId.put(hex(tws.task().taskId), tws);
             }
 
             for (DayBlock b : blocks) {
@@ -249,15 +263,14 @@ public class ScheduleDayFragment extends Fragment {
                     b.placeText = "(Cualquier lugar)";
                     continue;
                 }
-                byte[] placeId = PlaceResolver.effectivePlaceId(db, tws.sourceId, tws.task);
+                byte[] placeId = PlaceResolver.effectivePlaceId(db, tws.sourceId(), tws.task());
                 b.placeText = PlaceResolver.placeNameOrAny(db, placeId);
             }
 
             requireActivity().runOnUiThread(() -> {
                 timeline.setBlocks(blocks);
                 rvNoTime.setAdapter(new TaskLineAdapter(noTime, line -> {
-                    if (!(line.payload instanceof TravelPrefill)) return;
-                    TravelPrefill tpr = (TravelPrefill) line.payload;
+                    if (!(line.payload() instanceof TravelPrefill tpr)) return;
 
                     Intent i = new Intent(requireContext(), georgii.sytnik.thothtasks.ui.TravelsActivity.class);
                     i.putExtra(georgii.sytnik.thothtasks.ui.TravelsActivity.EXTRA_AUTO_OPEN, true);
@@ -270,62 +283,14 @@ public class ScheduleDayFragment extends Fragment {
         }).start();
     }
 
-    private static void zeroTime(Calendar c) {
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-    }
-
-    private static String hex(byte[] b) {
-        if (b == null) return "";
-        StringBuilder sb = new StringBuilder(b.length * 2);
-        for (byte x : b) sb.append(String.format("%02x", x));
-        return sb.toString();
-    }
-
-    private static byte[] hexToBytes(String hex) {
-        if (hex == null) return null;
-        int len = hex.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-                    + Character.digit(hex.charAt(i + 1), 16));
-        }
-        return data;
-    }
-    private static TaskEntity copyTask(TaskEntity t) {
-        TaskEntity c = new TaskEntity();
-        c.taskId = t.taskId;
-        c.taskFather = t.taskFather;
-        c.taskName = t.taskName;
-        c.type = t.type;
-        c.periodD = t.periodD;
-        c.daysOfJson = t.daysOfJson;
-        c.periodicJson = t.periodicJson;
-        c.state = t.state;
-        c.startTimeMin = t.startTimeMin;
-        c.finishTimeMin = t.finishTimeMin;
-        c.timeM = t.timeM;
-        c.uninterrupted = t.uninterrupted;
-        c.weight = t.weight;
-        c.actionJson = t.actionJson;
-        c.muted = t.muted;
-        c.placeId = t.placeId;
-        return c;
-    }
-
     private byte[] effectivePlaceId(byte[] sourceIdOrNull, TaskEntity t) {
-        // overlay importada
         if (sourceIdOrNull != null) {
             TaskOverlayEntity ov = db.taskOverlayDao().find(sourceIdOrNull, t.taskId);
             if (ov != null && ov.placeLocalId != null) return ov.placeLocalId;
         }
 
-        // place directo
         if (t.placeId != null) return t.placeId;
 
-        // herencia dinámica
         byte[] cur = t.taskFather;
         while (cur != null) {
             TaskEntity p = db.taskDao().findById(cur);
@@ -348,15 +313,6 @@ public class ScheduleDayFragment extends Fragment {
         return p != null ? p.placeName : getString(R.string.unknown_short);
     }
 
-    private static boolean equalBytes(byte[] a, byte[] b) {
-        if (a == null || b == null || a.length != b.length) return false;
-        for (int i = 0; i < a.length; i++) if (a[i] != b[i]) return false;
-        return true;
-    }
-
-    private static class TravelPrefill {
-        final byte[] startPlaceId;
-        final byte[] finishPlaceId;
-        TravelPrefill(byte[] s, byte[] f) { startPlaceId = s; finishPlaceId = f; }
+    private record TravelPrefill(byte[] startPlaceId, byte[] finishPlaceId) {
     }
 }

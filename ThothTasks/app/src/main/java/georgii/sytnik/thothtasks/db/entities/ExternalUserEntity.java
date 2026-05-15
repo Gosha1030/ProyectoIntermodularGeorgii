@@ -6,13 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "ExternalUser",
-        indices = {
-                @Index(value = {"User"}),
-                @Index(value = {"Ip", "Port"})
-        }
-)
+@Entity(tableName = "ExternalUser", indices = {@Index(value = {"User"}), @Index(value = {"Ip", "Port"})})
 public class ExternalUserEntity {
 
     @PrimaryKey

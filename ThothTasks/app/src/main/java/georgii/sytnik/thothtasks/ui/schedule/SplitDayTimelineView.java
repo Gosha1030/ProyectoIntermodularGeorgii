@@ -1,32 +1,21 @@
 package georgii.sytnik.thothtasks.ui.schedule;
 
-import georgii.sytnik.thothtasks.R;
-
-import java.util.Locale;
+import static georgii.sytnik.thothtasks.util.TimeText.minutesToText;
 
 import android.content.Context;
-import java.util.Locale;
-
 import android.graphics.Canvas;
-import java.util.Locale;
-
 import android.graphics.Paint;
-import java.util.Locale;
-
 import android.graphics.RectF;
-import java.util.Locale;
-
 import android.util.AttributeSet;
-import java.util.Locale;
-
 import android.view.View;
-
-import java.util.Locale;
 
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import georgii.sytnik.thothtasks.R;
 
 public class SplitDayTimelineView extends View {
 
@@ -40,11 +29,10 @@ public class SplitDayTimelineView extends View {
     private final RectF rect = new RectF();
     private final List<DayBlock> blocks = new ArrayList<>();
 
-    // geometry in dp (converted in draw)
-    private float gutterDp = 40f;      // hour label gutter (left and middle)
-    private float midGapDp = 6f;       // gap between columns
-    private float paddingDp = 6f;
-    private float radiusDp = 10f;
+    private final float gutterDp = 40f;
+    private final float midGapDp = 6f;
+    private final float paddingDp = 6f;
+    private final float radiusDp = 10f;
 
     public SplitDayTimelineView(Context context) {
         super(context);
@@ -77,7 +65,6 @@ public class SplitDayTimelineView extends View {
         blockTravelPaint.setColor(0xFF2E7D32);
     }
 
-    /** Blocks are in full-day minutes [0..1440]. */
     public void setBlocks(List<DayBlock> newBlocks) {
         blocks.clear();
         if (newBlocks != null) blocks.addAll(newBlocks);
@@ -86,9 +73,6 @@ public class SplitDayTimelineView extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // IMPORTANT:
-        // We do NOT force a fixed height here.
-        // Parent (ConstraintLayout) gives us the exact height available.
         int w = MeasureSpec.getSize(widthMeasureSpec);
         int h = MeasureSpec.getSize(heightMeasureSpec);
         setMeasuredDimension(w, h);
@@ -106,10 +90,8 @@ public class SplitDayTimelineView extends View {
         float right = w - getPaddingRight();
         float bottom = h - getPaddingBottom();
 
-        // available height for 12 hours (two columns represent 24h)
         float innerH = Math.max(0, bottom - top);
 
-        // ✅ Dynamic hour height: always fit 12 rows
         float hourHeightPx = innerH / 12f;
 
         float gutterPx = dp(gutterDp);
@@ -117,10 +99,9 @@ public class SplitDayTimelineView extends View {
         float paddingPx = dp(paddingDp);
         float radiusPx = dp(radiusDp);
 
-        // Layout: [gutter][leftCol][midGap][gutter][rightCol]
         float totalGutters = gutterPx + midGapPx + gutterPx;
         float colW = (right - left - totalGutters) / 2f;
-        if (colW < dp(40)) return; // too narrow
+        if (colW < dp(40)) return;
 
         float leftColX0 = left + gutterPx;
         float leftColX1 = leftColX0 + colW;
@@ -129,16 +110,13 @@ public class SplitDayTimelineView extends View {
         float rightColX0 = rightGutterX0 + gutterPx;
         float rightColX1 = rightColX0 + colW;
 
-        // 1) Grid + labels (0..11 left, 12..23 right)
         for (int i = 0; i <= 12; i++) {
             float y = top + i * hourHeightPx;
 
-            // grid lines
             canvas.drawLine(leftColX0, y, leftColX1, y, gridPaint);
             canvas.drawLine(rightColX0, y, rightColX1, y, gridPaint);
 
             if (i < 12) {
-                // put label inside the row (avoid clipping at bottom)
                 float labelY = y + Math.min(dp(14), hourHeightPx * 0.35f);
 
                 String l = String.format(Locale.getDefault(), "%02d", i);
@@ -149,18 +127,15 @@ public class SplitDayTimelineView extends View {
             }
         }
 
-        // 2) Blocks split by noon if needed
         for (DayBlock b : blocks) {
             if (b.endMin <= b.startMin) continue;
 
-            // Left half: minutes [0..720]
             int aStart = clamp(b.startMin, 0, 720);
             int aEnd = clamp(b.endMin, 0, 720);
             if (aEnd > aStart) {
                 drawBlock(canvas, b, aStart, aEnd, leftColX0, leftColX1, top, hourHeightPx, paddingPx, radiusPx);
             }
 
-            // Right half: minutes [720..1440] mapped to [0..720]
             int bStart = clamp(b.startMin, 720, 1440);
             int bEnd = clamp(b.endMin, 720, 1440);
             if (bEnd > bStart) {
@@ -195,24 +170,16 @@ public class SplitDayTimelineView extends View {
 
         canvas.drawText(time, tx, ty, blockTextPaint);
 
-// 2ª línea: título
         if (rect.height() > dp(32)) {
             canvas.drawText(original.title, tx, ty + dp(16), blockTextPaint);
         }
 
-// 3ª línea: place
         if (rect.height() > dp(48)) {
             String place = original.placeText != null ? original.placeText : "";
             if (!place.isEmpty()) {
                 canvas.drawText(place, tx, ty + dp(32), blockTextPaint);
             }
         }
-    }
-
-    private String minutesToText(int min) {
-        int h = min / 60;
-        int m = min % 60;
-        return String.format(Locale.getDefault(), "%02d:%02d", h, m);
     }
 
     private int clamp(int v, int lo, int hi) {

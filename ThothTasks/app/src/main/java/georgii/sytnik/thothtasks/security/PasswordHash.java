@@ -10,7 +10,8 @@ import javax.crypto.spec.PBEKeySpec;
 public final class PasswordHash {
     private static final SecureRandom RNG = new SecureRandom();
 
-    private PasswordHash() {}
+    private PasswordHash() {
+    }
 
     public static String hashToStoredString(char[] password) {
         try {

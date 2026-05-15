@@ -16,27 +16,15 @@ import georgii.sytnik.thothtasks.R;
 
 public class WeekBlockAdapter extends RecyclerView.Adapter<WeekBlockAdapter.VH> {
 
-    public static class DayBlock {
-        public final String header;
-        public final Calendar day;
-        public final List<TaskLineAdapter.Line> lines;
-
-        public DayBlock(String header, Calendar day, List<TaskLineAdapter.Line> lines) {
-            this.header = header;
-            this.day = day;
-            this.lines = lines;
-        }
-    }
-
     private final List<DayBlock> blocks;
     private final ScheduleNavigator nav;
-
     public WeekBlockAdapter(List<DayBlock> blocks, ScheduleNavigator nav) {
         this.blocks = blocks;
         this.nav = nav;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_week_day_block, parent, false);
         return new VH(v);
@@ -54,11 +42,18 @@ public class WeekBlockAdapter extends RecyclerView.Adapter<WeekBlockAdapter.VH> 
         h.itemView.setOnClickListener(v -> nav.navigateToDay(b.day));
     }
 
-    @Override public int getItemCount() { return blocks.size(); }
+    @Override
+    public int getItemCount() {
+        return blocks.size();
+    }
+
+    public record DayBlock(String header, Calendar day, List<TaskLineAdapter.Line> lines) {
+    }
 
     static class VH extends RecyclerView.ViewHolder {
         TextView tvHeader, tvEmpty;
         RecyclerView rv;
+
         VH(@NonNull View itemView) {
             super(itemView);
             tvHeader = itemView.findViewById(R.id.tvDayHeader);

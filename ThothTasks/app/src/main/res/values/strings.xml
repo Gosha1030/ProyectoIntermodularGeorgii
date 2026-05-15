@@ -211,8 +211,8 @@
     <string name="toast_select_father">Chose father</string>
     <string name="field_name">Nombre</string>
     <string name="field_port">Port</string>
-    <string name="btn_add_local">Add Local</string>
-    <string name="field_ip">field ip</string>
+    <string name="btn_add_local" >Add Local</string>
+    <string name="field_ip" >field ip</string>
     <string name="hint_resource_id">Source id</string>
     <string name="btn_add_source">Add source</string>
     <string name="external_user_manager_title">External user manager</string>

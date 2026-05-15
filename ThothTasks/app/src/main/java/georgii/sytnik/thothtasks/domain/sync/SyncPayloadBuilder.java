@@ -16,7 +16,8 @@ import georgii.sytnik.thothtasks.domain.schedule.TaskWithSource;
 
 public final class SyncPayloadBuilder {
 
-    private SyncPayloadBuilder() {}
+    private SyncPayloadBuilder() {
+    }
 
     public static JSONObject build(AppDatabase db, byte[] resourceId, long sinceVersion) throws JSONException {
 
@@ -25,7 +26,7 @@ public final class SyncPayloadBuilder {
 
         List<TaskWithSource> ws = TaskCollector.collect(db, res.rootTaskId);
         List<TaskEntity> tasks = new ArrayList<>();
-        for (TaskWithSource tws : ws) tasks.add(tws.task);
+        for (TaskWithSource tws : ws) tasks.add(tws.task());
 
         List<TaskChangeEntity> changes;
         if (sinceVersion <= 0) {

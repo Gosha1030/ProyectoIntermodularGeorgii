@@ -14,79 +14,79 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:title="@string/user_manager_title"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnExternalUserManager"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/btn_external_user_manager"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            android:text="@string/btn_external_user_manager"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
         <TextView
             android:id="@+id/tvLocals"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/locals_title"
             android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/btnExternalUserManager"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/btnExternalUserManager" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvLocals"
             android:layout_width="0dp"
             android:layout_height="200dp"
-            app:layout_constraintTop_toBottomOf="@id/tvLocals"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/tvLocals" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddLocal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/btn_add_local"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/rvLocals"
+            android:text="@string/btn_add_local"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/rvLocals" />
 
         <TextView
             android:id="@+id/tvSources"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/external_sources_title"
             android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/btnAddLocal"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/btnAddLocal" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvSources"
             android:layout_width="0dp"
             android:layout_height="200dp"
-            app:layout_constraintTop_toBottomOf="@id/tvSources"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/tvSources" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddSource"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/btn_add_source"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/rvSources"
-            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/btn_add_source"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvSources" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

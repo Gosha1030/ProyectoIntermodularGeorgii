@@ -14,24 +14,24 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:title="@string/create_task_title"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/task_name"/>
+                android:hint="@string/task_name" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -39,76 +39,76 @@
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/pick_father"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/tilName"
+            android:text="@string/pick_father"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/tilName" />
 
         <TextView
             android:id="@+id/tvFather"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/no_father_selected"
             android:layout_marginTop="6dp"
-            app:layout_constraintTop_toBottomOf="@id/btnPickFather"
+            android:text="@string/no_father_selected"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/btnPickFather" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnWhenApply"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/when_apply_pick"
             android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@id/tvFather"
+            android:text="@string/when_apply_pick"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/tvFather" />
 
         <TextView
             android:id="@+id/tvWhenApply"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/when_apply_now"
             android:layout_marginTop="6dp"
-            app:layout_constraintTop_toBottomOf="@id/btnWhenApply"
+            android:text="@string/when_apply_now"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/btnWhenApply" />
 
         <Spinner
             android:id="@+id/spType"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/tvWhenApply"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/tvWhenApply" />
 
         <FrameLayout
             android:id="@+id/typeInfoContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/spType"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/spType" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilStart"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/typeInfoContainer"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/typeInfoContainer">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etStart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/start_time"
-                android:inputType="text"/>
+                android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -116,16 +116,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tilStart"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/tilStart">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFinish"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/finish_time"
-                android:inputType="text"/>
+                android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -133,16 +133,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tilFinish"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/tilFinish">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etTimeM"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/time_m"
-                android:inputType="number"/>
+                android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -151,135 +151,135 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/pick_place"
-            app:layout_constraintTop_toBottomOf="@id/tilTimeM"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/tilTimeM" />
 
         <TextView
             android:id="@+id/tvPlace"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/place_anywhere"
             android:layout_marginTop="6dp"
-            app:layout_constraintTop_toBottomOf="@id/btnPickPlace"
+            android:text="@string/place_anywhere"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/btnPickPlace" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilWeight"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/tvPlace"
-            app:layout_constraintStart_toStartOf="parent"
+            app:helperText="@string/weight_hint"
             app:layout_constraintEnd_toEndOf="parent"
-            app:helperText="@string/weight_hint">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPlace">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etWeight"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/weight"
-                android:inputType="number"/>
+                android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox
             android:id="@+id/cbUninterrupted"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/uninterrupted"
-            android:checked="true"
             android:layout_marginTop="10dp"
-            app:layout_constraintTop_toBottomOf="@id/tilWeight"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:checked="true"
+            android:text="@string/uninterrupted"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilWeight" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPeriodD"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/cbUninterrupted"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/cbUninterrupted">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPeriodD"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/period_d"
-                android:inputType="number"/>
+                android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:id="@+id/actionsContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_marginTop="12dp"
-            app:layout_constraintTop_toBottomOf="@id/tilPeriodD"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/tilPeriodD">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="6dp"
                 android:text="@string/actions_title"
-                android:textStyle="bold"
-                android:paddingBottom="6dp"/>
+                android:textStyle="bold" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swAlarm"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_alarm"/>
+                android:text="@string/action_alarm" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swDnd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_dnd"/>
+                android:text="@string/action_dnd" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swNotifyMonth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_notify_month"/>
+                android:text="@string/action_notify_month" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swNotifyWeek"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_notify_week"/>
+                android:text="@string/action_notify_week" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swNotifyDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_notify_day"/>
+                android:text="@string/action_notify_day" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swNotifyOnDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_notify_on_day"/>
+                android:text="@string/action_notify_on_day" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swNotify1h"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_notify_1h"/>
+                android:text="@string/action_notify_1h" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swNotify10m"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_notify_10m"/>
+                android:text="@string/action_notify_10m" />
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/swNotify1m"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/action_notify_1m"/>
+                android:text="@string/action_notify_1m" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -288,10 +288,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:text="@string/create"
-            app:layout_constraintTop_toBottomOf="@id/actionsContainer"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/actionsContainer" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

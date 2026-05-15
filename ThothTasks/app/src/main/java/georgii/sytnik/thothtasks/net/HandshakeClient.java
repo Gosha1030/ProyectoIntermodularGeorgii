@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.net;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.hex;
+
 import android.content.Context;
 
 import org.json.JSONObject;
@@ -7,6 +9,7 @@ import org.json.JSONObject;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.SecureRandom;
@@ -24,7 +27,8 @@ import georgii.sytnik.thothtasks.security.UserSettingsCrypto;
 
 public final class HandshakeClient {
 
-    private HandshakeClient() {}
+    private HandshakeClient() {
+    }
 
     public static String sessionKey(String ip, int port, String ridHex) {
         return ip + ":" + port + "|" + ridHex;
@@ -43,12 +47,11 @@ public final class HandshakeClient {
         if (u == null) throw new IllegalStateException("User not found");
 
         UserSettingsCrypto.Params params = UserSettingsCrypto.ensureParams(u);
-        if (params.changed) db.userDao().update(u);
+        if (params.changed()) db.userDao().update(u);
 
         char[] pwd = SessionSecrets.getPassword();
         if (pwd == null || pwd.length == 0) throw new IllegalStateException("Password required");
 
-        // NOTE: Server sends same salt/iters in challenge; we use server values to ensure match.
         byte[] nonceA = new byte[16];
         new SecureRandom().nextBytes(nonceA);
 
@@ -90,14 +93,14 @@ public final class HandshakeClient {
         PublicKey pubB = Ecdh.pubFromB64(ephPubB64);
         byte[] shared = Ecdh.sharedSecret(ephA, pubB);
 
-        byte[] proof = HmacAuth.mac(kMaster, concat(nonceA, nonceB, ridHex.getBytes("UTF-8")));
+        byte[] proof = HmacAuth.mac(kMaster, concat(nonceA, nonceB, ridHex.getBytes(StandardCharsets.UTF_8)));
         byte[] prk = Hkdf.extract(proof, shared);
 
         NetSession s = new NetSession();
-        s.sessionId = MessageCodec.hex(Hkdf.expand(prk, "sid".getBytes("UTF-8"), 16));
-        s.kAuth = Hkdf.expand(prk, "auth".getBytes("UTF-8"), 32);
-        s.kAead = Hkdf.expand(prk, "aead".getBytes("UTF-8"), 32);
-        s.noncePrefix4 = Hkdf.expand(prk, "nonce".getBytes("UTF-8"), 4);
+        s.sessionId = hex(Hkdf.expand(prk, "sid".getBytes(StandardCharsets.UTF_8), 16));
+        s.kAuth = Hkdf.expand(prk, "auth".getBytes(StandardCharsets.UTF_8), 32);
+        s.kAead = Hkdf.expand(prk, "aead".getBytes(StandardCharsets.UTF_8), 32);
+        s.noncePrefix4 = Hkdf.expand(prk, "nonce".getBytes(StandardCharsets.UTF_8), 4);
         s.lastSeqIn = 0;
         s.nextSeqOut = 1;
 

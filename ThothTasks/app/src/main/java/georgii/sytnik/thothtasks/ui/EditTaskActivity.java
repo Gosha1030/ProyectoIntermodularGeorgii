@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.ui;
 
+import static georgii.sytnik.thothtasks.util.HexBytes.equalBytes;
+
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -62,18 +64,53 @@ public class EditTaskActivity extends AppCompatActivity {
     private byte[] userRootId;
 
     private byte[] selectedPlaceId = null;
-
+    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceLauncher = registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
+        if (res.getResultCode() == RESULT_OK && res.getData() != null) {
+            selectedPlaceId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
+            String name = res.getData().getStringExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_NAME);
+            if (name == null) name = getString(R.string.place_anywhere);
+            tvPlace.setText(name);
+        }
+    });
     private volatile boolean actionUiReady = false;
 
-    private final androidx.activity.result.ActivityResultLauncher<Intent> pickPlaceLauncher =
-            registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), res -> {
-                if (res.getResultCode() == RESULT_OK && res.getData() != null) {
-                    selectedPlaceId = res.getData().getByteArrayExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_ID);
-                    String name = res.getData().getStringExtra(PlacePickerActivity.EXTRA_RESULT_PLACE_NAME);
-                    if (name == null) name = getString(R.string.place_anywhere);
-                    tvPlace.setText(name);
-                }
-            });
+    private static String textOf(TextInputEditText et) {
+        return et.getText() == null ? "" : et.getText().toString().trim();
+    }
+
+    private static Integer parseIntOrNull(String s) {
+        if (s == null || s.isEmpty()) return null;
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static TaskEntity copyOf(TaskEntity t) {
+        TaskEntity c = new TaskEntity();
+        c.taskFather = t.taskFather;
+        c.taskName = t.taskName;
+        c.type = t.type;
+        c.periodD = t.periodD;
+        c.daysOfJson = t.daysOfJson;
+        c.periodicJson = t.periodicJson;
+        c.state = t.state;
+        c.startTimeMin = t.startTimeMin;
+        c.finishTimeMin = t.finishTimeMin;
+        c.timeM = t.timeM;
+        c.uninterrupted = t.uninterrupted;
+        c.weight = t.weight;
+        c.actionJson = t.actionJson;
+        c.muted = t.muted;
+        c.placeId = t.placeId;
+        return c;
+    }
+
+    private static boolean safeEquals(Object a, Object b) {
+        if (a == null) return b == null;
+        return a.equals(b);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,11 +151,7 @@ public class EditTaskActivity extends AppCompatActivity {
         swNotify10m = findViewById(R.id.swNotify10m);
         swNotify1m = findViewById(R.id.swNotify1m);
 
-        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.task_type_labels,
-                android.R.layout.simple_spinner_dropdown_item
-        );
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(this, R.array.task_type_labels, android.R.layout.simple_spinner_dropdown_item);
         spType.setAdapter(typeAdapter);
 
         taskId = getIntent().getByteArrayExtra(EXTRA_TASK_ID);
@@ -137,11 +170,17 @@ public class EditTaskActivity extends AppCompatActivity {
         btnDelete.setOnClickListener(v -> deleteTask());
         btnSave.setOnClickListener(v -> save());
 
-        // Live enable/disable for timed actions (Option 1)
         TextWatcher w = new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void afterTextChanged(Editable s) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 updateTimedActionsAvailabilityFromInputs();
             }
         };
@@ -164,7 +203,6 @@ public class EditTaskActivity extends AppCompatActivity {
             original = db.taskDao().findById(taskId);
             if (original == null) return;
 
-            // Ensure actionJson not null
             if (original.actionJson == null || original.actionJson.trim().isEmpty()) {
                 original.actionJson = "{}";
                 db.taskDao().setActionJson(original.taskId, "{}");
@@ -243,7 +281,6 @@ public class EditTaskActivity extends AppCompatActivity {
         sw.setOnCheckedChangeListener((btn, checked) -> {
             if (!actionUiReady) return;
 
-            // Option 1: if timed actions currently disabled, user cannot toggle (switch disabled).
             new Thread(() -> {
                 String newJson = ActionJson.set(task.actionJson, key, checked);
                 db.taskDao().setActionJson(task.taskId, newJson);
@@ -331,21 +368,11 @@ public class EditTaskActivity extends AppCompatActivity {
         byte[] newFatherId = (selectedFatherId != null) ? selectedFatherId : userRootId;
         byte[] newPlaceId = selectedPlaceId;
 
-        boolean changedFather = !equalsBytes(orRoot(original.taskFather), newFatherId);
+        boolean changedFather = !equalBytes(orRoot(original.taskFather), newFatherId);
         boolean changedState = newState != original.state;
         boolean changedMuted = newMuted != original.muted;
 
-        boolean changedOther =
-                !safeEquals(name, original.taskName)
-                        || !safeEquals(type, original.type)
-                        || !safeEquals(startMin, original.startTimeMin)
-                        || !safeEquals(finishMin, original.finishTimeMin)
-                        || !safeEquals(timeM, original.timeM)
-                        || !safeEquals(weight, original.weight)
-                        || !safeEquals(periodD, original.periodD)
-                        || (uninterrupted != original.uninterrupted)
-                        || changedFather
-                        || !equalsBytes(original.placeId, newPlaceId);
+        boolean changedOther = !safeEquals(name, original.taskName) || !safeEquals(type, original.type) || !safeEquals(startMin, original.startTimeMin) || !safeEquals(finishMin, original.finishTimeMin) || !safeEquals(timeM, original.timeM) || !safeEquals(weight, original.weight) || !safeEquals(periodD, original.periodD) || (uninterrupted != original.uninterrupted) || changedFather || !equalBytes(original.placeId, newPlaceId);
 
         final boolean finalNewState = newState;
         final boolean finalNewMuted = newMuted;
@@ -356,7 +383,6 @@ public class EditTaskActivity extends AppCompatActivity {
         new Thread(() -> {
             long now = System.currentTimeMillis();
 
-            // Only mute change
             if (!changedOther && !changedState && changedMuted) {
                 db.taskDao().setMuted(original.taskId, finalNewMuted);
 
@@ -373,7 +399,6 @@ public class EditTaskActivity extends AppCompatActivity {
                 return;
             }
 
-            // Only state change
             if (!changedOther && changedState && !changedMuted) {
                 db.taskDao().setStateMuted(original.taskId, finalNewState, finalNewMuted);
 
@@ -390,7 +415,6 @@ public class EditTaskActivity extends AppCompatActivity {
                 return;
             }
 
-            // Version update for other changes
             TaskEntity newer = copyOf(original);
             newer.taskId = UuidBytes.uuidToBytes(UuidV7.newUuid());
             newer.taskName = finalName;
@@ -408,8 +432,7 @@ public class EditTaskActivity extends AppCompatActivity {
 
             if (!validateCreateTask(newer.type, newer.periodicJson, newer.periodD)) return;
 
-            TaskHierarchyValidator.ValidationResult vr =
-                    TaskHierarchyValidator.canChildExistInsideParent(db, newer, newStartUtc, newFatherId);
+            TaskHierarchyValidator.ValidationResult vr = TaskHierarchyValidator.canChildExistInsideParent(db, newer, newStartUtc, newFatherId);
 
             if (!vr.ok) {
                 runOnUiThread(() -> Toast.makeText(this, vr.message, Toast.LENGTH_LONG).show());
@@ -466,67 +489,14 @@ public class EditTaskActivity extends AppCompatActivity {
     }
 
     private String getFatherLabel(byte[] fatherId, byte[] rootId) {
-        if (fatherId == null || equalsBytes(fatherId, rootId)) return getString(R.string.no_father_selected);
+        if (fatherId == null || equalBytes(fatherId, rootId))
+            return getString(R.string.no_father_selected);
         TaskEntity f = db.taskDao().findById(fatherId);
         return f != null ? f.taskName : getString(R.string.no_father_selected);
     }
 
     private byte[] orRoot(byte[] maybeNullFather) {
         return maybeNullFather != null ? maybeNullFather : userRootId;
-    }
-
-    private int indexOfType(String t) {
-        if (t == null) return 0;
-        switch (t) {
-            case "Unique": return 0;
-            case "Daily": return 1;
-            case "Weekly": return 2;
-            case "Yearly": return 3;
-            case "Periodic": return 4;
-            case "Empty": return 5;
-            default: return 0;
-        }
-    }
-
-    private static String textOf(TextInputEditText et) {
-        return et.getText() == null ? "" : et.getText().toString().trim();
-    }
-
-    private static Integer parseIntOrNull(String s) {
-        if (s == null || s.isEmpty()) return null;
-        try { return Integer.parseInt(s); } catch (Exception e) { return null; }
-    }
-
-    private static TaskEntity copyOf(TaskEntity t) {
-        TaskEntity c = new TaskEntity();
-        c.taskFather = t.taskFather;
-        c.taskName = t.taskName;
-        c.type = t.type;
-        c.periodD = t.periodD;
-        c.daysOfJson = t.daysOfJson;
-        c.periodicJson = t.periodicJson;
-        c.state = t.state;
-        c.startTimeMin = t.startTimeMin;
-        c.finishTimeMin = t.finishTimeMin;
-        c.timeM = t.timeM;
-        c.uninterrupted = t.uninterrupted;
-        c.weight = t.weight;
-        c.actionJson = t.actionJson;
-        c.muted = t.muted;
-        c.placeId = t.placeId;
-        return c;
-    }
-
-    private static boolean safeEquals(Object a, Object b) {
-        if (a == null) return b == null;
-        return a.equals(b);
-    }
-
-    private static boolean equalsBytes(byte[] a, byte[] b) {
-        if (a == null && b == null) return true;
-        if (a == null || b == null || a.length != b.length) return false;
-        for (int i = 0; i < a.length; i++) if (a[i] != b[i]) return false;
-        return true;
     }
 
     private boolean validateCreateTask(String type, String periodicJson, Integer periodD) {
@@ -553,16 +523,9 @@ public class EditTaskActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.err_periodic_month_12, Toast.LENGTH_LONG).show();
                     return false;
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return true;
-    }
-
-    private int indexOfTypeValue(String value) {
-        String[] values = getResources().getStringArray(R.array.task_type_values);
-        for (int i = 0; i < values.length; i++) {
-            if (values[i].equals(value)) return i;
-        }
-        return 0;
     }
 }

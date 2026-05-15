@@ -17,18 +17,18 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import org.json.JSONObject;
 
 import georgii.sytnik.thothtasks.db.AppDatabase;
 import georgii.sytnik.thothtasks.db.entities.UserEntity;
 import georgii.sytnik.thothtasks.domain.TaskChangeApplier;
 import georgii.sytnik.thothtasks.domain.action.ActionPlanner;
 import georgii.sytnik.thothtasks.security.ActionPlanHorizon;
-import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.security.SessionSecrets;
+import georgii.sytnik.thothtasks.security.SessionStore;
 import georgii.sytnik.thothtasks.ui.ExternalUserManagerActivity;
 import georgii.sytnik.thothtasks.ui.LoginActivity;
 import georgii.sytnik.thothtasks.ui.PlacesTravelsActivity;
@@ -44,8 +44,7 @@ import georgii.sytnik.thothtasks.util.HexBytes;
 
 public class MainActivity extends AppCompatActivity implements ScheduleNavigator {
 
-    private enum Mode { DAY, WEEK, MONTH, YEAR }
-
+    private final Calendar anchor = Calendar.getInstance();
     private AppDatabase db;
 
     private DrawerLayout drawer;
@@ -54,22 +53,29 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
     private TextView tvRange;
 
     private Mode mode = Mode.DAY;
-    private final Calendar anchor = Calendar.getInstance();
-
     private GestureDetector gestures;
-
     private byte[] userId;
     private byte[] rootId;
+
+    private static Calendar startOfWeek(Calendar any) {
+        Calendar c = (Calendar) any.clone();
+        int dow = c.get(Calendar.DAY_OF_WEEK);
+        int diff = (dow == Calendar.SUNDAY) ? -6 : (Calendar.MONDAY - dow);
+        c.add(Calendar.DATE, diff);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Notification permission for Android 13+
         if (android.os.Build.VERSION.SDK_INT >= 33) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 9001);
             }
         }
@@ -85,10 +91,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
 
         setSupportActionBar(toolbar);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar,
-                android.R.string.ok, android.R.string.cancel
-        );
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, android.R.string.ok, android.R.string.cancel);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -98,7 +101,10 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
             private static final int SWIPE_THRESHOLD = 120;
             private static final int SWIPE_VELOCITY = 120;
 
-            @Override public boolean onDown(MotionEvent e) { return false; }
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return false;
+            }
 
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -109,12 +115,14 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
 
                 if (Math.abs(dx) > Math.abs(dy)) {
                     if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY) {
-                        if (dx > 0) shift(-1); else shift(+1);
+                        if (dx > 0) shift(-1);
+                        else shift(+1);
                         return true;
                     }
                 } else {
                     if (Math.abs(dy) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY) {
-                        if (dy < 0) changeMode(+1); else changeMode(-1);
+                        if (dy < 0) changeMode(+1);
+                        else changeMode(-1);
                         return true;
                     }
                 }
@@ -133,10 +141,8 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
     protected void onResume() {
         super.onResume();
 
-        // Owner UDP listener
         startService(new Intent(this, georgii.sytnik.thothtasks.net.UdpOwnerService.class));
 
-        // Optional: update check worker if you still use it
         georgii.sytnik.thothtasks.ui.work.WorkScheduler.ensureUpdateCheckScheduled(this);
 
         new Thread(() -> {
@@ -162,9 +168,12 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
         int id = item.getItemId();
 
         if (id == R.id.nav_tasks) startActivity(new Intent(this, TaskManagerActivity.class));
-        else if (id == R.id.nav_user_manager) startActivity(new Intent(this, UserManagerActivity.class));
-        else if (id == R.id.nav_external_users) startActivity(new Intent(this, ExternalUserManagerActivity.class));
-        else if (id == R.id.nav_places_travels) startActivity(new Intent(this, PlacesTravelsActivity.class));
+        else if (id == R.id.nav_user_manager)
+            startActivity(new Intent(this, UserManagerActivity.class));
+        else if (id == R.id.nav_external_users)
+            startActivity(new Intent(this, ExternalUserManagerActivity.class));
+        else if (id == R.id.nav_places_travels)
+            startActivity(new Intent(this, PlacesTravelsActivity.class));
         else if (id == R.id.nav_settings) startActivity(new Intent(this, SettingsActivity.class));
         else if (id == R.id.nav_logout) performLogout();
 
@@ -182,10 +191,18 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
 
     private void shift(int delta) {
         switch (mode) {
-            case DAY:   anchor.add(Calendar.DATE, delta); break;
-            case WEEK:  anchor.add(Calendar.DATE, 7 * delta); break;
-            case MONTH: anchor.add(Calendar.MONTH, delta); break;
-            case YEAR:  anchor.add(Calendar.YEAR, delta); break;
+            case DAY:
+                anchor.add(Calendar.DATE, delta);
+                break;
+            case WEEK:
+                anchor.add(Calendar.DATE, 7 * delta);
+                break;
+            case MONTH:
+                anchor.add(Calendar.MONTH, delta);
+                break;
+            case YEAR:
+                anchor.add(Calendar.YEAR, delta);
+                break;
         }
         render();
     }
@@ -200,24 +217,16 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
 
         switch (mode) {
             case DAY:
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.scheduleContainer, ScheduleDayFragment.newInstance(utc, rootHex))
-                        .commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.scheduleContainer, ScheduleDayFragment.newInstance(utc, rootHex)).commit();
                 break;
             case WEEK:
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.scheduleContainer, ScheduleWeekFragment.newInstance(utc, rootHex))
-                        .commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.scheduleContainer, ScheduleWeekFragment.newInstance(utc, rootHex)).commit();
                 break;
             case MONTH:
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.scheduleContainer, ScheduleMonthFragment.newInstance(utc, rootHex))
-                        .commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.scheduleContainer, ScheduleMonthFragment.newInstance(utc, rootHex)).commit();
                 break;
             case YEAR:
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.scheduleContainer, ScheduleYearFragment.newInstance(utc, rootHex))
-                        .commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.scheduleContainer, ScheduleYearFragment.newInstance(utc, rootHex)).commit();
                 break;
         }
     }
@@ -251,18 +260,6 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
         }
     }
 
-    private static Calendar startOfWeek(Calendar any) {
-        Calendar c = (Calendar) any.clone();
-        int dow = c.get(Calendar.DAY_OF_WEEK);
-        int diff = (dow == Calendar.SUNDAY) ? -6 : (Calendar.MONDAY - dow);
-        c.add(Calendar.DATE, diff);
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-        return c;
-    }
-
     @Override
     public void navigateToDay(Calendar day) {
         mode = Mode.DAY;
@@ -286,19 +283,15 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
 
     private void ensureActionsChannel() {
         if (android.os.Build.VERSION.SDK_INT >= 26) {
-            android.app.NotificationChannel ch = new android.app.NotificationChannel(
-                    "actions", "Actions", android.app.NotificationManager.IMPORTANCE_HIGH
-            );
+            android.app.NotificationChannel ch = new android.app.NotificationChannel("actions", "Actions", android.app.NotificationManager.IMPORTANCE_HIGH);
             android.app.NotificationManager nm = getSystemService(android.app.NotificationManager.class);
             if (nm != null) nm.createNotificationChannel(ch);
         }
     }
 
-
     private void performLogout() {
         byte[] lastUserId = SessionStore.loadLastUserId(this);
 
-        // Mark explicit logout in user settings (best effort)
         if (lastUserId != null) {
             new Thread(() -> {
                 try {
@@ -315,7 +308,6 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
             }).start();
         }
 
-        // Clear local session + secrets
         try {
             SessionSecrets.clear();
         } catch (Exception ignored) {
@@ -327,4 +319,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleNavigator
         startActivity(i);
         finish();
     }
+
+
+    private enum Mode {DAY, WEEK, MONTH, YEAR}
 }

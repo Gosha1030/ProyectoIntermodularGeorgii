@@ -34,13 +34,10 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // Ensure notification channels exist early (Android 8+)
         NotificationChannels.ensureCreated(this);
 
         TextView quote = findViewById(R.id.splashQuote);
         quote.setText(QUOTES[new Random().nextInt(QUOTES.length)]);
-
-        // Espera corta para mostrar splash, pero mientras decidimos destino
         new Handler(Looper.getMainLooper()).postDelayed(this::routeNext, 700);
     }
 
@@ -56,8 +53,8 @@ public class SplashActivity extends AppCompatActivity {
         new Thread(() -> {
             UserEntity u = db.userDao().findById(lastUserId);
 
-            boolean askPassword = true;          // default seguro
-            boolean explicitLogout = false;      // default
+            boolean askPassword = true;
+            boolean explicitLogout = false;
 
             if (u != null && u.ajustesJson != null) {
                 try {

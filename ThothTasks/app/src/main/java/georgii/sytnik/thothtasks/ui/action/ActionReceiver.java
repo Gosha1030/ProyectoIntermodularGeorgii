@@ -9,15 +9,14 @@ import androidx.core.app.NotificationCompat;
 
 import georgii.sytnik.thothtasks.R;
 
-/** Executes scheduled actions (notifications + DND reference counting). */
 public class ActionReceiver extends BroadcastReceiver {
 
-    public static final String EXTRA_KIND = "kind";   // NOTIFY | ALARM | DND_ON | DND_OFF
+    public static final String EXTRA_KIND = "kind";
     public static final String EXTRA_TEXT = "text";
 
-    public static final String KIND_NOTIFY  = "NOTIFY";
-    public static final String KIND_ALARM   = "ALARM";
-    public static final String KIND_DND_ON  = "DND_ON";
+    public static final String KIND_NOTIFY = "NOTIFY";
+    public static final String KIND_ALARM = "ALARM";
+    public static final String KIND_DND_ON = "DND_ON";
     public static final String KIND_DND_OFF = "DND_OFF";
 
     private static final String PREFS_DND = "dnd";
@@ -25,7 +24,6 @@ public class ActionReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // Ensure channels exist (Android 8+)
         NotificationChannels.ensureCreated(context);
 
         String kind = intent.getStringExtra(EXTRA_KIND);
@@ -39,12 +37,7 @@ public class ActionReceiver extends BroadcastReceiver {
         boolean isAlarm = KIND_ALARM.equals(kind);
         String channelId = isAlarm ? NotificationChannels.CHANNEL_ALARMS : NotificationChannels.CHANNEL_ACTIONS;
 
-        NotificationCompat.Builder b = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(android.R.drawable.stat_notify_more)
-                .setContentTitle(titleFor(context, kind))
-                .setContentText(text)
-                .setAutoCancel(true)
-                .setPriority(isAlarm ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_HIGH);
+        NotificationCompat.Builder b = new NotificationCompat.Builder(context, channelId).setSmallIcon(android.R.drawable.stat_notify_more).setContentTitle(titleFor(context, kind)).setContentText(text).setAutoCancel(true).setPriority(isAlarm ? NotificationCompat.PRIORITY_MAX : NotificationCompat.PRIORITY_HIGH);
 
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) {
@@ -61,7 +54,6 @@ public class ActionReceiver extends BroadcastReceiver {
         return ctx.getString(R.string.action_title_action);
     }
 
-    /** DND reference counter (nested ON/OFF) using NotificationManager interruption filter. */
     private void handleDnd(Context ctx, String kind) {
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null) return;

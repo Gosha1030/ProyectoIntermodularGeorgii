@@ -5,7 +5,8 @@ import javax.crypto.spec.PBEKeySpec;
 
 public final class Kdf {
 
-    private Kdf() {}
+    private Kdf() {
+    }
 
     public static byte[] pbkdf2(
             char[] password,

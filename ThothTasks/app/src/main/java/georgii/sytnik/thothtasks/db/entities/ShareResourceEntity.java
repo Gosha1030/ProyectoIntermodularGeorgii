@@ -6,14 +6,7 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        tableName = "ShareResource",
-        indices = {
-                @Index(value = {"OwnerUserId"}),
-                @Index(value = {"Type"}),
-                @Index(value = {"RootTaskId"})
-        }
-)
+@Entity(tableName = "ShareResource", indices = {@Index(value = {"OwnerUserId"}), @Index(value = {"Type"}), @Index(value = {"RootTaskId"})})
 public class ShareResourceEntity {
 
     @PrimaryKey
@@ -27,7 +20,7 @@ public class ShareResourceEntity {
 
     @NonNull
     @ColumnInfo(name = "Type")
-    public String type; // "USER" | "LOCAL"
+    public String type;
 
     @NonNull
     @ColumnInfo(name = "Name")

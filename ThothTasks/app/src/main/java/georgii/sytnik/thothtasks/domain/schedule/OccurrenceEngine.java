@@ -1,5 +1,7 @@
 package georgii.sytnik.thothtasks.domain.schedule;
 
+import static georgii.sytnik.thothtasks.util.TimeText.zeroTime;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,19 +13,15 @@ import georgii.sytnik.thothtasks.db.entities.TaskEntity;
 
 public final class OccurrenceEngine {
 
-    private OccurrenceEngine() {}
+    private OccurrenceEngine() {
+    }
 
     public static boolean isActiveOnDay(TaskEntity t, long startUtcMs, Calendar day) {
         if (t == null) return false;
-
-        // Empty sin restricciones => transparente (no “ocupa”, pero permite)
         if (isEmptyWithoutRestrictions(t)) return true;
-
         if (!typeAllows(t, startUtcMs, day)) return false;
         if (!daysOfAllows(t, day)) return false;
-        if (!periodicAllows(t, startUtcMs, day)) return false;
-
-        return true;
+        return periodicAllows(t, startUtcMs, day);
     }
 
     private static boolean typeAllows(TaskEntity t, long startUtcMs, Calendar day) {
@@ -73,7 +71,8 @@ public final class OccurrenceEngine {
                 return false;
             }
 
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return true;
     }
@@ -118,7 +117,8 @@ public final class OccurrenceEngine {
                 return years >= 0 && (years % amount) == 0;
             }
 
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return true;
     }
@@ -131,12 +131,5 @@ public final class OccurrenceEngine {
                 && (t.daysOfJson == null || t.daysOfJson.trim().isEmpty())
                 && (t.periodicJson == null || t.periodicJson.trim().isEmpty())
                 && t.periodD == null;
-    }
-
-    private static void zeroTime(Calendar c) {
-        c.set(Calendar.HOUR_OF_DAY, 0);
-        c.set(Calendar.MINUTE, 0);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
     }
 }

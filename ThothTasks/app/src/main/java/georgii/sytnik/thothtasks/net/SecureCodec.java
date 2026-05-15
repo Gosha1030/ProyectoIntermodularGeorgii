@@ -10,13 +10,12 @@ import georgii.sytnik.thothtasks.security.HmacAuth;
 
 public final class SecureCodec {
 
-    private SecureCodec() {}
-
-    public static final String MODE_AUTH  = "AUTH";
-    public static final String MODE_AEAD  = "AEAD";
+    public static final String MODE_AUTH = "AUTH";
+    public static final String MODE_AEAD = "AEAD";
+    private SecureCodec() {
+    }
 
     private static byte[] aadOf(JSONObject env) {
-        // Bind security to stable header fields
         String s = env.optInt("ver", 1) + "|" +
                 env.optString("type", "") + "|" +
                 env.optString("msgId", "") + "|" +
@@ -48,7 +47,8 @@ public final class SecureCodec {
         try {
             JSONObject sec = env.getJSONObject("sec");
             if (!MODE_AUTH.equals(sec.optString("mode"))) throw new RuntimeException("Not AUTH");
-            if (!s.sessionId.equals(sec.optString("sessionId"))) throw new RuntimeException("SessionId mismatch");
+            if (!s.sessionId.equals(sec.optString("sessionId")))
+                throw new RuntimeException("SessionId mismatch");
 
             byte[] tag = B64.dec(sec.getString("mac"));
             byte[] aad = aadOf(env);
@@ -90,7 +90,8 @@ public final class SecureCodec {
         try {
             JSONObject sec = env.getJSONObject("sec");
             if (!MODE_AEAD.equals(sec.optString("mode"))) throw new RuntimeException("Not AEAD");
-            if (!s.sessionId.equals(sec.optString("sessionId"))) throw new RuntimeException("SessionId mismatch");
+            if (!s.sessionId.equals(sec.optString("sessionId")))
+                throw new RuntimeException("SessionId mismatch");
 
             byte[] nonce = B64.dec(sec.getString("nonce"));
             byte[] cipher = B64.dec(sec.getString("cipher"));

@@ -16,27 +16,15 @@ import georgii.sytnik.thothtasks.R;
 
 public class MonthBlockAdapter extends RecyclerView.Adapter<MonthBlockAdapter.VH> {
 
-    public static class WeekBlock {
-        public final String header;
-        public final Calendar weekStart;
-        public final List<TaskLineAdapter.Line> lines;
-
-        public WeekBlock(String header, Calendar weekStart, List<TaskLineAdapter.Line> lines) {
-            this.header = header;
-            this.weekStart = weekStart;
-            this.lines = lines;
-        }
-    }
-
     private final List<WeekBlock> blocks;
     private final ScheduleNavigator nav;
-
     public MonthBlockAdapter(List<WeekBlock> blocks, ScheduleNavigator nav) {
         this.blocks = blocks;
         this.nav = nav;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_month_week_block, parent, false);
         return new VH(v);
@@ -54,11 +42,18 @@ public class MonthBlockAdapter extends RecyclerView.Adapter<MonthBlockAdapter.VH
         h.itemView.setOnClickListener(v -> nav.navigateToWeek(b.weekStart));
     }
 
-    @Override public int getItemCount() { return blocks.size(); }
+    @Override
+    public int getItemCount() {
+        return blocks.size();
+    }
+
+    public record WeekBlock(String header, Calendar weekStart, List<TaskLineAdapter.Line> lines) {
+    }
 
     static class VH extends RecyclerView.ViewHolder {
         TextView tvHeader, tvEmpty;
         RecyclerView rv;
+
         VH(@NonNull View itemView) {
             super(itemView);
             tvHeader = itemView.findViewById(R.id.tvWeekHeader);

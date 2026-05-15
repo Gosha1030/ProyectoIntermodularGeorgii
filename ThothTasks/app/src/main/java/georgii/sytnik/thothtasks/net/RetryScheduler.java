@@ -2,8 +2,6 @@ package georgii.sytnik.thothtasks.net;
 
 import android.content.Context;
 
-import org.json.JSONObject;
-
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -23,7 +21,9 @@ public class RetryScheduler implements Runnable {
         this.db = AppDatabase.get(this.ctx);
     }
 
-    public void stop() { running = false; }
+    public void stop() {
+        running = false;
+    }
 
     @Override
     public void run() {
@@ -35,7 +35,8 @@ public class RetryScheduler implements Runnable {
                     sendOnce(e);
                 }
                 Thread.sleep(400);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -52,21 +53,18 @@ public class RetryScheduler implements Runnable {
             socket.send(packet);
             socket.close();
 
-            // schedule next retry with backoff if not acked yet
             int attempts = e.attempts + 1;
             if (attempts >= 6) {
-                // give up
                 db.outboxDao().delete(e.msgId);
                 return;
             }
 
-            long backoffMs = (1L << attempts) * 1000L; // 2s,4s,... (attempts starts from 1)
+            long backoffMs = (1L << attempts) * 1000L;
             e.attempts = attempts;
             e.nextRetryUtcMs = System.currentTimeMillis() + backoffMs;
             db.outboxDao().upsert(e);
 
         } catch (Exception ex) {
-            // keep it for retry
         }
     }
 }
